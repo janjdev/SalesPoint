@@ -1,0 +1,31 @@
+{
+  "name": "salespoint",
+  "version": "1.0.0",
+  "description": "A Point of Sales cross-platform application made by Team1 of IS4850, Fall 2020 to fullfill the requirements of the Senior Project. Lead Developer: January Johnson",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha && standard"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/janjdev/SalesPoint.git"
+  },
+  "keywords": [
+    "Desktop",
+    "Windows",
+    "cross-platform",
+    "Electron",
+    "Point-of-Sales",
+    "Web",
+    "Technologies"
+  ],
+  "author": "January Johnson",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/janjdev/SalesPoint/issues"
+  },
+  "homepage": "https://github.com/janjdev/SalesPoint#readme",
+  "devDependencies": {
+    "electron": "^10.1.1"
+  }
+}
