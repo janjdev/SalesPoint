@@ -35,3 +35,5 @@ tempCodeRunnerFile.py
 yarn.lock
 salespoint.db 
 config.py
+LICENSE.md
+hashutil.py
