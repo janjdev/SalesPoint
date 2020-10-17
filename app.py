@@ -164,9 +164,10 @@ class Menu_Item(db.Model):
     has_substitute = db.Column(db.Boolean, nullable = True)
     Substitute = db.relationship('Substitute', backref='substitute', lazy=True)
 
-    def __init__(name, price, descr, offered, speci, sub):
+    def __init__(name, price, cat, descr, offered, speci, sub):
         self.item_name = name
         self.unit_price = price
+        self.item_category = cat
         self.item_description = descr
         self.is_offered = offered
         self.is_special = speci
@@ -210,14 +211,36 @@ event.listen(Staff_Role.__table__, 'after_create', DDL(""" INSERT INTO roles (id
 @app.route('/')
 def home():
     try:
-        types = Order_Type.query.all()
-        return render_template('screens/window_main.html', title="SalesPoint - Version 1.0-build 10", types=types)
+        types = Order_Type.query.all()        
+        return render_template('screens/window_main.html', title="SalesPoint - Version 1.0-build 10", types=types, bodyClass='main_window')
     except TemplateNotFound:
         abort(404)
 
 @app.route('/admin')
 def admin():
+    return render_template('admin/dash/pages/dash.html', title="SalesPoint - Version 1.0-build 1", bodyClass='dashboard')
+
+@app.route('/config')
+def config():
+    return render_template('admin/dash/pages/config.html', title="SalesPoint - Version 1.0-build 1")
+
+@app.route('/activity')
+def order_activity():
     return render_template('admin/dash/pages/dash.html', title="SalesPoint - Version 1.0-build 1")
+
+
+
+
+
+@app.route('/logout')
+def logout():
+    # session.pop('user', None)
+    # session.pop('id', None)
+    # session.pop('authenticated', None)
+    session.clear()
+    return redirect(url_for('login'))
+
+
 
 
 if (__name__) == '__main__':

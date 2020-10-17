@@ -19,7 +19,7 @@
             </div>
         </div>
         <!--Include the footer-->
-        {% include '/admin/shared/footer.html' %}
+       
     </div>
 </div>
 
@@ -58,6 +58,8 @@
  <script src="https://cdnjs.cloudflare.com/ajax/libs/core-js/2.4.1/core.js"></script>
  <!-- Library for adding dinamically elements -->
  <script src="{{ url_for('static', filename='assets/js/plugins/arrive.min.js')}}"></script>
+
+ <script src="{{url_for('static', filename='assets/js/plugins/perfect-scrollbar.jquery.min.js')}}"></script>
  <!--  Google Maps Plugin    -->
  <!--Magninif Popover Images-->
  <script src="{{url_for('static', filename='assets/js/plugins/jquery.magnific-popup.min.js')}}"></script>

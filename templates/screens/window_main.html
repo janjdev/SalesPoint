@@ -1,10 +1,12 @@
 {% extends '/modules/base.html' %}
     {% block content %}
-    <div class="row">
-        <button class="btn btn-primary btn-lg">ORDERS</button>
-        <button class="btn btn-primary btn-lg"><a href="{{url_for('admin')}}">BACK OFFICE</a></button>
-        <button class="btn btn-primary btn-lg">KITCHEN</button>
-        <button class="btn btn-primary btn-lg">SHUT DOWN</button>
+    <div class="row mw_cards">
+        <button class="btn btn-primary btn-lg taskbtn">DINE IN</button>
+        <button class="btn btn-primary btn-lg taskbtn">CARRY OUT</button>
+        <button class="btn btn-primary btn-lg taskbtn">ORDERS</button>
+        <a href="{{url_for('admin')}}"><button class="btn btn-primary btn-lg taskbtn">BACK OFFICE</button></a>
+        <button class="btn btn-primary btn-lg taskbtn">KITCHEN</button>
+        <button class="btn btn-primary btn-lg taskbtn">SHUT DOWN</button>
 
     </div>
     {% endblock %}

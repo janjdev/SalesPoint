@@ -41,7 +41,7 @@ function createWindow () {
     webPreferences: {
       preload: path.join(__dirname, 'preload.js')
     },
-    icon: path.join(__dirname, '../static/img/icons/salespoint-green.png')
+    icon: path.join(__dirname, '../static/assets/img/icons/salespoint-green.png')
   });
   const startURL = 'http://127.0.0.1:5000/';
   //`file://${path.join(__dirname, "../templates/window_main.html")}`;  

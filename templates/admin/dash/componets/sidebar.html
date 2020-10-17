@@ -1,128 +1,130 @@
-<div class="sidebar" data-color="rose" data-background-color="black" data-image="{{ url_for('static', filename='admin/assets/img/sidebar-1.jpg')}}">
+<div class="sidebar" data-color="rose" data-background-color="lightbrown5" data-image="{{ url_for('static', filename='admin/assets/img/sidebar-1.jpg')}}">
   <!--
-    Tip 1: You can change the color of the sidebar using: data-color="purple | azure | green | orange | danger"
+    Tip 1: You can change the color of the sidebar using: data-color="purple | azure | green | orange | danger | lightbrown5"
 
     Tip 2: you can also add an image using data-image tag
 -->
-  <div class="logo">
-    <a href="http://www.dezineshop.co" class="simple-text logo-mini">
-      DZ
-    </a>
+  <div class="logo">     
+      <img  class="logo-mini" src="{{url_for('static', filename='/assets/img/icons/salespoint-green.png')}}" />       
     <a href="http://www.dezineshop.co" class="simple-text logo-normal">
-      Dezine Shop
+      SalesPoint
     </a>
   </div>
-  <div class="sidebar-wrapper">
-    <div class="user">
-      <div class="photo">
-        <img src="{{avatar}}" />
-      </div>
-      <div class="user-info">
-        <a data-toggle="collapse" href="#collapseExample" class="username">
-          <span>
-            {{ user['first_name'] + ' ' + user['last_name'] }}
-            <b class="caret"></b>
-          </span>
-        </a>
-        <div class="collapse" id="collapseExample">
-          <ul class="nav">
-            <li class="nav-item {{ profile_active}}">
-              <a class="nav-link" href="{{url_for('profile', user_id = user['id'])}}">
-                  <i class="material-icons">account_box</i>
-                <span class="sidebar-normal"> My Profile </span>
-              </a>
-            </li>
-            <li class="nav-item {{ mr_active}}">
-              <a class="nav-link" href="#">
-                  <i class="material-icons">assignment_ind</i>
-                <span class="sidebar-normal"> Manage Roles </span>
-              </a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="{{url_for('logout')}}">
-                  <i class="material-icons">power_settings_new</i>
-                <span class="sidebar-normal"> Log Out </span>
-              </a>
-            </li>
-          </ul>
-        </div>
-      </div>
-    </div>
+  <div class="sidebar-wrapper">    
     <ul class="nav">
-      <li class="nav-item {{ dash_active}} ">
-        <a class="nav-link" href="{{url_for('admin')}}">
-          <i class="material-icons">dashboard</i>
-          <p> Dashboard </p>
-        </a>
-      </li>
       <li class="nav-item {{parent_post}}">
-        <a class="nav-link" data-toggle="collapse" href="#pagesExamples">
-          <i class="material-icons">file_copy</i>
-          <p> Posts
+        <a class="nav-link" data-toggle="collapse" href="#config">
+          <i class="material-icons">settings_applications</i>
+          <p> CONFIGURATIONS
             <b class="caret"></b>
           </p>
-        </a>
-        <div class="collapse" id="pagesExamples">
+        </a>    
+        <div class="collapse" id="config">
           <ul class="nav">
-            <li class="nav-item {{ post_active}}">
-              <a class="nav-link" data-toggle="collapse" href="#newpostlink">
-                <i class="material-icons">note</i>
-                <p> Blog Posts 
+            <li class="nav_item">
+              <a class="nav-link" href="#">
+                <i class="material-icons">admin_panel_settings</i>
+                <p>ADMINISTRATIVE</p>
+              </a>
+            </li>
+            <li class="nav-item ">
+              <a class="nav-link" data-toggle="collapse" href="#stafflist">
+                <i class="material-icons">people_outline</i>
+                <p> STAFF 
                   <b class="caret"></b>
                 </p>
               </a>
-              <div id="newpostlink" class="collapse">
+              <div id="stafflist" class="collapse">
                 <ul class="nav">
-                  <li class="nav-item {{view_post}}">
-                    <a class="nav-link" href="{{url_for('view_posts', postType='blog')}}">
-                      <i class="material-icons"> list_view</i>
-                      <span class="sidebar-normal">All Blog Posts</span>
+                  <li class="nav-item ">
+                    <a class="nav-link" href="">                      
+                      <span class="sidebar-normal">Manage Staff</span>
                     </a>
                   </li>
-                  <li class="nav-item {{new_post_active}}" >
-                    <a class="nav-link" href="{{ url_for('add_posts') }}">
-                      <i class="material-icons">note_add</i>
-                      <span class="sidebar-normal">Add Post</span>
+                  <li class="nav-item " >
+                    <a class="nav-link" href="">                      
+                      <span class="sidebar-normal">Positions</span>
+                    </a>
+                  </li>                 
+                </ul>
+              </div>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="">
+                  <i class="material-icons">import_export</i>
+                <span class="sidebar-normal"> Export Menu Items </span>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="">
+                  <i class="material-icons">import_export</i>
+                <span class="sidebar-normal"> Import Menu Items </span>
+              </a>
+            </li>
+          </ul>
+        </div>  
+      </li>
+      <li class="nav-item {{parent_post}}">
+        <a class="nav-link" data-toggle="collapse" href="#ops">
+          <i class="material-icons">donut_small</i>
+          <p> OPERATIONS
+            <b class="caret"></b>
+          </p>
+        </a>
+        <div class="collapse" id="ops">
+          <ul class="nav">
+            <li class="nav-item ">
+              <a class="nav-link" data-toggle="collapse" href="#menu">
+                <i class="material-icons">dashboard</i>
+                <p> Management 
+                  <b class="caret"></b>
+                </p>
+              </a>
+              <div id="menu" class="collapse">
+                <ul class="nav">
+                  <li class="nav-item ">
+                    <a class="nav-link" href="">
+                      <i class="material-icons">category</i>
+                      <span class="sidebar-normal">Order Types</span>
+                    </a>
+                  </li>
+                  <li class="nav-item " >
+                    <a class="nav-link" href="">
+                      <i class="material-icons">money</i>
+                      <span class="sidebar-normal">Coupons Discounts</span>
+                    </a>
+                  </li>
+                  <li class="nav-item " >
+                    <a class="nav-link" href="">
+                      <i class="material-icons">account_balance</i>
+                      <span class="sidebar-normal">Taxes</span>
                     </a>
                   </li>
                 </ul>
               </div>
             </li>
-            <li class="nav-item {{event_active}}">
+            <li class="nav-item ">
               <a class="nav-link" href="">
-                <i class="material-icons">event</i>
-                <span class="sidebar-normal">Event Posts </span>
+                <i class="material-icons">menu_book</i>
+                <span class="sidebar-normal">Menu Management </span>
               </a>
             </li>
           </ul>
         </div>
       </li>
-      <li class="nav-item {{ pages_active}}">
+      <li class="nav-item ">
         <a class="nav-link" data-toggle="collapse" href="#componentsExamples">
           <i class="material-icons">library_books</i>
-          <p> Pages </p>
+          <p> Reports </p>
         </a>
       </li>
-      <li class="nav-item {{ media_active}}">
+      <li class="nav-item ">
           <a class="nav-link" data-toggle="collapse" href="#tablesExamples">
-            <i class="material-icons">perm_media</i>
-            <p> Media </p>
+            <i class="material-icons">table_chart</i>
+            <p> Tables </p>
           </a>
         </li>
-      <li class="nav-item {{ tags_active}}">
-        <a class="nav-link" data-toggle="collapse" href="#formsExamples">
-          <i class="material-icons">style</i>
-          <p> Tags
-          </p>
-        </a>
-      </li>
-      <li class="nav-item {{ categ_active}}">
-        <a class="nav-link" data-toggle="collapse" href="#tablesExamples">
-          <i class="material-icons">category</i>
-          <p> Categories
-          </p>
-        </a>
-      </li>
+      
     </ul>
   </div>
 </div>
