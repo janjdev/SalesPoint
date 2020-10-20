@@ -1,6 +1,7 @@
 {
   "name": "salespoint",
   "version": "1.0.0",
+  "build": "1.0.1",
   "description": "A Point of Sales cross-platform application made by Team1 of IS4850, Fall 2020 to fullfill the requirements of the Senior Project. Lead Developer: January Johnson",
   "main": "main-process/main.js",
   "scripts": {
@@ -37,10 +38,14 @@
     "electron-builder": "^22.8.0",
     "electron-first-run": "^3.0.0",
     "electron-prebuilt": "^1.4.13",
+    "get-system-fonts": "^2.0.2",
+    "jquery": "^3.5.1",
+    "printer": "^0.4.0",
     "ps-tree": "^1.2.0",
     "python-shell": "^2.0.2",
     "request": "^2.88.2",
     "request-promise": "^4.2.6",
-    "wait-on": "^5.2.0"
+    "wait-on": "^5.2.0",
+    "zuzel-printer": "^1.0.4"
   }
 }

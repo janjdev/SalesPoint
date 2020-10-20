@@ -6,7 +6,8 @@ from sqlalchemy import event, DDL, extract
 from sqlalchemy.event import listen
 from jinja2 import TemplateNotFound
 from hashutil import make_pw_hash, check_pw_hash
-import helpers
+from helpers import *
+
 
 
 app = Flask(__name__)
@@ -30,10 +31,12 @@ class Staff(db.Model):
     staff_postion_id = db.Column(db.Integer, db.ForeignKey('positions.id'))
     staff_role_id = db.Column(db.Integer, db.ForeignKey('roles.id'))
 
-    def __init__(first_name, last_name):
+    def __init__(first_name, last_name, pos, role):
         self.first_name = first_name
         self.last_name = last_name
         self.staff_id = ''.join([random.choice(string.digits) for x in range(6)])
+        self.staff_position_id = pos
+        self.staff_role_id = role
 
 class Staff_Position(db.Model):
     __tablename__ = 'positions'
@@ -208,29 +211,64 @@ event.listen(Staff_Role.__table__, 'after_create', DDL(""" INSERT INTO roles (id
 
 
 #======================ROUTES==============================================
-@app.route('/')
+@app.route('/', methods=['GET', 'POST'] )
 def home():
-    try:
-        types = Order_Type.query.all()        
-        return render_template('screens/window_main.html', title="SalesPoint - Version 1.0-build 10", types=types, bodyClass='main_window')
+    getURL()
+    try:        
+        return render_template('screens/window_main.html', title="SalesPoint - Version 1.0-build 1.0.1", bodyClass='main_window')
     except TemplateNotFound:
         abort(404)
 
-@app.route('/admin')
+@app.route('/auth', methods=['GET', 'POST'])
+def auth():
+    return render_template('screens/auth.html', title="Authorizations", bodyClass='dashboard')
+
+@app.route('/dine-in', methods=['GET', 'POST'])
+def dine_in():
+    return render_template('',  title="SalesPoint - Version 1.0-build 1.0.1", bodyClass='dashboard')
+
+@app.route('/carry-out', methods=['GET', 'POST'])
+def carry_out():
+    return render_template('tasks/takeout.html', title="SalesPoint - Version 1.0-build 1.0.1", bodyClass='shared-tasks')
+
+@app.route('/orders', methods=['GET', 'POST'])
+def orders():
+    return render_template('screens/auth.html', title="Authorizations", bodyClass='dashboard')
+
+@app.route('/admin', methods=['GET', 'POST'])
 def admin():
-    return render_template('admin/dash/pages/dash.html', title="SalesPoint - Version 1.0-build 1", bodyClass='dashboard')
+    if request.method == 'POST':
+        ID = request.form['staffID']
+        staffid = Staff.query.filter_by(staff_id = ID).first()
+        if staffid:
+            roleid = Staff.query.filter_by(staff_id = staffid).first().staff_role_id
+            if roleid == 1:
+                session['admin'] = True
+                session['staff'] = Staff.query.filter_by(staff_id = staffid).first()
+                return jsonify({'status': 'success', 'alertType': 'success', 'callback': 'goToAdmin'})
+            else:
+                return jsonify({'status': 'error', 'message': 'Permission restricted', 'alertType': 'error'})        
+        return jsonify({'status': 'error', 'message': 'ID Not Found', 'alertType': 'error'})        
+    # if session.get('admin'):
+    return render_template('admin/dash/pages/dash.html', title="SalesPoint - Version 1.0-build 1", bodyClass='dashboard', time=datetime.now().strftime("%I:%M"), daynight=datetime.now().strftime("%p") )
+    # return render_template('screens/window_main.html', title="SalesPoint - Version 1.0-build 1.0.1", bodyClass='main_window')
 
-@app.route('/config')
+@app.route('/kitchen', methods=['GET', 'POST'])
+def kitchen():
+    return render_template('screens/auth.html', title="Authorizations", bodyClass='dashboard')
+
+@app.route('/shut-down', methods=['GET', 'POST'])
+def shut_down():
+    return render_template('screens/auth.html', title="Authorizations", bodyClass='dashboard')
+
+@app.route('/config', methods=['GET', 'POST'])
 def config():
-    return render_template('admin/dash/pages/config.html', title="SalesPoint - Version 1.0-build 1")
-
+    
+    return render_template('admin/dash/pages/config.html', title="SalesPoint - Version 1.0-build 1", bodyClass='config', fonts=getFonts())
+ 
 @app.route('/activity')
 def order_activity():
-    return render_template('admin/dash/pages/dash.html', title="SalesPoint - Version 1.0-build 1")
-
-
-
-
+    return render_template('', title="SalesPoint - Version 1.0-build 1")
 
 @app.route('/logout')
 def logout():
@@ -239,6 +277,15 @@ def logout():
     # session.pop('authenticated', None)
     session.clear()
     return redirect(url_for('login'))
+
+
+@app.route('/staff', methods=['POST', 'GET'])
+def staff():
+    return render_template('/admin/dash/pages/staff.html', title="SalesPoint - Version 1.0-build 1", tablename="STAFF MANAGEMENT", bodyClass="staff")
+
+@app.route('/staff/add', methods=['POST', 'GET'])
+def add_staff():
+    return jsonify({})
 
 
 

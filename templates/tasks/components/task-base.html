@@ -1,4 +1,4 @@
-{% extends 'modules/head.html' %}
+{% extends 'shared/head.html' %}
 {% block base %}
 <body class="{{bodyClass}}">
         <!-- Extra details for Live View on GitHub Pages -->
@@ -6,10 +6,10 @@
         <!-- End Google Tag Manager (noscript) -->
 <div class="wrapper ">
     <!--Include the sidebar-->
-    {% include '/modules/header.html' %}
+    {% include 'tasks/components/task-sidebar.html' %}
     <div class="main-panel">
         <!--Include the navbar-->
-        
+        {% include 'tasks/components/task-navbar.html' %}
         <div class="content">
             <div class="content">
                 <div class="container-fluid">
@@ -18,15 +18,16 @@
                 </div>  
             </div>
         </div>
+        <!--Include the footer-->
+       
     </div>
 </div>
-
 
  <!--   Core JS Files   -->
  <script src="{{ url_for('static', filename='assets/js/core/jquery.min.js')}}"></script>
  <script src="{{ url_for('static', filename='assets/js/core/popper.min.js')}}"></script>
  <script src="{{ url_for('static', filename='assets/js/core/bootstrap-material-design.min.js')}}"></script>
- <script src="{{ url_for('static', filename='assets/js/plugins/perfect-scrollbar.jquery.min.js')}}"></script>
+ <!-- <script src="{{ url_for('static', filename='assets/js/plugins/perfect-scrollbar.jquery.min.js')}}"></script> -->
  <!-- Plugin for the momentJs  -->
  <script src="{{ url_for('static', filename='/assets/js/plugins/moment.min.js')}}"></script>
  <!--  Plugin for Sweet Alert -->
@@ -57,6 +58,8 @@
  <script src="https://cdnjs.cloudflare.com/ajax/libs/core-js/2.4.1/core.js"></script>
  <!-- Library for adding dinamically elements -->
  <script src="{{ url_for('static', filename='assets/js/plugins/arrive.min.js')}}"></script>
+
+ <script src="{{url_for('static', filename='assets/js/plugins/perfect-scrollbar.jquery.min.js')}}"></script>
  <!--  Google Maps Plugin    -->
  <!--Magninif Popover Images-->
  <script src="{{url_for('static', filename='assets/js/plugins/jquery.magnific-popup.min.js')}}"></script>
@@ -72,9 +75,6 @@
  <!-- Custom JS-->
  <script src="{{url_for('static', filename='assets/js/actions.js')}}"></script>
  <script src="{{url_for('static', filename='assets/js/ajax.js')}}"></script>
- <!-- <script src="{{url_for('static', filename='assets/js/shared/auth.js')}}"></script> -->
-
-
 </body>
 </html>
 {% endblock base %}

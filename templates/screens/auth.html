@@ -1,0 +1,17 @@
+{% extends '/modules/base.html' %}
+    {% block content %}
+    <form>
+        <div class="form-group form-file-upload form-file-simple">
+            <input type="text" class="form-control inputFileVisible" placeholder="Simple chooser...">
+            <input type="file" class="inputFileHidden">
+          </div>
+    </form>
+     <!--Submit or Cancel-->
+     <div class="row">
+        <div class="col-md-4">
+            <button type="submit" class="btn btn-success pull-left">Submit<div class="ripple-container"></div></button>
+            <button id="cancel" class="btn btn-warning pull-right">Cancel<div class="ripple-container"></div></button>
+        </div>
+    </div>
+
+    {% endblock %}

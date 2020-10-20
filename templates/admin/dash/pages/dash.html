@@ -1,10 +1,10 @@
 {% extends 'admin/dash/componets/base.html' %}
   {% block content %}
-        
+  {% include 'shared/logs.html' %}
           <div class="row latest-posts-view">                       
             <div class="col-md-10">
               <div class="card">
-                <div class="card-header card-header-icon card-header-info">
+                <div class="card-header card-header-icon card-header-success">
                   <div class="card-icon">
                     <i class="material-icons">timeline</i>
                   </div>
@@ -22,12 +22,16 @@
             <!-- Current Status of the Site-->
               <div class="col-md-4">
                   <div id="currentStatus" class="card dash-cards">
-                      <div class="card-header card-header-icon card-header-info">
+                      <div class="card-header card-header-icon card-header-success">
                         <div class="card-icon">
                           <i class="material-icons rotate">touch_app</i>
                         </div>
                         <hr class="seperator">
-                        <h4 class="card-title">Right Now</h4>
+                        <div class="card-title">
+                          <h4>TOTAL ORDERS</h4>
+                          <h6>As of Today At: {{time}} {{daynight}} </h6>
+                        </div>
+                        
                       </div>
                       <div id=currentStatusBody class="card-body">
                           <div class="table-responsive">
@@ -35,21 +39,21 @@
                               
                               <tbody>
                                 <tr>
-                                  <td><span><b></b></span> Posts</td>
-                                  <td><span><b>20</b></span> Comments</td>
+                                  <td><span><b>DINE IN</b></span> </td>
+                                  <td><span><b>1</b></span></td>
                                 </tr>
                                 <tr>
-                                    <td><span><b></b></span> Pages</td>
-                                    <td><span><b>17</b></span> Approved</td>
+                                    <td><span><b>CARRY OUT</b></span> </td>
+                                    <td><span><b>17</b></span></td>
                                 </tr>
                                 <tr>
-                                    <td><span><b></b></span> Categories</td>     
-                                    <td><span><b>2</b></span> Pending</td>
+                                    <td><span><b>OPEN</b></span> </td>     
+                                    <td><span><b>2</b></span> </td>
                                 </tr>
                                 <tr>
-                                    <td><span><b></b><span> Tags</td>
+                                    <td><span><b>CLOSED</b><span> </td>
                                         
-                                    <td></span><b>1</b></span> Spam</td>
+                                    <td></span><b>15</b></span></td>
                                 </tr>
                               </tbody>
                             </table>
@@ -61,13 +65,13 @@
               <!--Add menu item-->
               <div class="col-md-4">
                   <div class="card dash-cards">
-                    <div class="card-header card-header-rose card-header-text">
+                    <div class="card-header card-header-success card-header-text">
                       <div class="card-icon">
                         <i class="material-icons">restaurant_menu</i>
                       </div>
                       <hr class="seperator">
-                      <h4 class="card-title">Add Menu Item</h4>
-                      <button id="quickPostSubmit" class="btn btn-primary pink darken-1" type="submit" form="quickPost"> <i class="material-icons-outlined">add</i></button>
+                      <h4 class="card-title">Add Item</h4>
+                      <button id="quickPostSubmit" class="btn btn-success" type="submit" form="quickPost"> <i class="material-icons-outlined">add</i></button>
                      
                     </div>
                     <div class="card-body ">
@@ -111,7 +115,7 @@
                         <div id="quickPostAttachment" class="fileinput fileinput-new text-center " data-provides="fileinput">
                           <p>Add item image</p>              
                           <div class="item-image">
-                            <a id="imgbtn" href="#" class="btn btn-raised btn-round btn-default btn-file pink darken-1">
+                            <a id="imgbtn" href="#" class="btn btn-raised btn-round btn-default btn-file success">
                                 <span class="fileinput-new"><i class="material-icons-outlined">insert_photo</i></span>
                                 <span class="fileinput-exists"><i class="material-icons-outlined">swap_vertical_circle</i></span>
                                 <input type="text" name="featureImg"  value="" hidden />
@@ -126,13 +130,13 @@
                 <!-- Add printer-->
                 <div class="col-md-4">
                     <div class="card dash-cards">
-                      <div class="card-header card-header-warning card-header-text">
+                      <div class="card-header card-header-success card-header-text">
                         <div class="card-icon">
                           <i class="material-icons-sharp">local_printshop</i>
                         </div>
                         <hr class="seperator"/>
-                        <h4 class="card-title">Add printer</h4>
-                        <button id="quickAddSubmit" class="btn btn-warning" type="submit" form="quickAdd"> <i class="material-icons-outlined">add</i></button>
+                        <h4 class="card-title">Add Printer</h4>
+                        <button id="quickAddSubmit" class="btn btn-success" type="submit" form="quickAdd"> <i class="material-icons-outlined">add</i></button>
                       </div>
                       <div class="card-body ">                    
                         <form id="quickAdd" method="POST" action="" enctype="multipart/form-data">

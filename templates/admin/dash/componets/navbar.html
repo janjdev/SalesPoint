@@ -15,7 +15,7 @@
             <span class="navbar-toggler-icon icon-bar"></span>
             <span class="navbar-toggler-icon icon-bar"></span>
             <span class="navbar-toggler-icon icon-bar"></span>
-          </button>
+          </button>      
           <div class="collapse navbar-collapse justify-content-end">
             <form class="navbar-form">
                 <div class="input-group no-border">
@@ -28,7 +28,7 @@
               </form>
             <ul class="navbar-nav">
               <li class="nav-item">
-                <a class="nav-link btn btn-white btn-round" href="{{url_for('home')}}" data-toggle="tooltip" data-placement="bottom" title="storefront">
+                <a class="nav-link btn btn-white btn-round" href="{{url_for('admin')}}" data-toggle="tooltip" data-placement="bottom" title="storefront">
                   <i class="material-icons">storefront</i>
                   <p class="d-lg-none d-md-block">
                     Admin
@@ -46,7 +46,7 @@
                 <div class="ripple-container"></div>
               </li>
               <li class="nav-item">
-                  <a href="" class="nav-link btn btn-white btn-round">
+                  <a href="{{url_for('home')}}" class="nav-link btn btn-white btn-round">
                     <i class="material-icons">exit_to_app</i> LogOff
                   </a>
                   <div class="ripple-container"></div>

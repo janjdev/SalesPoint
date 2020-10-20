@@ -1,5 +1,5 @@
 from app import app, db, Staff
-from flask import Flask, session
+from flask import Flask, session, request, json
 from flask_sqlalchemy import SQLAlchemy
 from hashutil import make_pw_hash, check_pw_hash
 
@@ -16,6 +16,27 @@ def login(secret_key):
         if check_pw_hash(secret_key, key):
             return True
     return False
+
+def getFonts():
+    with open('lists/fonts.json') as f:
+        data = json.load(f)
+        fonts = []
+        for font in data:
+            index = font.rindex('\\')
+            extIndex = font.rindex('.')
+            font_name = font[index+1: extIndex]
+            fonts.append((font_name, font))
+    return fonts
     
+def getURL():
+    with open('configs/app.json', 'r+') as jsonFile:
+        data = json.load(jsonFile)
+        data['base'] = request.url_root
+        jsonFile.seek(0)  # rewind
+        json.dump(data, jsonFile)
+        jsonFile.truncate()
+       
+    return False
+
     
     

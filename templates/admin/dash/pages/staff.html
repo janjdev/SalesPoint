@@ -1,0 +1,141 @@
+{% extends 'admin/dash/componets/base.html' %}
+{% block content %}
+{% include 'shared/logs.html' %}
+<div id="blog-post_table" class="col-md-12">    
+    <div class="card">
+      <div class="card-header card-header-success card-header-icon">
+        <div class="card-icon">
+          <i class="material-icons">file_copy</i>
+        </div>                  
+        <h4 class="card-title">{{tablename}}</h4>
+        <div class="blukActions">
+            <div class="form-check">
+                <label class="form-check-label">
+                    <input id="bulk-actions-check" class="form-check-input" type="checkbox" value="">
+                <span class="form-check-sign">
+                    <span class="check"></span>
+                </span>
+                </label>
+            </div> 
+            <select id="bulk-actions-select" class="selectpicker" data-style="select-with-transition" title="Bulk Actions" >
+                <option value="Delete">Delete</option>                
+            </select>
+          </div>
+      </div>
+      <div class="card-body">
+        <div class="table-responsive">
+          <table class="table table-striped">
+            <thead>
+              <tr>
+                  <th></th>
+                  <th></th>                                                    
+                  <th class="text-left">First Name</th>
+                  <th class="text-left">Last Name</th>
+                  <th class="text-left">Position</th>
+                  <th class="text-leftt">Role</th>
+                  <th class="text-center">Actions</th>
+              </tr>
+            </thead>
+          <tbody>
+              
+
+              
+              <tr id="">
+                <td class="text-center"></td>
+                <td>
+                  <div class="form-check">
+                    <label class="form-check-label">
+                      <input class="post-action form-check-input" type="checkbox" value="" data-id="">
+                      <span class="form-check-sign">
+                        <span class="check"></span>
+                      </span>
+                    </label>
+                  </div>
+                </td>
+                <td class="text-left">Lynda</td>
+                <td class="text-center">Vo</td>
+                <td class="text-center">Manager</td>
+                <td class="text-center">Administrator</td>
+                <td class="td-actions text-center">
+                      <button data-id="" type="button" id="view_post" class="btn btn-default btn-link teal-lighten-2-text " rel="tooltip" data-placement="bottom" title="Copy" data-original-title="View">
+                              <i class="material-icons">content_copy</i>
+                            </button>
+                            <button data-id="" type="button" id="edit_post" class="btn btn-success btn-link lime-accent-4-text" rel="tooltip" data-placement="bottom" title="Edit" data-original-title="Edit">
+                              <i class="material-icons">edit</i>
+                            </button>
+                            <button data-id="" type="button" id="delete_post" class="btn btn-danger btn-link red-accent-3-text" rel="tooltip" data-placement="bottom" title="Delete" data-original-title="Remove">
+                              <i class="material-icons">close</i>
+                            </button>
+                    </td>
+              </tr>              
+            </tbody>
+          </table>
+        </div>
+        <div class="row">
+            <span>
+                <div class="btn icon-link-size green lighten-3" data-toggle="modal" data-target="#staffModal"><a class="staff-tasks" data-href="{{url_for('staff')}}" title= "Add" data-toggle="tooltip" data-title="Add a new user"><i class="material-icons">add</i></a></div>
+                <div class="btn icon-link-size green lighten-3"data-toggle="modal" data-target="#staffModal"><a class="staff-tasks" data-href="{{url_for('staff')}}" title= "Edit" data-toggle="tooltip" data-title="Edit a user"><i class="material-icons">content_copy</i></a></div>
+                <div class="btn icon-link-size green lighten-3"data-toggle="modal" data-target="#staffModal"><a class="staff-tasks" data-href="{{url_for('staff')}}" title= "Copy" data-toggle="tooltip" data-title="Add a new user"><i class="material-icons">note_add</i></a></div>
+                <div class="btn icon-link-size green lighten-3"data-toggle="modal" data-target="#staffModal"><a class="staff-tasks" data-href="{{url_for('staff')}}" title= "Delete" data-toggle="tooltip" data-title="Delete"><i class="material-icons">close</i></a></div>
+            </span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!--Editing Functions-->
+  <div id="staffModal" class="modal fade" tabindex="-1" role="dialog" data-backdrop="static">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 id="modal-title" class="modal-title">Enter Your ID</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          
+            <form id="staff" method="POST">
+                <div class="form-group">
+                <!-- <label for="exampleFormControlInput1">Email address</label> -->
+                <input type="text" class="form-control" id="fname" name="fname" placeholder="First Name"/>
+                </div>
+                <div class="form-group">
+                    <!-- <label for="exampleFormControlInput1">Email address</label> -->
+                    <input type="text" class="form-control" id="lname" name="lname" placeholder="Last Name"/>
+                </div>
+                <div class="form-group">
+                <label for="position">Position</label>
+                <select class="form-control selectpicker" data-style="btn btn-link" id="position">
+                    <option>Cashier</option>
+                    <option>Chef</option>
+                    <option>Dishwasher</option>
+                    <option>Manager</option>
+                    <option>Server</option>
+                </select>
+                </div>
+                <div class="form-group">
+                <label for="role">Role</label>
+                <select multiple class="form-control selectpicker" data-style="btn btn-link" id="role">
+                    <option>Administrator</option>
+                    <option>User</option>
+                    
+                </select>
+                </div>
+                <div class="row col-md-12 justify-content-center">
+                    <div class="">
+                      <button id="cancel" type="reset" class="btn btn-secondar pull-left" data-dismiss="modal">Cancel<div class="ripple-container"></div></button>
+                      <button type="submit" class="btn btn-success pull-right">Submit<div class="ripple-container"></div></button>
+                    </div>
+                  </div>
+            </form>
+        </div>
+        <div class="modal-footer">
+          
+        </div>         
+        </div>
+      </div>
+    </div>
+  </div>
+  <script src="{{ url_for('static', filename='assets/js/dash/staff.js')}}"></script>
+  {% endblock %}

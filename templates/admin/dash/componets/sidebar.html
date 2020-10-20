@@ -1,4 +1,4 @@
-<div class="sidebar" data-color="rose" data-background-color="lightbrown5" data-image="{{ url_for('static', filename='admin/assets/img/sidebar-1.jpg')}}">
+<div class="sidebar" data-color="rose" data-background-color="lightbrown5" >
   <!--
     Tip 1: You can change the color of the sidebar using: data-color="purple | azure | green | orange | danger | lightbrown5"
 
@@ -22,7 +22,7 @@
         <div class="collapse" id="config">
           <ul class="nav">
             <li class="nav_item">
-              <a class="nav-link" href="#">
+              <a class="nav-link" href="{{url_for('config')}}">
                 <i class="material-icons">admin_panel_settings</i>
                 <p>ADMINISTRATIVE</p>
               </a>
@@ -37,7 +37,7 @@
               <div id="stafflist" class="collapse">
                 <ul class="nav">
                   <li class="nav-item ">
-                    <a class="nav-link" href="">                      
+                    <a class="nav-link" href="{{url_for('staff')}}">                      
                       <span class="sidebar-normal">Manage Staff</span>
                     </a>
                   </li>
