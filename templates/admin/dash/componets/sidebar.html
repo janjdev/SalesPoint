@@ -1,4 +1,4 @@
-<div class="sidebar" data-color="rose" data-background-color="lightbrown5" >
+<div class="sidebar" data-color="green" data-background-color="lightbrown5" >
   <!--
     Tip 1: You can change the color of the sidebar using: data-color="purple | azure | green | orange | danger | lightbrown5"
 
@@ -6,42 +6,42 @@
 -->
   <div class="logo">     
       <img  class="logo-mini" src="{{url_for('static', filename='/assets/img/icons/salespoint-green.png')}}" />       
-    <a href="http://www.dezineshop.co" class="simple-text logo-normal">
+    <span class="simple-text logo-normal">
       SalesPoint
-    </a>
+    </span>
   </div>
   <div class="sidebar-wrapper">    
     <ul class="nav">
-      <li class="nav-item {{parent_post}}">
-        <a class="nav-link" data-toggle="collapse" href="#config">
+      <li class="nav-item {{config_active}}">
+        <a class="nav-link" data-toggle="collapse" href="#config" aria-expanded="{{config_expand}}">
           <i class="material-icons">settings_applications</i>
           <p> CONFIGURATIONS
             <b class="caret"></b>
           </p>
         </a>    
-        <div class="collapse" id="config">
+        <div class="collapse {{config_show}}" id="config">
           <ul class="nav">
-            <li class="nav_item">
+            <li class="nav_item {{ admin_active}}">
               <a class="nav-link" href="{{url_for('config')}}">
                 <i class="material-icons">admin_panel_settings</i>
                 <p>ADMINISTRATIVE</p>
               </a>
             </li>
-            <li class="nav-item ">
-              <a class="nav-link" data-toggle="collapse" href="#stafflist">
+            <li class="nav-item {{ staff_active}}">
+              <a class="nav-link" data-toggle="collapse" href="#staff" aria-expanded="{{staff_expand}}">
                 <i class="material-icons">people_outline</i>
                 <p> STAFF 
                   <b class="caret"></b>
                 </p>
               </a>
-              <div id="stafflist" class="collapse">
+              <div id="staff" class="collapse {{mng_staff_show}}">
                 <ul class="nav">
-                  <li class="nav-item ">
+                  <li class="nav-item {{ mng_staff_active}} ">
                     <a class="nav-link" href="{{url_for('staff')}}">                      
                       <span class="sidebar-normal">Manage Staff</span>
                     </a>
                   </li>
-                  <li class="nav-item " >
+                  <li class="nav-item {{ pos_active}}" >
                     <a class="nav-link" href="">                      
                       <span class="sidebar-normal">Positions</span>
                     </a>
@@ -64,37 +64,37 @@
           </ul>
         </div>  
       </li>
-      <li class="nav-item {{parent_post}}">
+      <li class="nav-item {{ops_post}}">
         <a class="nav-link" data-toggle="collapse" href="#ops">
           <i class="material-icons">donut_small</i>
           <p> OPERATIONS
             <b class="caret"></b>
           </p>
         </a>
-        <div class="collapse" id="ops">
+        <div class="collapse {{mng_show}}" id="ops">
           <ul class="nav">
-            <li class="nav-item ">
+            <li class="nav-item {{ mng_active}}">
               <a class="nav-link" data-toggle="collapse" href="#menu">
                 <i class="material-icons">dashboard</i>
                 <p> Management 
                   <b class="caret"></b>
                 </p>
               </a>
-              <div id="menu" class="collapse">
+              <div id="menu" class="collapse {{menu_show}}">
                 <ul class="nav">
-                  <li class="nav-item ">
+                  <li class="nav-item {{ cate_active}}">
                     <a class="nav-link" href="">
                       <i class="material-icons">category</i>
                       <span class="sidebar-normal">Order Types</span>
                     </a>
                   </li>
-                  <li class="nav-item " >
+                  <li class="nav-item {{ dis_active}}" >
                     <a class="nav-link" href="">
                       <i class="material-icons">money</i>
                       <span class="sidebar-normal">Coupons Discounts</span>
                     </a>
                   </li>
-                  <li class="nav-item " >
+                  <li class="nav-item {{ tax_active}} " >
                     <a class="nav-link" href="">
                       <i class="material-icons">account_balance</i>
                       <span class="sidebar-normal">Taxes</span>
@@ -103,7 +103,7 @@
                 </ul>
               </div>
             </li>
-            <li class="nav-item ">
+            <li class="nav-item {{ menu_mng_active}}">
               <a class="nav-link" href="">
                 <i class="material-icons">menu_book</i>
                 <span class="sidebar-normal">Menu Management </span>
@@ -112,13 +112,13 @@
           </ul>
         </div>
       </li>
-      <li class="nav-item ">
+      <li class="nav-item {{ report_active}}">
         <a class="nav-link" data-toggle="collapse" href="#componentsExamples">
           <i class="material-icons">library_books</i>
           <p> Reports </p>
         </a>
       </li>
-      <li class="nav-item ">
+      <li class="nav-item {{ table_active}}">
           <a class="nav-link" data-toggle="collapse" href="#tablesExamples">
             <i class="material-icons">table_chart</i>
             <p> Tables </p>

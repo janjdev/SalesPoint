@@ -2,6 +2,7 @@
 const {app, Menu, BrowserWindow} = require('electron');
 const path = require('path');
 const { PythonShell } = require('python-shell');
+const pseudoElements = require('pseudo-elements');
 
 
 
@@ -24,8 +25,8 @@ let mainWindow;
 function createWindow () {
   // Create the browser window.
   mainWindow = new BrowserWindow({
-    width: 1000,
-    height: 800,
+    width: 1100,
+    height: 665,
     backgroundColor: '#fff',
     show: false,
     webPreferences: {
@@ -63,6 +64,7 @@ function createWindow () {
 // Some APIs can only be used after this event occurs.
 app.on('ready', function ()  {  
   createWindow(); 
+  pseudoElements();
  });  
   
 app.on('activate', function () {

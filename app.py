@@ -9,7 +9,6 @@ from hashutil import make_pw_hash, check_pw_hash
 from helpers import *
 
 
-
 app = Flask(__name__)
 app.config.from_pyfile(os.path.join(".", "config.py"), silent=False)
 db = SQLAlchemy(app)
@@ -28,31 +27,31 @@ class Staff(db.Model):
     first_name = db.Column(db.String(255), nullable = False)
     last_name = db.Column(db.String(255), nullable = False)
     staff_id = db.Column(db.NCHAR(6), nullable=False)
-    staff_postion_id = db.Column(db.Integer, db.ForeignKey('positions.id'))
-    staff_role_id = db.Column(db.Integer, db.ForeignKey('roles.id'))
+    position_id = db.Column(db.Integer, db.ForeignKey('position.id'))
+    role_id = db.Column(db.Integer, db.ForeignKey('role.id'))
 
-    def __init__(first_name, last_name, pos, role):
+    def __init__(self, first_name, last_name, pos, role):
         self.first_name = first_name
         self.last_name = last_name
         self.staff_id = ''.join([random.choice(string.digits) for x in range(6)])
-        self.staff_position_id = pos
-        self.staff_role_id = role
+        self.position_id = pos
+        self.role_id = role
+        
 
 class Staff_Position(db.Model):
-    __tablename__ = 'positions'
+    __tablename__ = 'position'
     id = db.Column(db.Integer, primary_key=True)
-    position_type = db.Column(db.String(50), nullable=False, unique=True)
-    
+    name = db.Column('type', db.String(50), nullable=False, unique=True)    
 
-    def __init__(position_type):
-        self.position_type = position_type
+    def __init__(self, name):
+        self.name = name
 
 class Staff_Role(db.Model):
-    __tablename__ = 'roles'
+    __tablename__ = 'role'
     id = db.Column(db.Integer, primary_key=True)
-    role_type = db.Column(db.String(50), nullable = False)
+    role_type = db.Column('type', db.String(50), nullable = False)
 
-    def __init__(role_type):
+    def __init__(self, role_type):
         self.role_type = role_type
 
 class Order(db.Model):
@@ -71,7 +70,7 @@ class Order(db.Model):
     last_changed_by_id = db.Column(db.Integer, db.ForeignKey('staff.id'), nullable=True)
     order_item = db.relationship('Ordered_Item', backref='ordered_item', lazy=True)
 
-    def __init__(order_type_id, order_status, created_by_id, subtotal,  tax, order_total, notes="", customer_id=""):
+    def __init__(self, order_type_id, order_status, created_by_id, subtotal,  tax, order_total, notes="", customer_id=""):
         self.order_type_id = order_type_id
         self.order_status = order_status
         self.created_by_id = created_by_id
@@ -87,7 +86,7 @@ class Order_Status(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     order_status = db.Column(db.String(20), nullable = False, unique=True)
 
-    def __init__(order_status):
+    def __init__(self, order_status):
         self.order_status = order_status
 
 class Discount(db.Model):
@@ -100,7 +99,7 @@ class Discount(db.Model):
     is_active = db.Column(db.Boolean, nullable = False)
     no_expiry = db.Column(db.Boolean, nullable = True)
 
-    def __init__(name, dtype, value, active, expdate, expir):
+    def __init__(self, name, dtype, value, active, expdate, expir):
         self.discount_name = name
         self.discount_type = dtype
         self.value = value
@@ -113,7 +112,7 @@ class Discount_Type(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     type_name = db.Column(db.String(20), nullable=False, unique=True)
 
-    def __init__(name):
+    def __init__(self, name):
         self.type_name = name
 
 class Order_Type(db.Model):
@@ -121,7 +120,7 @@ class Order_Type(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     order_type = db.Column(db.String(50), nullable = False, unique=True)
 
-    def __init__(order_type):
+    def __init__(self, order_type):
         self.order_type = order_type
 
 class Ordered_Item(db.Model):
@@ -131,6 +130,12 @@ class Ordered_Item(db.Model):
     menu_item_id = db.Column(db.Integer, db.ForeignKey('menu_item.id'), nullable=False)
     quantity = db.Column(db.Integer)
 
+    def __init__(self, orID, itID, qty):
+        self.order_id = orID 
+        self.menu_item_id = itID
+        self.quatity = qty       
+
+
 class Sale(db.Model):
     __tablename__ = "sale"
     id = db.Column(db.Integer, primary_key=True)
@@ -139,7 +144,7 @@ class Sale(db.Model):
     final_price = db.Column(db.Numeric(2), nullable=False)
     final_date = db.Column(db.DateTime, nullable=False)
 
-    def __init__(id, price, tax, date):
+    def __init__(self, id, price, tax, date):
         self.order_id = id
         self.final_tax = tax
         self.final_price = price
@@ -151,8 +156,8 @@ class Tax(db.Model):
     tax_type = db.Column(db.String(20), nullable = False, unique=True)
     tax_rate = db.Column(db.Numeric(2), nullable=False)
 
-    def __init__(type, rate):
-        self.tax_type = type
+    def __init__(self, tax, rate):
+        self.tax_type = tax
         self.tax_rate = rate
         
 class Menu_Item(db.Model):
@@ -167,7 +172,7 @@ class Menu_Item(db.Model):
     has_substitute = db.Column(db.Boolean, nullable = True)
     Substitute = db.relationship('Substitute', backref='substitute', lazy=True)
 
-    def __init__(name, price, cat, descr, offered, speci, sub):
+    def __init__(self, name, price, cat, descr, offered, speci, sub):
         self.item_name = name
         self.unit_price = price
         self.item_category = cat
@@ -181,7 +186,7 @@ class Menu_Categorey(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     category_name = db.Column(db.String(50), unique=True, nullable = False)
 
-    def __init__(name):
+    def __init__(self, name):
         self.category_name = name
 
 class Substitute(db.Model):
@@ -204,9 +209,15 @@ class Table(db.Model):
     table_no = db.Column(db.Integer, unique=True)
     capacity = db.Column(db.Integer)
     description = db.Column(db.Text, nullable=True, default="")
+
+    def __init__(self, no, cap, desc):
+        self.table_no = no
+        self.capacity = cap 
+        self.description = desc  
     
 
-event.listen(Staff_Role.__table__, 'after_create', DDL(""" INSERT INTO roles (id, role_type)  VALUE (1, 'Admin', 'admin'),  (2, 'User', 'user') """))
+event.listen(Staff_Role.__table__, 'after_create', DDL(""" INSERT INTO role (id, type) VALUES (1, 'administrator'),  (2, 'user') """))
+event.listen(Staff_Position.__table__, 'after_create', DDL(""" INSERT INTO position (id, type) VALUES (1, 'manager'),  (2, 'server') """))
 
 
 
@@ -225,11 +236,11 @@ def auth():
 
 @app.route('/dine-in', methods=['GET', 'POST'])
 def dine_in():
-    return render_template('',  title="SalesPoint - Version 1.0-build 1.0.1", bodyClass='dashboard')
+    return render_template('',  title="SalesPoint - Version 1.0-build 1.0.1", bodyClass='tables')
 
 @app.route('/carry-out', methods=['GET', 'POST'])
 def carry_out():
-    return render_template('tasks/takeout.html', title="SalesPoint - Version 1.0-build 1.0.1", bodyClass='shared-tasks')
+    return render_template('tasks/new_order.html', title="SalesPoint - Version 1.0-build 1.0.1", bodyClass='shared-tasks', images=getImages())
 
 @app.route('/orders', methods=['GET', 'POST'])
 def orders():
@@ -241,7 +252,7 @@ def admin():
         ID = request.form['staffID']
         staffid = Staff.query.filter_by(staff_id = ID).first()
         if staffid:
-            roleid = Staff.query.filter_by(staff_id = staffid).first().staff_role_id
+            roleid = Staff.query.filter_by(staff_id = staffid).first().role_id
             if roleid == 1:
                 session['admin'] = True
                 session['staff'] = Staff.query.filter_by(staff_id = staffid).first()
@@ -264,7 +275,7 @@ def shut_down():
 @app.route('/config', methods=['GET', 'POST'])
 def config():
     
-    return render_template('admin/dash/pages/config.html', title="SalesPoint - Version 1.0-build 1", bodyClass='config', fonts=getFonts())
+    return render_template('admin/dash/pages/config.html', title="SalesPoint - Version 1.0-build 1", bodyClass='config', fonts=getFonts(), config_active='active', config_show='show', config_expand='true', admin_active='active')
  
 @app.route('/activity')
 def order_activity():
@@ -281,13 +292,29 @@ def logout():
 
 @app.route('/staff', methods=['POST', 'GET'])
 def staff():
-    return render_template('/admin/dash/pages/staff.html', title="SalesPoint - Version 1.0-build 1", tablename="STAFF MANAGEMENT", bodyClass="staff")
+    roles = Staff_Role.query.all()
+    pos = Staff_Position.query.all()
+    staff = Staff.query.order_by(Staff.last_name.asc()).all()
+    stObj = []
+    for s in staff:
+        st = {}
+        st['posID'] = Staff_Position.query.filter_by(id=s.position_id).first().name
+        st['rolID'] = Staff_Role.query.filter_by(id=s.role_id).first().role_type        
+        st['staff'] = s
+        stObj.append(st)
+    return render_template('/admin/dash/pages/staff.html', title="SalesPoint - Version 1.0-build 1", tablename="STAFF MANAGEMENT", bodyClass="staff", roles=roles, pos=pos, staff=stObj, mng_staff_active='active', staff_active='active', config_active='active', config_expand='true', staff_expand='true', config_show='show', mng_staff_show='show')
 
 @app.route('/staff/add', methods=['POST', 'GET'])
 def add_staff():
-    return jsonify({})
-
-
+    if request.method == 'POST':
+        fname = request.form['fname']
+        lname = request.form['lname']
+        pos = request.form['position']
+        role = request.form['role']
+        newHire = Staff(fname, lname, pos, role)
+        db.session.add(newHire)
+        db.session.commit()
+    return jsonify({'message': 'OK', 'alertType': 'success', 'timer': 500, 'callback': 'loadStaffTable'})
 
 
 if (__name__) == '__main__':

@@ -1,4 +1,4 @@
-from app import app, db, Staff
+from app import app, db, Staff,os
 from flask import Flask, session, request, json
 from flask_sqlalchemy import SQLAlchemy
 from hashutil import make_pw_hash, check_pw_hash
@@ -34,9 +34,23 @@ def getURL():
         data['base'] = request.url_root
         jsonFile.seek(0)  # rewind
         json.dump(data, jsonFile)
-        jsonFile.truncate()
-       
+        jsonFile.truncate()       
     return False
+
+def getImages():
+    list_images = os.listdir(app.config['SITE_UPLOADS'])
+    images = []
+    i = 0
+    length = len(list_images)
+    while i < length:
+        img = {}
+        img_part = list_images[i].split('.')
+        img['name'] = img_part[0]
+        ext = img_part[1]
+        img['url'] = os.path.join(app.config['RELATIVE_PATH_ADMIN'], img['name']+'.'+ext)
+        images.append(img)
+        i+=1 
+    return images
 
     
     

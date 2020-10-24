@@ -1,7 +1,7 @@
 {% extends 'admin/dash/componets/base.html' %}
 {% block content %}
 {% include 'shared/logs.html' %}
-<div id="blog-post_table" class="col-md-12">    
+<div id="staff_table" class="col-md-12">    
     <div class="card">
       <div class="card-header card-header-success card-header-icon">
         <div class="card-icon">
@@ -22,13 +22,13 @@
             </select>
           </div>
       </div>
-      <div class="card-body">
+      <div id="stafflist" class="card-body">
         <div class="table-responsive">
           <table class="table table-striped">
             <thead>
-              <tr>
+              <tr> 
                   <th></th>
-                  <th></th>                                                    
+                  <th></th>                                                                      
                   <th class="text-left">First Name</th>
                   <th class="text-left">Last Name</th>
                   <th class="text-left">Position</th>
@@ -38,24 +38,25 @@
             </thead>
           <tbody>
               
-
+            {% if staff %}
+              {% for staff  in staff %}
               
-              <tr id="">
-                <td class="text-center"></td>
+              <tr id="{{ staff.staff.id }}">
+                <td class="text-center">{{ loop.index }}</td>
                 <td>
                   <div class="form-check">
                     <label class="form-check-label">
-                      <input class="post-action form-check-input" type="checkbox" value="" data-id="">
+                      <input class="post-action form-check-input" type="checkbox" value="" data-id="{{ staff.staff.id }}">
                       <span class="form-check-sign">
                         <span class="check"></span>
                       </span>
                     </label>
                   </div>
                 </td>
-                <td class="text-left">Lynda</td>
-                <td class="text-center">Vo</td>
-                <td class="text-center">Manager</td>
-                <td class="text-center">Administrator</td>
+                <td class="text-left">{{staff.staff.first_name}}</td>
+                <td class="text-left">{{staff.staff.last_name}}</td>
+                <td class="text-left tex-uppercase">{{staff.posID}}</td>
+                <td class="text-left tex-uppercase">{{staff.rolID}}</td>
                 <td class="td-actions text-center">
                       <button data-id="" type="button" id="view_post" class="btn btn-default btn-link teal-lighten-2-text " rel="tooltip" data-placement="bottom" title="Copy" data-original-title="View">
                               <i class="material-icons">content_copy</i>
@@ -67,13 +68,15 @@
                               <i class="material-icons">close</i>
                             </button>
                     </td>
-              </tr>              
+              </tr>
+              {% endfor %}       
+            {% endif %}
             </tbody>
           </table>
         </div>
         <div class="row">
             <span>
-                <div class="btn icon-link-size green lighten-3" data-toggle="modal" data-target="#staffModal"><a class="staff-tasks" data-href="{{url_for('staff')}}" title= "Add" data-toggle="tooltip" data-title="Add a new user"><i class="material-icons">add</i></a></div>
+                <div class="btn icon-link-size green lighten-3" data-toggle="modal" data-target="#staffModal"><a class="staff-tasks" data-href="{{url_for('add_staff')}}" title= "Add" data-toggle="tooltip" data-title="Add a new user"><i class="material-icons">add</i></a></div>
                 <div class="btn icon-link-size green lighten-3"data-toggle="modal" data-target="#staffModal"><a class="staff-tasks" data-href="{{url_for('staff')}}" title= "Edit" data-toggle="tooltip" data-title="Edit a user"><i class="material-icons">content_copy</i></a></div>
                 <div class="btn icon-link-size green lighten-3"data-toggle="modal" data-target="#staffModal"><a class="staff-tasks" data-href="{{url_for('staff')}}" title= "Copy" data-toggle="tooltip" data-title="Add a new user"><i class="material-icons">note_add</i></a></div>
                 <div class="btn icon-link-size green lighten-3"data-toggle="modal" data-target="#staffModal"><a class="staff-tasks" data-href="{{url_for('staff')}}" title= "Delete" data-toggle="tooltip" data-title="Delete"><i class="material-icons">close</i></a></div>
@@ -95,7 +98,7 @@
         </div>
         <div class="modal-body">
           
-            <form id="staff" method="POST">
+            <form id="staff" method="POST" action="">
                 <div class="form-group">
                 <!-- <label for="exampleFormControlInput1">Email address</label> -->
                 <input type="text" class="form-control" id="fname" name="fname" placeholder="First Name"/>
@@ -106,19 +109,24 @@
                 </div>
                 <div class="form-group">
                 <label for="position">Position</label>
-                <select class="form-control selectpicker" data-style="btn btn-link" id="position">
-                    <option>Cashier</option>
-                    <option>Chef</option>
-                    <option>Dishwasher</option>
-                    <option>Manager</option>
-                    <option>Server</option>
+                <select class="form-control selectpicker" id="staff_pos" name="position" data-style="btn btn-link" id="position" required>
+                  {% if pos %}
+                   {% for p in pos %}
+                    <option value="{{p.id}}">{{p.name}}</option>
+                    {% endfor %}
+                  {% endif %}
+                    
                 </select>
                 </div>
                 <div class="form-group">
                 <label for="role">Role</label>
-                <select multiple class="form-control selectpicker" data-style="btn btn-link" id="role">
-                    <option>Administrator</option>
-                    <option>User</option>
+                <select class="form-control selectpicker" id="staff_role" name="role" data-style="btn btn-link" id="role" required>
+                  {% if roles %}
+                  {% for role in roles %}
+                   <option value="{{role.id}}">{{role.role_type}}</option>
+                   {% endfor %}
+                 {% endif %}
+                   
                     
                 </select>
                 </div>
