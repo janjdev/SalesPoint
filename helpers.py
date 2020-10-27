@@ -52,5 +52,21 @@ def getImages():
         i+=1 
     return images
 
+def setAutolog(time):
+     with open('configs/app.json', 'r+') as jFile:
+        data = json.load(jFile)
+        data['atuolog'] = True
+        data['timer'] = time
+        jFile.seek(0)  # rewind
+        json.dump(data, jFile)
+        #jsonFile.truncate()     
+
+
+def getAutolog():
+    with open ('configs/app.json', 'r+') as jfile:
+        data = json.load(jfile)
+        autolog = data['autolog']
+    return autolog
+
     
     

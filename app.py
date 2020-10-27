@@ -33,7 +33,7 @@ class Staff(db.Model):
     def __init__(self, first_name, last_name, pos, role):
         self.first_name = first_name
         self.last_name = last_name
-        self.staff_id = ''.join([random.choice(string.digits) for x in range(6)])
+        self.staff_id = make_pw_hash(''.join([random.choice(string.digits) for x in range(6)]))
         self.position_id = pos
         self.role_id = role
         
@@ -250,19 +250,20 @@ def orders():
 def admin():
     if request.method == 'POST':
         ID = request.form['staffID']
-        staffid = Staff.query.filter_by(staff_id = ID).first()
-        if staffid:
-            roleid = Staff.query.filter_by(staff_id = staffid).first().role_id
-            if roleid == 1:
+        staff = Staff.query.filter_by(staff_id = ID).first()
+        if staff:                   
+            if staff.role_id == 1:
                 session['admin'] = True
-                session['staff'] = Staff.query.filter_by(staff_id = staffid).first()
-                return jsonify({'status': 'success', 'alertType': 'success', 'callback': 'goToAdmin'})
+                session['id'] = staff.id                
+                return jsonify({'status': 'success', 'alertType': 'success', 'timer': 10, 'callback': 'goToAdmin'})
             else:
                 return jsonify({'status': 'error', 'message': 'Permission restricted', 'alertType': 'error'})        
-        return jsonify({'status': 'error', 'message': 'ID Not Found', 'alertType': 'error'})        
-    # if session.get('admin'):
-    return render_template('admin/dash/pages/dash.html', title="SalesPoint - Version 1.0-build 1", bodyClass='dashboard', time=datetime.now().strftime("%I:%M"), daynight=datetime.now().strftime("%p") )
-    # return render_template('screens/window_main.html', title="SalesPoint - Version 1.0-build 1.0.1", bodyClass='main_window')
+        return jsonify({'status': 'error', 'message': 'ID Not Found', 'alertType': 'error'})
+    if request.method == 'GET':
+        if 'admin' in session:
+            staff = Staff.query.filter_by(id = session.get('id')).first()
+            return render_template('admin/dash/pages/dash.html', title="SalesPoint - Version 1.0-build 1", bodyClass='dashboard', time=datetime.now().strftime("%I:%M"), daynight=datetime.now().strftime("%p"), staff=staff)
+        return render_template('screens/window_main.html', title="SalesPoint - Version 1.0-build 1.0.1", bodyClass='main_window')
 
 @app.route('/kitchen', methods=['GET', 'POST'])
 def kitchen():
@@ -287,7 +288,7 @@ def logout():
     # session.pop('id', None)
     # session.pop('authenticated', None)
     session.clear()
-    return redirect(url_for('login'))
+    return redirect(url_for('home'))
 
 
 @app.route('/staff', methods=['POST', 'GET'])
