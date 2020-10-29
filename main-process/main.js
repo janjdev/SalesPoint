@@ -2,8 +2,6 @@
 const {app, Menu, BrowserWindow} = require('electron');
 const path = require('path');
 const { PythonShell } = require('python-shell');
-const pseudoElements = require('pseudo-elements');
-
 
 
 
@@ -13,7 +11,7 @@ const pseudoElements = require('pseudo-elements');
 function startFlask() {
   PythonShell.run('app.py', null, function  (err, results)  {
     if  (err)  throw err;
-    console.log('servre initiated');
+    console.log('server initiated');
     console.log('results', results);
     });
 }
@@ -30,8 +28,8 @@ function createWindow () {
     backgroundColor: '#fff',
     show: false,
     webPreferences: {
-      nodeIntegration: false
-      //preload: path.join(__dirname, 'preload.js')
+      nodeIntegration: false,
+      preload: path.join(__dirname, 'preload.js')
     },
     icon: path.join(__dirname, '../static/assets/img/icons/salespoint-green.png')
   });
@@ -64,7 +62,6 @@ function createWindow () {
 // Some APIs can only be used after this event occurs.
 app.on('ready', function ()  {  
   createWindow(); 
-  pseudoElements();
  });  
   
 app.on('activate', function () {

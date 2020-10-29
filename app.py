@@ -236,15 +236,15 @@ def auth():
 
 @app.route('/dine-in', methods=['GET', 'POST'])
 def dine_in():
-    return render_template('',  title="SalesPoint - Version 1.0-build 1.0.1", bodyClass='tables')
+    return render_template('',  title="SalesPoint - Version 1.0-build 1.0.1", bodyClass='tables', date=getDate())
 
 @app.route('/carry-out', methods=['GET', 'POST'])
 def carry_out():
-    return render_template('tasks/new_order.html', title="SalesPoint - Version 1.0-build 1.0.1", bodyClass='shared-tasks', images=getImages())
+    return render_template('tasks/new_order.html', title="SalesPoint - Version 1.0-build 1.0.1", bodyClass='shared-tasks', images=getImages(), date=getDate())
 
 @app.route('/orders', methods=['GET', 'POST'])
 def orders():
-    return render_template('screens/auth.html', title="Authorizations", bodyClass='dashboard')
+    return render_template('screens/auth.html', title="Authorizations", bodyClass='dashboard', date=getDate())
 
 @app.route('/admin', methods=['GET', 'POST'])
 def admin():
@@ -253,7 +253,7 @@ def admin():
         staff = Staff.query.filter_by(staff_id = ID).first()
         if staff:                   
             if staff.role_id == 1:
-                session['admin'] = True
+                session['role'] = "Administrator"
                 session['id'] = staff.id                
                 return jsonify({'status': 'success', 'alertType': 'success', 'timer': 10, 'callback': 'goToAdmin'})
             else:
@@ -262,12 +262,12 @@ def admin():
     if request.method == 'GET':
         if 'admin' in session:
             staff = Staff.query.filter_by(id = session.get('id')).first()
-            return render_template('admin/dash/pages/dash.html', title="SalesPoint - Version 1.0-build 1", bodyClass='dashboard', time=datetime.now().strftime("%I:%M"), daynight=datetime.now().strftime("%p"), staff=staff)
+            return render_template('admin/dash/pages/dash.html', title="SalesPoint - Version 1.0-build 1", bodyClass='dashboard', time=datetime.now().strftime("%I:%M"), daynight=datetime.now().strftime("%p"), staff=staff, date=getDate(), role=session.get('role'))
         return render_template('screens/window_main.html', title="SalesPoint - Version 1.0-build 1.0.1", bodyClass='main_window')
 
 @app.route('/kitchen', methods=['GET', 'POST'])
 def kitchen():
-    return render_template('screens/auth.html', title="Authorizations", bodyClass='dashboard')
+    return render_template('screens/auth.html', title="Authorizations", bodyClass='dashboard', date=getDate())
 
 @app.route('/shut-down', methods=['GET', 'POST'])
 def shut_down():
@@ -276,7 +276,7 @@ def shut_down():
 @app.route('/config', methods=['GET', 'POST'])
 def config():
     
-    return render_template('admin/dash/pages/config.html', title="SalesPoint - Version 1.0-build 1", bodyClass='config', fonts=getFonts(), config_active='active', config_show='show', config_expand='true', admin_active='active')
+    return render_template('admin/dash/pages/config.html', title="SalesPoint - Version 1.0-build 1", bodyClass='config', fonts=getFonts(), config_active='active', config_show='show', config_expand='true', admin_active='active', date=getDate(), role=session.get('role'))
  
 @app.route('/activity')
 def order_activity():
@@ -303,7 +303,7 @@ def staff():
         st['rolID'] = Staff_Role.query.filter_by(id=s.role_id).first().role_type        
         st['staff'] = s
         stObj.append(st)
-    return render_template('/admin/dash/pages/staff.html', title="SalesPoint - Version 1.0-build 1", tablename="STAFF MANAGEMENT", bodyClass="staff", roles=roles, pos=pos, staff=stObj, mng_staff_active='active', staff_active='active', config_active='active', config_expand='true', staff_expand='true', config_show='show', mng_staff_show='show')
+    return render_template('/admin/dash/pages/staff.html', title="SalesPoint - Version 1.0-build 1", tablename="STAFF MANAGEMENT", bodyClass="staff", roles=roles, pos=pos, staff=stObj, mng_staff_active='active', staff_active='active', config_active='active', config_expand='true', staff_expand='true', config_show='show', mng_staff_show='show', date=getDate(), role=session.get('role') )
 
 @app.route('/staff/add', methods=['POST', 'GET'])
 def add_staff():

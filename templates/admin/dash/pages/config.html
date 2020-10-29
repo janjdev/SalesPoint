@@ -81,22 +81,22 @@
                         </form>
                     </div>
                     <div class="tab-pane" id="terminal">
-                        <form>
+                        <form id=terminalSet>
                             <div class="form-row">
                                 <div class="form-group col-md-2">
                                     <label for="terminal-id">Terminal ID</label>
-                                    <input type="number" class="form-control" id="terminal-id">
+                                    <input type="number" class="form-control" id="terminal-id" placeholder="{{termId}}">
                                 </div>
                                 <div class="form-group col-md-6" >
                                     <label for="inputAddress">Terminal Location</label>
-                                    <input type="text" class="form-control" id="inputAddress">
+                                    <input type="text" class="form-control" id="inputAddress" placeholder="{{termLoc}}">
                                 </div>
                             </div>                            
                             <div class="form-row">
                                 <div class="form-group">
                                     <div class="form-check">
                                         <label class="form-check-label">
-                                            <input class="form-check-input success" type="checkbox" value="">
+                                            <input class="form-check-input success" type="checkbox" {{logoff}} value="">
                                                 Auto Logoff Time
                                             <span class="form-check-sign">
                                             <span class="check"></span>
@@ -105,7 +105,7 @@
                                     </div>
                                 </div>
                                 <div class="form-group col-md-2">                            
-                                    <input type="number" class="form-control" id="autologoff-time">
+                                    <input type="number" class="form-control" id="autologoff-time" placeholder="{{logoffTime}}">
                                 </div>                            
                             </div>
                             <div class="form-group col-md-5 systemfonts">
@@ -124,13 +124,122 @@
                           </form>
                         </div>
                     <div class="tab-pane" id="printer">
-                        
+                        <div class="row">
+                            <form id="setPrinters" class="col-md-12">                  
+                                <div class="table-responsive">
+                                    <table class="table table-striped">
+                                    <thead>
+                                        <tr> 
+                                            <th></th>
+                                            <th><div class="form-check">
+                                            <label class="form-check-label">
+                                                <input id="bulk-actions-check" class="form-check-input" type="checkbox" value="">
+                                            <span class="form-check-sign">
+                                                <span class="check"></span>
+                                            </span>
+                                            </label>
+                                        </div></th>                                                                      
+                                            <th class="text-left">Name</th>
+                                            <th class="text-left">Printer</th>
+                                            <th class="text-left">Type</th>                                                          
+                                        </tr>
+                                    </thead>
+                                    <tbody>                                                      
+                                    <tr id="printer-1">
+                                        <td class="text-center"></td>                                                        
+                                        <td>
+                                            <div class="form-check">
+                                            <label class="form-check-label">
+                                                <input class="printer-action form-check-input" type="checkbox" value="" data-id="">
+                                                <span class="form-check-sign">
+                                                <span class="check"></span>
+                                                </span>
+                                            </label>
+                                            </div>
+                                        </td>
+                                        <td class="name text-left text-capitalize">Name</td>
+                                        <td class="printer text-left text-capitalize">Printer</td>
+                                        <td class="type text-left text-uppercase">Type</td>                                                        
+                                        <td class="td-actions text-center">                                                            
+                                            <button data-id="printer-1" type="button" id="edit_printer" data-toggle="modal" data-target="#add-edit-Printer" class="btn btn-success btn-link lime-accent-4-text printer-tasks" rel="tooltip" data-placement="bottom" title="Edit" data-func="edit" data-title="Edit Printer">
+                                                <i class="material-icons">edit</i>
+                                            </button>
+                                            <button data-id="" type="button" id="delete_printer" class="btn btn-danger btn-link red-accent-3-text" rel="tooltip" data-placement="bottom" title="Delete" data-title="delete">
+                                                <i class="material-icons">close</i>
+                                            </button>
+                                        </td>
+                                    </tr>                                                    
+                                    </tbody>
+                                    </table>
+                                </div>
+                                <div class="row printerActions">
+                                    <span>
+                                        <div class="btn icon-link-size green lighten-3" data-toggle="modal" data-target="#add-edit-Printer"><a data-href="" class="printer-tasks" title="Add" data-toggle="tooltip" data-func="add" data-title="Add a Printer"><i class="material-icons">add</i></a></div>                                                        
+                                        <div class="btn icon-link-size green lighten-3"><a class="printer-tasks" data-href="" title="Delete" data-toggle="tooltip" data-func="delete"><i class="material-icons">close</i></a></div>
+                                        <div class="btn icon-link-size green lighten-3"data-toggle="modal" data-target="#staffModal"><a class="printer-tasks" data-href="" title= "Test" data-toggle="tooltip" data-func="test"><i class="material-icons">settings_input_antenna</i></a></div>
+                                    </span>
+                                </div>
+                            </form>                        
+                        </div>                        
                     </div>
                 </div>
             </div>
         </div>           
     </div>
 </div>
+
+                          <!--Printer Form-->
+                          <div id="add-edit-Printer" class="modal fade" tabindex="-1" role="dialog" data-backdrop="static">
+                            <div class="modal-dialog" role="document">
+                              <div class="modal-content">
+                                <div class="modal-header">
+                                  <h5 id="printer-modal-title" class="modal-title">Enter Your ID</h5>
+                                  <!-- <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                  </button> -->
+                                </div>
+                                <div class="modal-body">          
+                                    <form id="add-printer" method="POST" action="">                            
+                                        <div class="form-group">
+                                        <label for="position">Printer Type</label>
+                                        <select class="form-control selectpicker" id="printer_type" name="printer_type" data-style="btn btn-link" required>
+                                          {% if printerType %}
+                                           {% for types in printerType %}
+                                            <option value="{{p.id}}">{{p.name}}</option>
+                                            {% endfor %}
+                                          {% endif %}                    
+                                        </select>
+                                        </div>
+                                        <div class="form-group">
+                                            <!-- <label for="exampleFormControlInput1">Email address</label> -->
+                                            <input type="text" class="form-control" id="printer_name" name="printername" placeholder="Printer Name" required/>
+                                            </div>
+                                        <div class="form-group">
+                                        <label for="role">Printer Device</label>
+                                        <select class="form-control selectpicker" id="device" name="device" data-style="btn btn-link" id="device" required>
+                                          {% if devices %}
+                                          {% for device in device %}
+                                           <option value="{{role.id}}">{{role.role_type}}</option>
+                                           {% endfor %}
+                                         {% endif %}
+                                           
+                                            
+                                        </select>
+                                        </div>
+                                        <div class="row col-md-12 justify-content-center">
+                                            <div class="">
+                                              <button id="cancel" type="reset" class="btn btn-secondar pull-left" data-dismiss="modal">Cancel<div class="ripple-container"></div></button>
+                                              <button type="submit" class="btn btn-success pull-right">Submit<div class="ripple-container"></div></button>
+                                            </div>
+                                          </div>
+                                    </form>
+                                </div>
+                                <div class="modal-footer">
+                                  
+                                </div>         
+                                </div>
+                              </div>
+                            </div>
 <script src="{{ url_for('static', filename='assets/js/dash/config.js')}}"></script>
 
 

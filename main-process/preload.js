@@ -4,7 +4,7 @@ const {remote} = require('electron');
 const {BrowserWindow} = remote;
 const path = require('path');
 const url = require('url');
-
+const getSystemFonts = require("get-system-fonts")
 
 //load helper functions
 const helper = require('./helpers')

@@ -163,6 +163,11 @@ body.config ul.dropdown-menu.inner.show {
     color: black;
 }
 
+/*=====================Printers===================*/
+#setPrinters .printerActions{
+    justify-content: center;
+}
+
 /*====================Staff Table==================*/
 body.staff .card-body .table-responsive ~ .row {
     justify-content: center;
@@ -181,7 +186,7 @@ height: 64px;
     right: -15px;
     left: 15px;
 }
-.order-box fieldset {
+.order-box fieldset{
     border: 1px solid #bbb6b6;
     padding: .35em .75em .625em;
 }

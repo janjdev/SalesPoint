@@ -1,3 +1,4 @@
+from datetime import datetime
 from app import app, db, Staff,os
 from flask import Flask, session, request, json
 from flask_sqlalchemy import SQLAlchemy
@@ -16,6 +17,9 @@ def login(secret_key):
         if check_pw_hash(secret_key, key):
             return True
     return False
+
+def getDate():
+    return datetime.now().strftime("%A, %B, %d")
 
 def getFonts():
     with open('lists/fonts.json') as f:
