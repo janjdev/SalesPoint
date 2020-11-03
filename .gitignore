@@ -1,17 +1,16 @@
 #directories
 bower_components
 node_modules
-# static/*
-# venv
-# scss
-# config.py
+static/*
+venv
+scss
 .DS_Store
-# .venv
-# .flaskenv
-# *.pyc
-# *.pyo
-# env/
-# env*
+.venv
+.flaskenv
+*.pyc
+*.pyo
+env/
+env*
 dist/
 build/
 *.egg
@@ -23,17 +22,18 @@ _mailinglist
 .idea/
 docs/_build/
 .vscode
-# .mypy_cache/
-#templates/components/
+.mypy_cache/
+templates/components/
+__pycache__
 
 
 #files
 *.tgz
 *.log
-#*material-dashboard*
+*material-dashboard*
 tempCodeRunnerFile.py
-# yarn.lock
-# salespoint.db 
-# config.py
+yarn.lock
+salespoint.db 
+config.py
 LICENSE.md
-#hashutil.py
+hashutil.py

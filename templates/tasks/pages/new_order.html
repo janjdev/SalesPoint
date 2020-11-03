@@ -1,0 +1,121 @@
+{% extends 'tasks/components/task-base.html' %}
+  {% block content %}
+  <style>
+    #ticket-total::placeholder {
+      font-weight: 900;
+      color: black;
+      text-align: right;
+    }
+  </style>
+  <div class="row order-row">
+    <div id="ticket_list" class="col-md-5 order-box ">
+      <form id="new-ticket">
+        <fieldset class="form-group">        
+            <legend class=""><h5>Carry Out [New Ticket]</h5></legend>            
+              <div class="form-group new_order_search">            
+                <input type="text" class="col-md-6 form-control success" id="search_ticket" name="search-ticket" placeholder="search current order">
+                <button type="button" data-toggle="modal" data-target="#searchModal" class="btn btn-info btn-sm">items</button>
+              </div>
+              <div class="col-md-12 ticket_table">
+                <div class="card col-md-10">                
+                    <div class="card-header card-header-icon card-header-rose">
+                      <div class="card-icon">
+                        <i class="material-icons">receipt</i>
+                      </div>
+                      <h4 class="card-title ">Simple Table</h4>
+                    </div>
+                    <div class="card-body">
+                      <div class="table-responsive">
+                        <table class="table">
+                          <thead class=" text-secondary">
+                            <th class="text-center">
+                              Unit
+                            </th>
+                            <th class="text-center">
+                            Item
+                            </th>
+                            <th class="text-center">
+                            Price
+                            </th>
+                          </thead>
+                          <tbody>
+                            <tr>
+                              <td>
+                                1
+                              </td>
+                              <td>
+                                Dakota Rice
+                              </td>
+                              <td>
+                                Niger
+                              </td>
+                            </tr>                                            
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>                
+                </div> 
+                <div class="col-md-1">
+                  <button class="btn btn-social btn-just-icon">
+                    <i class="material-icons">keyboard_arrow_up</i>
+                  </button><br>
+                  <button class="btn btn-social btn-just-icon">
+                    <i class="material-icons">add</i>
+                  </button><br>
+                  <button class="btn btn-social btn-just-icon">
+                    <i class="material-icons">minimize</i>
+                  </button><br>
+                  <button class="btn btn-social btn-just-icon">
+                    <i class="material-icons">close</i>
+                  </button><br>
+                  <button class="btn btn-social btn-just-icon">
+                    <i class="material-icons">keyboard_arrow_down</i>
+                  </button><br>  
+                </div>                             
+              </div>
+              <div id="order_total" class="col-md-12">
+                <div class="col-md-10 form-group">
+                  <label for="ticket-total" class="total_label" >Total:</label>
+                  <input class="form-control" id="ticket-total" name="total" placeholder="$0.00"  />
+                </div>
+              </div>                 
+        </fieldset>
+      </form>
+    </div>
+
+    <div id="menu_items" class="col-md-5 order-box">
+      <fieldset class="form-group">        
+        <legend class=""><h5>Items</h5></legend>
+        {% if images %}
+        <div class="photography">
+            <div class="row">
+            {% for image in images %}
+                <div class="menu-item col-md-2">
+                    <a data-href="{{image.url}}" href="#" class="photography-entry img d-flex justify-content-center align-items-center" style="background-image: url({{image.url}});">                        
+                      <div class="overlay"></div>  
+                      <div class="text text-center">
+                            <h3>{{image.name}}</h3>
+                            <span class="tag">category</span>
+                        </div>
+                    </a>
+                </div>
+            {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+        </div>
+      </fieldset>
+
+    
+    <div id="menu_categories" class="col-md-2 order-box">
+      <fieldset class="form-group">        
+        <legend class=""><h5>Category</h5></legend>      
+          <button class="btn btn-primary">Category</button>
+      </fieldset> 
+    </div>
+  </div>
+
+
+
+  
+  {% endblock %}

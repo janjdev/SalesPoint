@@ -29,24 +29,11 @@
     "url": "https://github.com/janjdev/SalesPoint/issues"
   },
   "homepage": "https://github.com/janjdev/SalesPoint#readme",
-  "devDependencies": {
-    "electron": "^10.1.1"
-  },
+  "devDependencies": {},
   "dependencies": {
-    "child_process": "^1.0.2",
-    "concurrently": "^5.3.0",
-    "electron-builder": "^22.8.0",
-    "electron-first-run": "^3.0.0",
-    "electron-prebuilt": "^1.4.13",
+    "electron": "^10.1.5",
     "get-system-fonts": "^2.0.2",
-    "jquery": "^3.5.1",
-    "printer": "^0.4.0",
-    "ps-tree": "^1.2.0",
-    "pseudo-elements": "^1.1.0",
-    "python-shell": "^2.0.2",
-    "request": "^2.88.2",
-    "request-promise": "^4.2.6",
-    "wait-on": "^5.2.0",
-    "zuzel-printer": "^1.0.4"
+    "jsprintmanager": "^3.0.5",
+    "python-shell": "^2.0.2"
   }
 }

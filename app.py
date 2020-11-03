@@ -1,8 +1,9 @@
+from os import name
 import sys, os, io, collections, calendar, random, string
 from datetime import datetime
 from flask import Flask, request, redirect, render_template, session, escape, url_for, abort, flash, jsonify, json
 from flask_sqlalchemy import SQLAlchemy, Pagination
-from sqlalchemy import event, DDL, extract
+from sqlalchemy import event, DDL, extract, func
 from sqlalchemy.event import listen
 from jinja2 import TemplateNotFound
 from hashutil import make_pw_hash, check_pw_hash
@@ -172,22 +173,24 @@ class Menu_Item(db.Model):
     has_substitute = db.Column(db.Boolean, nullable = True)
     Substitute = db.relationship('Substitute', backref='substitute', lazy=True)
 
-    def __init__(self, name, price, cat, descr, offered, speci, sub):
+    def __init__(self, name, price, cat, descr):
         self.item_name = name
         self.unit_price = price
         self.item_category = cat
         self.item_description = descr
-        self.is_offered = offered
-        self.is_special = speci
-        self.has_substitute = sub
+        self.is_offered = True
+        self.is_special = False
+        self.has_substitute = False
 
 class Menu_Categorey(db.Model):
     __tablename__ = "menu_category"
     id = db.Column(db.Integer, primary_key=True)
     category_name = db.Column(db.String(50), unique=True, nullable = False)
+    is_active = db.Column(db.Boolean, nullable=False)
 
     def __init__(self, name):
         self.category_name = name
+        self.is_active = True
 
 class Substitute(db.Model):
     __tablename__ = "substitute"
@@ -213,11 +216,25 @@ class Table(db.Model):
     def __init__(self, no, cap, desc):
         self.table_no = no
         self.capacity = cap 
-        self.description = desc  
+        self.description = desc
+
+class Printer(db.Model):
+    __tablename__ = "printer"      
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100), unique=True, nullable = False)
+    printer =  db.Column(db.String(255), unique=True, nullable = False)
+    type_id = db.Column(db.Integer, db.ForeignKey('printer_type.id'), nullable=False)
+    Printer_Type = db.relationship('Printer_Type', backref='Printer_Type', lazy=True)
+
+class Printer_Type(db.Model):
+    __tablename__ = "printer_type"
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100), unique=True, nullable = False)
     
 
 event.listen(Staff_Role.__table__, 'after_create', DDL(""" INSERT INTO role (id, type) VALUES (1, 'administrator'),  (2, 'user') """))
 event.listen(Staff_Position.__table__, 'after_create', DDL(""" INSERT INTO position (id, type) VALUES (1, 'manager'),  (2, 'server') """))
+event.listen(Printer_Type.__table__, 'after_create', DDL(""" INSERT INTO printer_type (id, name) VALUES (1, 'report'),  (2, 'receipt'), (3, 'kitchen') """))
 
 
 
@@ -240,11 +257,31 @@ def dine_in():
 
 @app.route('/carry-out', methods=['GET', 'POST'])
 def carry_out():
-    return render_template('tasks/new_order.html', title="SalesPoint - Version 1.0-build 1.0.1", bodyClass='shared-tasks', images=getImages(), date=getDate())
+    if request.method == 'POST':
+        ID = request.form['staffID']
+        staff = Staff.query.filter_by(staff_id = ID).first()
+        if staff:              
+            session['id'] = staff.id                
+            return jsonify({'status': 'success', 'alertType': 'success', 'timer': 500, 'callback': 'goTo', 'param': url_for('carry_out')})
+        else:
+            return jsonify({'status': 'error', 'message': 'ID Not Found', 'alertType': 'error'})
+    if 'id' in session:
+        staff = Staff.query.filter_by(id = session.get('id')).first()
+        return render_template('tasks/pages/new_order.html', title="SalesPoint - Version 1.0-build 1.0.1", bodyClass='shared-tasks', images=getImages(), date=getDate(), user=staff)
+    return redirect(url_for('home'))
 
 @app.route('/orders', methods=['GET', 'POST'])
 def orders():
-    return render_template('screens/auth.html', title="Authorizations", bodyClass='dashboard', date=getDate())
+    if request.method == 'POST':
+        ID = request.form['staffID']
+        staff = Staff.query.filter_by(staff_id = ID).first()
+        if staff:              
+            session['id'] = staff.id                
+            return jsonify({'status': 'success', 'alertType': 'success', 'timer': 500, 'callback': 'goTo', 'param': '/orders'})
+        else:
+            return jsonify({'status': 'error', 'message': 'ID Not Found', 'alertType': 'error'})
+    if id in session:
+        return render_template('screens/auth.html', title="Authorizations", bodyClass='dashboard', date=getDate())
 
 @app.route('/admin', methods=['GET', 'POST'])
 def admin():
@@ -255,15 +292,15 @@ def admin():
             if staff.role_id == 1:
                 session['role'] = "Administrator"
                 session['id'] = staff.id                
-                return jsonify({'status': 'success', 'alertType': 'success', 'timer': 10, 'callback': 'goToAdmin'})
+                return jsonify({'status': 'success', 'alertType': 'success', 'timer': 1000, 'callback': 'goTo', 'param': url_for('admin')})
             else:
                 return jsonify({'status': 'error', 'message': 'Permission restricted', 'alertType': 'error'})        
         return jsonify({'status': 'error', 'message': 'ID Not Found', 'alertType': 'error'})
     if request.method == 'GET':
-        if 'admin' in session:
-            staff = Staff.query.filter_by(id = session.get('id')).first()
-            return render_template('admin/dash/pages/dash.html', title="SalesPoint - Version 1.0-build 1", bodyClass='dashboard', time=datetime.now().strftime("%I:%M"), daynight=datetime.now().strftime("%p"), staff=staff, date=getDate(), role=session.get('role'))
-        return render_template('screens/window_main.html', title="SalesPoint - Version 1.0-build 1.0.1", bodyClass='main_window')
+        if session.get('role') == 'Administrator':
+            user = Staff.query.filter_by(id = session.get('id')).first()
+            return render_template('admin/dash/pages/dash.html', title="SalesPoint - Version 1.0-build 1", bodyClass='dashboard', time=datetime.now().strftime("%I:%M"), daynight=datetime.now().strftime("%p"), user=user, date=getDate(), role=session.get('role'))
+        return redirect(url_for('home'))
 
 @app.route('/kitchen', methods=['GET', 'POST'])
 def kitchen():
@@ -273,10 +310,42 @@ def kitchen():
 def shut_down():
     return render_template('screens/auth.html', title="Authorizations", bodyClass='dashboard')
 
-@app.route('/config', methods=['GET', 'POST'])
+@app.route('/config', methods=['GET'])
 def config():
-    
-    return render_template('admin/dash/pages/config.html', title="SalesPoint - Version 1.0-build 1", bodyClass='config', fonts=getFonts(), config_active='active', config_show='show', config_expand='true', admin_active='active', date=getDate(), role=session.get('role'))
+    if session.get('role') == 'Administrator':
+        user = Staff.query.filter_by(id = session.get('id')).first()
+        printertypes = Printer_Type.query.all()
+        return render_template('admin/dash/pages/config.html', title="SalesPoint - Version 1.0-build 1", bodyClass='config', fonts=getFonts(), config_active='active', config_show='show', config_expand='true', admin_active='active', date=getDate(), role=session.get('role'), user=user, printertype = printertypes, info = getBusInfo(), term = getTerminal())
+    return redirect(url_for('home'))
+
+@app.route('/bus', methods=['POST'])
+def get_bus():
+    if session.get('role') == "Administrator":
+        if (request.method=='POST'):
+            setBusInfo(request.form['name'], request.form['phone'], request.form['add'], request.form['city'], request.form['st'], request.form['zip'])
+            return jsonify({'message': 'OK', 'alertType': 'success', 'timer': 500, 'callback': 'loadElement', 'param' : 'info'})
+        else:
+            return redirect(url_for('config'))
+    else:
+        return redirect(url_for('home'))
+
+@app.route('/term', methods=['POST'])
+def get_term():
+    if session.get('role') == "Administrator":
+        if (request.method == 'POST'):
+            print(request.form)
+            log = False
+            if 'autolog' in request.form:
+                log = request.form['autolog']
+            font = None
+            if 'defaultfont' in request.form:
+                font = request.form['defaultfont']            
+            setTerminal(request.form['id'], request.form['location'], log, request.form['timer'], font, request.form['fontpath'])
+            return jsonify({'message': 'OK', 'alertType': 'success', 'timer': 500, 'callback': 'loadElement', 'param' : 'terminal'})
+        else:
+            return redirect(url_for('config'))
+    else:
+        return redirect(url_for('home'))  
  
 @app.route('/activity')
 def order_activity():
@@ -303,7 +372,8 @@ def staff():
         st['rolID'] = Staff_Role.query.filter_by(id=s.role_id).first().role_type        
         st['staff'] = s
         stObj.append(st)
-    return render_template('/admin/dash/pages/staff.html', title="SalesPoint - Version 1.0-build 1", tablename="STAFF MANAGEMENT", bodyClass="staff", roles=roles, pos=pos, staff=stObj, mng_staff_active='active', staff_active='active', config_active='active', config_expand='true', staff_expand='true', config_show='show', mng_staff_show='show', date=getDate(), role=session.get('role') )
+    user = Staff.query.filter_by(id = session.get('id')).first()
+    return render_template('/admin/dash/pages/staff.html', title="SalesPoint - Version 1.0-build 1", tablename="STAFF MANAGEMENT", bodyClass="staff", roles=roles, pos=pos, staff=stObj, mng_staff_active='active', staff_active='active', config_active='active', config_expand='true', staff_expand='true', config_show='show', mng_staff_show='show', date=getDate(), role=session.get('role'), user=user )
 
 @app.route('/staff/add', methods=['POST', 'GET'])
 def add_staff():
@@ -315,9 +385,94 @@ def add_staff():
         newHire = Staff(fname, lname, pos, role)
         db.session.add(newHire)
         db.session.commit()
-    return jsonify({'message': 'OK', 'alertType': 'success', 'timer': 500, 'callback': 'loadStaffTable'})
+    return jsonify({'message': 'OK', 'alertType': 'success', 'timer': 500, 'callback': 'goTo', 'param' : url_for('staff')})
+
+@app.route('/staff/edit/<int:user_id>', methods=['POST'])
+def edit_staff(user_id):
+    if session.get('role') == 'Administrator':
+        if request.method == 'POST':        
+            user = Staff.query.filter_by(id = user_id).first()
+            user.first_name = request.form['fname']
+            user.last_name = request.form['lname']
+            user.position_id = request.form['position']
+            user.role_id = request.form['role']
+            db.session.commit()
+            return jsonify({'message': 'OK', 'alertType': 'success', 'timer': 500, 'callback': 'goTo', 'param' : url_for('staff')})
+        else:
+            return redirect(url_for('staff'))
+    return redirect(url_for('logout'))
+    
+
+@app.route('/staff/positions', methods=['POST', 'GET'])
+def positions():
+    if session.get('role') == 'Administrator':
+        if request.method == 'GET':
+            positions = []
+            ps = Staff_Position.query.order_by(Staff_Position.name.asc()).all()
+            for p in ps:
+                nn = Staff.query.filter_by(position_id = p.id).count()
+                pp = {'position': p, 'num': nn}
+                positions.append(pp)
+            user = Staff.query.filter_by(id = session.get('id')).first()
+            return render_template('/admin/dash/pages/positions.html', title="SalesPoint - Version 1.0-build 1", bodyClass="position", staff_active='active', config_active='active', config_expand='true', staff_expand='true', config_show='show', mng_staff_show='show', date=getDate(), role=session.get('role'), user=user, positions=positions, pos_active='active')
+        if request.method == 'POST':
+            name = request.form['name']
+            newPos = Staff_Position(name)
+            db.session.add(newPos)
+            db.session.commit()
+            return jsonify({'message': 'OK', 'alertType': 'success', 'timer': 500, 'callback': 'goTo', 'param' : url_for('positions')})
+    return redirect(url_for('logout')) 
+
+@app.route('/pos/edit/<int:pos_id>', methods=['POST'])
+def edit_pos(pos_id):
+    if session.get('role') == 'Administrator':
+        if request.method == 'POST':        
+            pos = Staff_Position.query.filter_by(id = pos_id).first()
+            pos.name = request.form['name']           
+            db.session.commit()
+            return jsonify({'message': 'OK', 'alertType': 'success', 'timer': 500, 'callback': 'goTo', 'param' : url_for('positions')})
+        else:
+            return redirect(url_for('positions')) 
+    return redirect(url_for('logout'))
+
+@app.route('/menu', methods=['POST', 'GET'])
+def menu():
+    if session.get('role') == 'Administrator':
+        if request.method == 'GET':
+            cat = Menu_Categorey.query.all()
+            i = Menu_Item.query.all()
+            s = []
+            for a in i:
+                t = Menu_Categorey.query.filter_by(id = a.item_category).first()
+                bb = {'item': a, 'cat': t.name}
+                s.append(bb)
+            user = Staff.query.filter_by(id = session.get('id')).first()
+            return render_template('/admin/dash/pages/menu.html', title="SalesPoint - Version 1.0-build 1", bodyClass="menu", menu_mng_active='active', ops_post='active', ops_expand='true', mng_show='show', date=getDate(), role=session.get('role'), user=user, cat=cat, items=s, menutable='Menu Categories', itemtable='Menu Items')
+    return redirect(url_for('logout'))    
+
+@app.route('/edit_cat/<int:id>', methods=['POST'])
+def edit_cat(id):
+    return
+
+@app.route('/add_cat/', methods=['POST'])
+def add_cat():
+    return
+
+@app.route('/edit_item/<int:id>', methods=['POST'])
+def edit_item(id):
+    return
+
+@app.route('/add_item/', methods=['POST'])
+def add_item():
+    return
+
+
+    
+
+
 
 
 if (__name__) == '__main__':
     db.create_all()
+    #db.drop_all()
     app.run()

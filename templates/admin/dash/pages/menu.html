@@ -1,0 +1,171 @@
+{% extends 'admin/dash/componets/base.html' %}
+{% block content %}
+{% include 'shared/logs.html' %}
+
+<!--Menu category and items tables and forms-->
+<div class="row">
+    <div class="col-md-10">
+        <div id="configCard" class="card">
+            <!-- <div class="card-header"> -->
+                <!-- colors: "header-primary", "header-info", "header-success", "header-warning", "header-danger" -->
+                <div class="card nav-tabs-navigation">
+                    <div class="nav-tabs-wrapper">
+                        <ul class="nav nav-pills nav-pills-success" role="tablist">
+                            <li class="nav-item">
+                                <a id="menucat" class="nav-link active" href="#cat" data-toggle="tab">Categories</a>
+                            </li>
+                            <li class="nav-item">
+                                <a id="menuitem" class="nav-link" href="#item" data-toggle="tab">Items</a>
+                            </li>                           
+                        </ul>
+                    </div>
+                </div>
+            <!-- </div> -->
+            <!-- <div class="card-body "> -->
+                <div class="tab-content">
+                    <div class="tab-pane card active" id="cat">
+                        <div class="card-header card-header-success card-header-icon">
+                            <div class="card-icon">
+                              <i class="material-icons">category</i>
+                            </div>                  
+                            <h4 class="card-title">{{menutable}}</h4>
+                        </div>
+                        
+                        <div id="categories" class="col-md-12">                            
+                            <div class="table-responsive">
+                                <table id="catTable" class="table table-striped">
+                                <thead>
+                                    <tr> 
+                                        <th></th>
+                                        <th>
+                                            <!-- <div class="form-check">
+                                                <label class="form-check-label">
+                                                    <input id="bulk-actions-check" class="form-check-input" type="checkbox" value="">
+                                                    <span class="form-check-sign">
+                                                        <span class="check"></span>
+                                                    </span>
+                                                </label>
+                                            </div> -->
+                                        </th>                                                                      
+                                        <th class="text-center">Name</th>
+                                        <th class="text-center">Is Active</th>                                       
+                                        <th class="text-center">Actions</th>                                                      
+                                    </tr>
+                                </thead>
+                                <tbody>                                                      
+                                <tr id="">
+                                    <td class="text-center"></td>                                                        
+                                    <td>
+                                        <div class="form-check">
+                                        <label class="form-check-label">
+                                            <input class="form-check-input" type="checkbox" value="" data-id="">
+                                            <span class="form-check-sign">
+                                            <span class="check"></span>
+                                            </span>
+                                        </label>
+                                        </div>
+                                    </td>
+                                    <td class="name text-center text-capitalize">Name</td>
+                                    <td class="active text-center text-capitalize">Active</td>                                                                                            
+                                    <td class="td-actions justify-content-center">                                                            
+                                        <button data-id="" type="button" id="edit" data-toggle="modal" data-target="#catModal" class="btn btn-success btn-link lime-accent-4-text cat-task" rel="tooltip" data-placement="bottom" title="Edit" data-func="edit" data-title="Edit Category">
+                                            <i class="material-icons">edit</i>
+                                        </button>
+                                        <button data-id="" type="button" id="archive_cat" class="btn btn-danger btn-link red-accent-3-text cat-action cat-task" rel="tooltip" data-placement="bottom" title="Set inactive" data-title="Archive Category" data-func="archive">
+                                            <i class="material-icons">close</i>
+                                        </button>
+                                    </td>
+                                </tr>                                                    
+                                </tbody>
+                                </table>                          
+                            </div>
+                            <div class="row categoryActions">
+                                <span>
+                                    <div class="btn icon-link-size green lighten-3" data-toggle="modal" data-target="#catModal"><a data-href="{{url_for('add_cat')}}" class="cat-task" title="Add" data-toggle="tooltip" data-func="add" data-title="Add a Printer"><i class="material-icons">add</i></a></div>
+                                    <div class="btn icon-link-size green lighten-3"data-toggle="modal" data-target="#catModal"><a class="cat-task" title= "Edit" data-toggle="tooltip" data-func="edit"><i class="material-icons">edit</i></a></div>                                                        
+                                    <div class="btn icon-link-size green lighten-3"><a class="cat-task" title="Set inactive" data-toggle="tooltip" data-func="archive"><i class="material-icons">close</i></a></div>
+                                    
+                                </span>
+                            </div>
+                        </div>
+                        <!--Category Modal-->
+                        {% include 'admin/dash/componets/catModal.html' %}
+                    <!--End Category table-->                
+                    </div>                   
+                    <div class="tab-pane card" id="item">
+                        <div class="card-header card-header-success card-header-icon">
+                            <div class="card-icon">
+                              <i class="material-icons">fastfood</i>
+                            </div>                  
+                            <h4 class="card-title">{{itemtable}}</h4>
+                        </div>
+                        
+                            <div id="items" class="col-md-12">                  
+                                <div class="table-responsive">
+                                    <table id="itemTable" class="table table-striped">
+                                    <thead>
+                                        <tr> 
+                                            <th></th>
+                                            <th>
+                                                <!-- <div class="form-check">
+                                                    <label class="form-check-label">
+                                                        <input id="bulk-actions-check" class="form-check-input" type="checkbox" value="">
+                                                        <span class="form-check-sign">
+                                                            <span class="check"></span>
+                                                        </span>
+                                                    </label>
+                                                </div> -->
+                                            </th>                                                                      
+                                            <th class="text-center">Name</th>
+                                            <th class="text-center">Printer</th>
+                                            <th class="text-center">Type</th>
+                                            <th class="text-center">Actions</th>                                                      
+                                        </tr>
+                                    </thead>
+                                    <tbody>                                                      
+                                    <tr id="">
+                                        <td class="text-center"></td>                                                        
+                                        <td>
+                                            <div class="form-check">
+                                            <label class="form-check-label">
+                                                <input class="printer-action form-check-input" type="checkbox" value="" data-id="">
+                                                <span class="form-check-sign">
+                                                <span class="check"></span>
+                                                </span>
+                                            </label>
+                                            </div>
+                                        </td>
+                                        <td class="name text-center text-capitalize">Name</td>
+                                        <td class="printer text-center text-capitalize">Printer</td>
+                                        <td class="type text-center text-uppercase">Type</td>                                                        
+                                        <td class="td-actions justify-content-center">                                                            
+                                            <button data-id="" type="button" id="edit_item" data-toggle="modal" data-target="#itemModal" class="btn btn-success btn-link lime-accent-4-text printer-tasks" rel="tooltip" data-placement="bottom" title="Edit" data-func="edit" data-title="Edit Menu Item">
+                                                <i class="material-icons">edit</i>
+                                            </button>
+                                            <button data-id="" type="button" id="archive_item" class="btn btn-danger btn-link red-accent-3-text" rel="tooltip" data-placement="bottom" title="Archive Item" data-func="archive">
+                                                <i class="material-icons">close</i>
+                                            </button>
+                                        </td>
+                                    </tr>                                                    
+                                    </tbody>
+                                    </table>
+                                </div>
+                                <div class="row itemActions">
+                                    <span>
+                                        <div class="btn icon-link-size green lighten-3" data-toggle="modal" data-target="#itemModal"><a data-href="{{url_for('add_item')}}" class="item-task" title="Add" data-toggle="tooltip" data-func="add" data-title="Add Menu Item"><i class="material-icons">add</i></a></div>                                                        
+                                        <div class="btn icon-link-size green lighten-3" data-toggle="modal" data-target="#itemModal"><a class="item-task" data-href="" title="Edit" data-toggle="tooltip" data-func="edit" data-title="Edit Menu Item"><i class="material-icons">edit</i></a></div>
+                                        <div class="btn icon-link-size green lighten-3"><a class="item-task" title= "Archive Item" data-toggle="tooltip" data-func="archive"><i class="material-icons">close</i></a></div>
+                                    </span>
+                                </div>
+                            </div>                        
+                         <!--Category Modal-->
+                         {% include 'admin/dash/componets/itemModal.html' %}
+                         <!--End Category table-->                    
+                    </div>
+                </div>
+            <!-- </div> -->
+        </div>           
+    </div>
+</div>
+
+{% endblock %}

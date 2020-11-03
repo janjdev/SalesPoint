@@ -1,4 +1,5 @@
 from datetime import datetime
+from os import name
 from app import app, db, Staff,os
 from flask import Flask, session, request, json
 from flask_sqlalchemy import SQLAlchemy
@@ -21,6 +22,64 @@ def login(secret_key):
 def getDate():
     return datetime.now().strftime("%A, %B, %d")
 
+def setBusInfo(name, phone, add, city, st, zip):
+    with open('configs/info.json', 'r+') as info:
+        data = json.load(info)
+        if name != '':
+            data['name'] = name
+        if phone != '':
+            data['phone'] = phone
+        if add != '':
+            data['address'] = add
+        if city != '':
+            data['city'] = city
+        if st != '':
+            data['state'] = st
+        if zip != '':
+            data['zip'] = zip
+        info.seek(0)
+        json.dump(data, info)
+        info.truncate()
+        info.close()
+
+def getBusInfo():
+    try:
+        with open('configs/info.json') as info:
+            data = json.load(info)
+            info.close()
+            return data
+    except:        
+        return False
+
+def setTerminal(id, location, checked, timer, font, font_path):
+    with open('configs/terminal.json', 'r+') as info:
+        data = json.load(info)
+        if id != '':
+            data['id'] = id
+        if location != '':
+            data['location'] = location
+        if checked != '':
+            data['set_timer'] = checked
+        if timer != '':
+            data['timer'] = timer
+        if font != '':
+            data['default_font'] = font
+        if font_path != '':
+            data['font_path'] = font_path
+        info.seek(0)
+        json.dump(data, info)
+        info.truncate()
+        info.close()
+
+def getTerminal():
+    try:
+        with open('configs/terminal.json') as info:
+            data = json.load(info)
+            info.close()
+            return data
+    except:        
+        return False
+
 def getFonts():
     with open('lists/fonts.json') as f:
         data = json.load(f)
@@ -38,7 +97,8 @@ def getURL():
         data['base'] = request.url_root
         jsonFile.seek(0)  # rewind
         json.dump(data, jsonFile)
-        jsonFile.truncate()       
+        jsonFile.truncate()
+        jsonFile.close()       
     return False
 
 def getImages():

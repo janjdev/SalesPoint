@@ -1,30 +1,28 @@
 // Modules to control application life and create native browser window
-const {app, Menu, BrowserWindow} = require('electron');
+const {app, BrowserWindow} = require('electron');
 const path = require('path');
 const { PythonShell } = require('python-shell');
-
-
 
 
 
 //Function to start the backend server
 function startFlask() {
   PythonShell.run('app.py', null, function  (err, results)  {
-    if  (err)  throw err;
+    if  (err){
+      throw err;
+    }  
     console.log('server initiated');
     console.log('results', results);
     });
 }
-
-
 
 //create main application window
 let mainWindow;
 function createWindow () {
   // Create the browser window.
   mainWindow = new BrowserWindow({
-    width: 1100,
-    height: 665,
+    width: 1250,
+    height: 850,
     backgroundColor: '#fff',
     show: false,
     webPreferences: {
@@ -78,11 +76,57 @@ app.on('window-all-closed', function () {
   if (process.platform !== 'darwin') 
   {    
     app.quit();
+    PythonShell.kill('app.py');
   }
 });
 
 // In this file you can include the rest of your app's specific main process
 // code. You can also put them in separate files and require them here.
+
+
 //get system fonts
+const getSystemFonts = require("get-system-fonts");
+console.log(process.version);
+async function files() {
+  return files = await getSystemFonts();
+};
+
+files().then(function(val){
+
+  const fs = require('fs'); 
+
+  let data = JSON.stringify(val);
+  
+  fs.wr
+
+  fs.writeFile('./lists/fonts.json', data, (err) => {
+    if(err) {
+      throw err;
+    }
+    console.log('file writen');
+
+  });
+});
+
+
+
+
+//get printers
+// const getPrinters = require("printer");
+// function getAllPrinters(){
+//   let data = JSON.stringify(getPrinters());
+
+//   const fs = require('fs');
+
+//   fs.writeFile('./lists/printers.json', data, (err) =>{
+//     if(err){
+//       throw err;
+//     }
+//     console.log('printers written');
+//   });
+
+
+// }
+
 
 

@@ -2,7 +2,7 @@
     {% block content %}
     <div class="row mw_cards">
         <a class="tasks" data-toggle="modal" data-target="#myModal" data-href="{{url_for('dine_in')}}"><button  class="btn btn-primary btn-lg taskbtn">DINE IN</button></a>
-        <a href="{{url_for('carry_out')}}"class="tasks"  data-href="{{url_for('carry_out')}}"><button class="btn btn-primary btn-lg taskbtn">CARRY OUT</button></a>
+        <a class="tasks"  data-toggle="modal" data-target="#myModal" data-href="{{url_for('carry_out')}}"><button class="btn btn-primary btn-lg taskbtn">CARRY OUT</button></a>
         <a  class="tasks" data-toggle="modal" data-target="#myModal" data-href="{{url_for('orders')}}"><button class="btn btn-primary btn-lg taskbtn">ORDERS</button></a>
         <a  class="tasks" data-toggle="modal" data-target="#myModal" data-href="{{url_for('admin')}}"><button class="btn btn-primary btn-lg taskbtn">BACK OFFICE</button></a>
         <a class="tasks" data-toggle="modal" data-target="#myModal" data-href="{{url_for('kitchen')}}"><button class="btn btn-primary btn-lg taskbtn">KITCHEN</button></a>

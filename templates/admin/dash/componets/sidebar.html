@@ -42,7 +42,7 @@
                     </a>
                   </li>
                   <li class="nav-item {{ pos_active}}" >
-                    <a class="nav-link" href="">                      
+                    <a class="nav-link" href="{{url_for('positions')}}">                      
                       <span class="sidebar-normal">Positions</span>
                     </a>
                   </li>                 
@@ -61,11 +61,17 @@
                 <span class="sidebar-normal"> Import Menu Items </span>
               </a>
             </li>
+            <li class="nav-item">
+              <a class="print nav-link" href="">
+                  <i class="material-icons">print</i>
+                <span class="sidebar-normal"> Test Print </span>
+              </a>
+            </li>
           </ul>
         </div>  
       </li>
       <li class="nav-item {{ops_post}}">
-        <a class="nav-link" data-toggle="collapse" href="#ops">
+        <a class="nav-link" data-toggle="collapse" href="#ops" aria-expanded="{{ops_expand}}">
           <i class="material-icons">donut_small</i>
           <p> OPERATIONS
             <b class="caret"></b>
@@ -74,20 +80,14 @@
         <div class="collapse {{mng_show}}" id="ops">
           <ul class="nav">
             <li class="nav-item {{ mng_active}}">
-              <a class="nav-link" data-toggle="collapse" href="#menu">
-                <i class="material-icons">dashboard</i>
+              <a class="nav-link" data-toggle="collapse" href="#menu" aria-expanded="{{mng_expand}}">
+                <i class="material-icons">business</i>
                 <p> Management 
                   <b class="caret"></b>
                 </p>
               </a>
               <div id="menu" class="collapse {{menu_show}}">
-                <ul class="nav">
-                  <li class="nav-item {{ cate_active}}">
-                    <a class="nav-link" href="">
-                      <i class="material-icons">category</i>
-                      <span class="sidebar-normal">Order Types</span>
-                    </a>
-                  </li>
+                <ul class="nav">                  
                   <li class="nav-item {{ dis_active}}" >
                     <a class="nav-link" href="">
                       <i class="material-icons">money</i>
@@ -104,7 +104,7 @@
               </div>
             </li>
             <li class="nav-item {{ menu_mng_active}}">
-              <a class="nav-link" href="">
+              <a class="nav-link" href="{{url_for('menu')}}">
                 <i class="material-icons">menu_book</i>
                 <span class="sidebar-normal">Menu Management </span>
               </a>
