@@ -6,6 +6,7 @@ from flask_sqlalchemy import SQLAlchemy, Pagination
 from sqlalchemy import event, DDL, extract, func
 from sqlalchemy.event import listen
 from jinja2 import TemplateNotFound
+from sqlalchemy.orm import backref
 from hashutil import make_pw_hash, check_pw_hash
 from helpers import *
 
@@ -14,10 +15,11 @@ app = Flask(__name__)
 app.config.from_pyfile(os.path.join(".", "config.py"), silent=False)
 db = SQLAlchemy(app)
 
-class Customer():
+class Customer(db.Model):
     __tablename__ = "customer"
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(255), nullable=True)
+    customer_orders = db.relationship('Order', backref='customer')
     
     def __init__(self, name=""):
         self.name = name
@@ -28,29 +30,38 @@ class Staff(db.Model):
     first_name = db.Column(db.String(255), nullable = False)
     last_name = db.Column(db.String(255), nullable = False)
     staff_id = db.Column(db.NCHAR(6), nullable=False)
+    id_updated = db.Column(db.Boolean, nullable=False, default=False)
     position_id = db.Column(db.Integer, db.ForeignKey('position.id'))
     role_id = db.Column(db.Integer, db.ForeignKey('role.id'))
+    is_active = db.Column(db.Boolean, default=True, nullable=False)
+    created_orders = db.relationship("Order", foreign_keys='Order.created_by_id')
+    changed_orders = db.relationship("Order", foreign_keys='Order.last_changed_by_id')    
 
-    def __init__(self, first_name, last_name, pos, role):
+    def __init__(self, first_name, last_name, pos, role, is_active, is_updated=False):
         self.first_name = first_name
         self.last_name = last_name
         self.staff_id = make_pw_hash(''.join([random.choice(string.digits) for x in range(6)]))
         self.position_id = pos
         self.role_id = role
-        
+        self.is_active = is_active
+        self.is_updated = is_updated
 
 class Staff_Position(db.Model):
     __tablename__ = 'position'
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column('type', db.String(50), nullable=False, unique=True)    
+    name = db.Column('type', db.String(50), nullable=False, unique=True)
+    is_active = db.Column(db.Boolean, nullable=False, default=True)
+    staff = db.relationship('Staff', backref='position')     
 
-    def __init__(self, name):
+    def __init__(self, name, is_active):
         self.name = name
+        self.is_active = is_active
 
 class Staff_Role(db.Model):
     __tablename__ = 'role'
     id = db.Column(db.Integer, primary_key=True)
     role_type = db.Column('type', db.String(50), nullable = False)
+    staff = db.relationship('Staff', backref='role')     
 
     def __init__(self, role_type):
         self.role_type = role_type
@@ -58,68 +69,30 @@ class Staff_Role(db.Model):
 class Order(db.Model):
     __tablename__ = "order"
     id = db.Column(db.Integer, primary_key=True)
-    order_type_id = db.Column(db.Integer, db.ForeignKey('order_type.id'), nullable=False)
-    order_status_id = db.Column(db.Integer, db.ForeignKey('order_status.id'), default=1, nullable=False)
+    type_id = db.Column(db.Integer, db.ForeignKey('order_type.id'), nullable=False)
+    status_id = db.Column(db.Integer, db.ForeignKey('order_status.id'), default=1, nullable=False)
     date_created = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
-    last_changed = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    date_last_changed = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
     notes = db.Column(db.Text, nullable=True, default="")
-    subtotal = db.Column(db.Numeric(2), nullable=False)
-    tax = db.Column(db.Numeric(2), nullable=False)
-    charged_tips = db.Column(db.Numeric(2), nullable=True)
-    order_total = db.Column(db.Numeric(2), nullable=False)
     created_by_id = db.Column(db.Integer, db.ForeignKey('staff.id'), nullable=False)
     last_changed_by_id = db.Column(db.Integer, db.ForeignKey('staff.id'), nullable=True)
-    order_item = db.relationship('Ordered_Item', backref='ordered_item', lazy=True)
+    customer_id = db.Column(db.Integer, db.ForeignKey('customer.id'), nullable=True)
+    items = db.relationship('Ordered_Item', backref='items')
+    applied_discounts = db.relationship('Order_Discount', backref="discounts")           
 
-    def __init__(self, order_type_id, order_status, created_by_id, subtotal,  tax, order_total, notes="", customer_id=""):
-        self.order_type_id = order_type_id
-        self.order_status = order_status
-        self.created_by_id = created_by_id
-        self.subtotal = subtotal
-        self.tax = tax
-        self.order_total = order_total
+    def __init__(self, type_id, created_by_id, status, notes="", customer_id=""):
+        self.type_id = type_id
+        self.created_by_id = created_by_id        
         self.notes = notes
         self.customer_id = customer_id
+        self.status_id = status
 
-
-class Order_Status(db.Model):
-    __tablename__ = "order_status"    
-    id = db.Column(db.Integer, primary_key=True)
-    order_status = db.Column(db.String(20), nullable = False, unique=True)
-
-    def __init__(self, order_status):
-        self.order_status = order_status
-
-class Discount(db.Model):
-    __tablename__ = "discount"
-    id = db.Column(db.Integer, primary_key=True)
-    discount_name = db.Column(db.String(50), nullable = False, unique=True)
-    discount_type_id = db.Column(db.Integer, db.ForeignKey('discount_type.id'), nullable=False)
-    value = db.Column(db.Numeric(2), nullable=False)
-    expir_date = db.Column(db.DateTime, nullable=False)
-    is_active = db.Column(db.Boolean, nullable = False)
-    no_expiry = db.Column(db.Boolean, nullable = True)
-
-    def __init__(self, name, dtype, value, active, expdate, expir):
-        self.discount_name = name
-        self.discount_type = dtype
-        self.value = value
-        self.expir_date = expdate
-        self.is_active = active
-        self.no_expiry = expir  
-
-class Discount_Type(db.Model):
-    __tablename__ = "discount_type"
-    id = db.Column(db.Integer, primary_key=True)
-    type_name = db.Column(db.String(20), nullable=False, unique=True)
-
-    def __init__(self, name):
-        self.type_name = name
 
 class Order_Type(db.Model):
     __tablename__ = "order_type"
     id = db.Column(db.Integer, primary_key=True)
     order_type = db.Column(db.String(50), nullable = False, unique=True)
+    type_of_order = db.relationship('Order', backref='order', lazy=True) 
 
     def __init__(self, order_type):
         self.order_type = order_type
@@ -128,13 +101,57 @@ class Ordered_Item(db.Model):
     __tablename__ = "ordered_item"
     id = db.Column(db.Integer, primary_key=True)
     order_id = db.Column(db.Integer, db.ForeignKey('order.id'), nullable=False)
+    order = db.relationship('Order', backref='order.id', lazy=True)
     menu_item_id = db.Column(db.Integer, db.ForeignKey('menu_item.id'), nullable=False)
     quantity = db.Column(db.Integer)
 
     def __init__(self, orID, itID, qty):
         self.order_id = orID 
         self.menu_item_id = itID
-        self.quatity = qty       
+        self.quatity = qty  
+
+
+class Order_Status(db.Model):
+    __tablename__ = "order_status"    
+    id = db.Column(db.Integer, primary_key=True)
+    status = db.Column(db.String(20), nullable = False, unique=True)
+    status_of_order = db.relationship('Order', backref='order_status', lazy=True) 
+
+    def __init__(self, order_status):
+        self.order_status = order_status
+
+class Order_Discount(db.Model):
+    __tablename__ = "order_discount"
+    id = db.Column(db.Integer, primary_key=True)
+    order_id = db.Column(db.Integer, db.ForeignKey('order.id'), nullable=False)
+    discount_id = db.Column(db.Integer, db.ForeignKey('discount.id'), nullable=False)
+
+class Discount(db.Model):
+    __tablename__ = "discount"
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(50), nullable = False, unique=True)
+    type_id = db.Column(db.Integer, db.ForeignKey('discount_type.id'), nullable=False)
+    value = db.Column(db.Numeric(2), nullable=False)
+    expir_date = db.Column(db.DateTime, nullable=True)
+    is_active = db.Column(db.Boolean, nullable=False, default=True)
+    no_expiry = db.Column(db.Boolean, nullable =True, default=True)
+    order_discounts = db.relationship('Order_Discount', backref='order_discount', lazy=True)
+
+    def __init__(self, name, dtype, value,  is_active, no_expiry):
+        self.discount_name = name
+        self.discount_type = dtype
+        self.value = value
+        self.is_active = is_active
+        self.no_expiry = no_expiry          
+
+class Discount_Type(db.Model):
+    __tablename__ = "discount_type"
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(20), nullable=False, unique=True)
+    type_of_discount = db.relationship('Discount', backref='discount', lazy=True) 
+
+    def __init__(self, name):
+        self.name = name
 
 
 class Sale(db.Model):
@@ -168,43 +185,46 @@ class Menu_Item(db.Model):
     unit_price = db.Column(db.Numeric(2), nullable=False)
     item_category = db.Column(db.Integer, db.ForeignKey('menu_category.id'), nullable=False)
     item_description = db.Column(db.Text, nullable=True, default="")
-    is_offered = db.Column(db.Boolean, nullable = True)
+    image = db.Column(db.Text, nullable=True)
+    is_offered = db.Column(db.Boolean, nullable=False)
     is_special = db.Column(db.Boolean, nullable = True)
-    has_substitute = db.Column(db.Boolean, nullable = True)
-    Substitute = db.relationship('Substitute', backref='substitute', lazy=True)
+    ordered_item = db.relationship('Ordered_Item', backref='ordered_item', lazy=True)
+    special_item = db.relationship('Menu_Special', backref='special', lazy=True)
+    
 
-    def __init__(self, name, price, cat, descr):
+    def __init__(self, name, price, cat, descr="", is_offered=True, is_special=False):
         self.item_name = name
         self.unit_price = price
         self.item_category = cat
         self.item_description = descr
-        self.is_offered = True
-        self.is_special = False
-        self.has_substitute = False
+        self.is_offered = is_offered
+        self.is_special = is_special
+
 
 class Menu_Categorey(db.Model):
     __tablename__ = "menu_category"
     id = db.Column(db.Integer, primary_key=True)
     category_name = db.Column(db.String(50), unique=True, nullable = False)
-    is_active = db.Column(db.Boolean, nullable=False)
+    is_active = db.Column(db.Boolean, nullable=False, default=True)
+    items = db.relationship('Menu_Item', backref='menu_item', lazy=True)
 
-    def __init__(self, name):
+    def __init__(self, name, activ):
         self.category_name = name
-        self.is_active = True
-
-class Substitute(db.Model):
-    __tablename__ = "substitute"
-    id = db.Column(db.Integer, primary_key=True)
-    menu_item_id = db.Column(db.Integer, db.ForeignKey('menu_item.id'), nullable=False)
-    
+        self.is_active = activ
 
 class Menu_Special(db.Model):
-    __tablename__ = "menu_special"
+    __tablename__ = "special"
     id = db.Column(db.Integer, primary_key=True)
     menu_item_id = db.Column(db.Integer, db.ForeignKey('menu_item.id'), nullable=False)
     has_entree = db.Column(db.Boolean, nullable = False)
     has_appetizer = db.Column(db.Boolean, nullable = False)
     has_soup = db.Column(db.Boolean, nullable = False)
+
+    def __init__(self, item, entree, app, soup) :
+        self.menu_item_id = item
+        self.has_entree = entree
+        self.has_appetizer = app
+        self.has_soup = soup
 
 class Table(db.Model):
     __tablename__ = "table"
@@ -212,11 +232,13 @@ class Table(db.Model):
     table_no = db.Column(db.Integer, unique=True)
     capacity = db.Column(db.Integer)
     description = db.Column(db.Text, nullable=True, default="")
+    available = db.Column(db.Boolean, default=True, nullable=False)
 
-    def __init__(self, no, cap, desc):
+    def __init__(self, no, cap, desc, avail):
         self.table_no = no
         self.capacity = cap 
         self.description = desc
+        self.available = avail
 
 class Printer(db.Model):
     __tablename__ = "printer"      
@@ -224,16 +246,20 @@ class Printer(db.Model):
     name = db.Column(db.String(100), unique=True, nullable = False)
     printer =  db.Column(db.String(255), unique=True, nullable = False)
     type_id = db.Column(db.Integer, db.ForeignKey('printer_type.id'), nullable=False)
-    Printer_Type = db.relationship('Printer_Type', backref='Printer_Type', lazy=True)
+    
 
 class Printer_Type(db.Model):
     __tablename__ = "printer_type"
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), unique=True, nullable = False)
+    printer = db.relationship('Printer', backref='Printer', lazy=True)
     
 
 event.listen(Staff_Role.__table__, 'after_create', DDL(""" INSERT INTO role (id, type) VALUES (1, 'administrator'),  (2, 'user') """))
-event.listen(Staff_Position.__table__, 'after_create', DDL(""" INSERT INTO position (id, type) VALUES (1, 'manager'),  (2, 'server') """))
+event.listen(Staff_Position.__table__, 'after_create', DDL(""" INSERT INTO position (id, type, is_active) VALUES (1, 'manager', True),  (2, 'server', True) """))
+event.listen(Order_Status.__table__, 'after_create', DDL(""" INSERT INTO order_status (id, status) VALUES (1, 'open'),  (2, 'settled'), (3, 'canceled'), (4, 'refund') """))
+event.listen(Order_Type.__table__, 'after_create', DDL(""" INSERT INTO order_type (id, order_type) VALUES (1, 'dine-in'),  (2, 'carry-out') """))
+event.listen(Discount_Type.__table__, 'after_create', DDL(""" INSERT INTO discount_type (id, name) VALUES (1, 'Amount'),  (2, 'Percentage') """))
 event.listen(Printer_Type.__table__, 'after_create', DDL(""" INSERT INTO printer_type (id, name) VALUES (1, 'report'),  (2, 'receipt'), (3, 'kitchen') """))
 
 
@@ -306,10 +332,6 @@ def admin():
 def kitchen():
     return render_template('screens/auth.html', title="Authorizations", bodyClass='dashboard', date=getDate())
 
-@app.route('/shut-down', methods=['GET', 'POST'])
-def shut_down():
-    return render_template('screens/auth.html', title="Authorizations", bodyClass='dashboard')
-
 @app.route('/config', methods=['GET'])
 def config():
     if session.get('role') == 'Administrator':
@@ -352,10 +374,7 @@ def order_activity():
     return render_template('', title="SalesPoint - Version 1.0-build 1")
 
 @app.route('/logout')
-def logout():
-    # session.pop('user', None)
-    # session.pop('id', None)
-    # session.pop('authenticated', None)
+def logout():   
     session.clear()
     return redirect(url_for('home'))
 
@@ -475,4 +494,4 @@ def add_item():
 if (__name__) == '__main__':
     db.create_all()
     #db.drop_all()
-    app.run()
+    #app.run()
