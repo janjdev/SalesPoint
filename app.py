@@ -30,30 +30,31 @@ class Staff(db.Model):
     first_name = db.Column(db.String(255), nullable = False)
     last_name = db.Column(db.String(255), nullable = False)
     staff_id = db.Column(db.NCHAR(6), nullable=False)
-    id_updated = db.Column(db.Boolean, nullable=False, default=False)
+    id_updated = db.Column(db.Boolean)
     position_id = db.Column(db.Integer, db.ForeignKey('position.id'))
     role_id = db.Column(db.Integer, db.ForeignKey('role.id'))
-    is_active = db.Column(db.Boolean, default=True, nullable=False)
+    is_active = db.Column(db.Boolean)
     created_orders = db.relationship("Order", foreign_keys='Order.created_by_id')
     changed_orders = db.relationship("Order", foreign_keys='Order.last_changed_by_id')    
 
-    def __init__(self, first_name, last_name, pos, role, is_active, is_updated=False):
+    def __init__(self, first_name, last_name, pos, role, is_active=True, id_updated=False):
         self.first_name = first_name
         self.last_name = last_name
         self.staff_id = make_pw_hash(''.join([random.choice(string.digits) for x in range(6)]))
         self.position_id = pos
         self.role_id = role
         self.is_active = is_active
-        self.is_updated = is_updated
+        self.id_updated = id_updated
+        
 
 class Staff_Position(db.Model):
     __tablename__ = 'position'
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column('type', db.String(50), nullable=False, unique=True)
-    is_active = db.Column(db.Boolean, nullable=False, default=True)
+    is_active = db.Column(db.Boolean, nullable=False)
     staff = db.relationship('Staff', backref='position')     
 
-    def __init__(self, name, is_active):
+    def __init__(self, name, is_active=True):
         self.name = name
         self.is_active = is_active
 
@@ -70,7 +71,7 @@ class Order(db.Model):
     __tablename__ = "order"
     id = db.Column(db.Integer, primary_key=True)
     type_id = db.Column(db.Integer, db.ForeignKey('order_type.id'), nullable=False)
-    status_id = db.Column(db.Integer, db.ForeignKey('order_status.id'), default=1, nullable=False)
+    status_id = db.Column(db.Integer, db.ForeignKey('order_status.id'), nullable=False)
     date_created = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
     date_last_changed = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
     notes = db.Column(db.Text, nullable=True, default="")
@@ -80,12 +81,13 @@ class Order(db.Model):
     items = db.relationship('Ordered_Item', backref='items')
     applied_discounts = db.relationship('Order_Discount', backref="discounts")           
 
-    def __init__(self, type_id, created_by_id, status, notes="", customer_id=""):
+    def __init__(self, type_id, created_by_id, status=1, notes="", customer_id=""):
         self.type_id = type_id
-        self.created_by_id = created_by_id        
+        self.created_by_id = created_by_id
+        self.status_id = status        
         self.notes = notes
         self.customer_id = customer_id
-        self.status_id = status
+       
 
 
 class Order_Type(db.Model):
@@ -133,11 +135,11 @@ class Discount(db.Model):
     type_id = db.Column(db.Integer, db.ForeignKey('discount_type.id'), nullable=False)
     value = db.Column(db.Numeric(2), nullable=False)
     expir_date = db.Column(db.DateTime, nullable=True)
-    is_active = db.Column(db.Boolean, nullable=False, default=True)
-    no_expiry = db.Column(db.Boolean, nullable =True, default=True)
+    is_active = db.Column(db.Boolean, nullable=False)
+    no_expiry = db.Column(db.Boolean, nullable =True)
     order_discounts = db.relationship('Order_Discount', backref='order_discount', lazy=True)
 
-    def __init__(self, name, dtype, value,  is_active, no_expiry):
+    def __init__(self, name, dtype, value,  is_active=True, no_expiry=True):
         self.discount_name = name
         self.discount_type = dtype
         self.value = value
@@ -201,16 +203,17 @@ class Menu_Item(db.Model):
         self.is_special = is_special
 
 
-class Menu_Categorey(db.Model):
-    __tablename__ = "menu_category"
+class Menu_Category(db.Model):
+    __tablename__ = 'menu_category'
     id = db.Column(db.Integer, primary_key=True)
-    category_name = db.Column(db.String(50), unique=True, nullable = False)
-    is_active = db.Column(db.Boolean, nullable=False, default=True)
-    items = db.relationship('Menu_Item', backref='menu_item', lazy=True)
+    name = db.Column('category_name', db.String(50), nullable=False, unique=True)
+    is_active = db.Column(db.Boolean, nullable=False)
+    items = db.relationship('Menu_Item', backref='menu_item', lazy=True)     
 
-    def __init__(self, name, activ):
-        self.category_name = name
-        self.is_active = activ
+    def __init__(self, name, is_active=True):
+        self.name = name
+        self.is_active = is_active        
+   
 
 class Menu_Special(db.Model):
     __tablename__ = "special"
@@ -231,10 +234,10 @@ class Table(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     table_no = db.Column(db.Integer, unique=True)
     capacity = db.Column(db.Integer)
-    description = db.Column(db.Text, nullable=True, default="")
-    available = db.Column(db.Boolean, default=True, nullable=False)
+    description = db.Column(db.Text, nullable=True,)
+    available = db.Column(db.Boolean, nullable=False)
 
-    def __init__(self, no, cap, desc, avail):
+    def __init__(self, no, cap, desc="", avail=True):
         self.table_no = no
         self.capacity = cap 
         self.description = desc
@@ -277,9 +280,20 @@ def home():
 def auth():
     return render_template('screens/auth.html', title="Authorizations", bodyClass='dashboard')
 
+@app.route('/shut-down', methods=['GET', 'POST'])
+def shut_down():
+    return render_template('screens/auth.html', title="Authorizations", bodyClass='dashboard')
+
+@app.route('/logout')
+def logout():   
+    session.clear()
+    return redirect(url_for('home'))   
+
+
 @app.route('/dine-in', methods=['GET', 'POST'])
 def dine_in():
     return render_template('',  title="SalesPoint - Version 1.0-build 1.0.1", bodyClass='tables', date=getDate())
+
 
 @app.route('/carry-out', methods=['GET', 'POST'])
 def carry_out():
@@ -309,6 +323,11 @@ def orders():
     if id in session:
         return render_template('screens/auth.html', title="Authorizations", bodyClass='dashboard', date=getDate())
 
+
+@app.route('/kitchen', methods=['GET', 'POST'])
+def kitchen():
+    return render_template('screens/auth.html', title="Authorizations", bodyClass='dashboard', date=getDate())
+
 @app.route('/admin', methods=['GET', 'POST'])
 def admin():
     if request.method == 'POST':
@@ -328,9 +347,6 @@ def admin():
             return render_template('admin/dash/pages/dash.html', title="SalesPoint - Version 1.0-build 1", bodyClass='dashboard', time=datetime.now().strftime("%I:%M"), daynight=datetime.now().strftime("%p"), user=user, date=getDate(), role=session.get('role'))
         return redirect(url_for('home'))
 
-@app.route('/kitchen', methods=['GET', 'POST'])
-def kitchen():
-    return render_template('screens/auth.html', title="Authorizations", bodyClass='dashboard', date=getDate())
 
 @app.route('/config', methods=['GET'])
 def config():
@@ -339,6 +355,7 @@ def config():
         printertypes = Printer_Type.query.all()
         return render_template('admin/dash/pages/config.html', title="SalesPoint - Version 1.0-build 1", bodyClass='config', fonts=getFonts(), config_active='active', config_show='show', config_expand='true', admin_active='active', date=getDate(), role=session.get('role'), user=user, printertype = printertypes, info = getBusInfo(), term = getTerminal())
     return redirect(url_for('home'))
+
 
 @app.route('/bus', methods=['POST'])
 def get_bus():
@@ -350,6 +367,7 @@ def get_bus():
             return redirect(url_for('config'))
     else:
         return redirect(url_for('home'))
+
 
 @app.route('/term', methods=['POST'])
 def get_term():
@@ -369,14 +387,10 @@ def get_term():
     else:
         return redirect(url_for('home'))  
  
+
 @app.route('/activity')
 def order_activity():
     return render_template('', title="SalesPoint - Version 1.0-build 1")
-
-@app.route('/logout')
-def logout():   
-    session.clear()
-    return redirect(url_for('home'))
 
 
 @app.route('/staff', methods=['POST', 'GET'])
@@ -436,7 +450,7 @@ def positions():
             return render_template('/admin/dash/pages/positions.html', title="SalesPoint - Version 1.0-build 1", bodyClass="position", staff_active='active', config_active='active', config_expand='true', staff_expand='true', config_show='show', mng_staff_show='show', date=getDate(), role=session.get('role'), user=user, positions=positions, pos_active='active')
         if request.method == 'POST':
             name = request.form['name']
-            newPos = Staff_Position(name)
+            newPos = Staff_Position(name, 1)
             db.session.add(newPos)
             db.session.commit()
             return jsonify({'message': 'OK', 'alertType': 'success', 'timer': 500, 'callback': 'goTo', 'param' : url_for('positions')})
@@ -447,39 +461,69 @@ def edit_pos(pos_id):
     if session.get('role') == 'Administrator':
         if request.method == 'POST':        
             pos = Staff_Position.query.filter_by(id = pos_id).first()
-            pos.name = request.form['name']           
+            pos.name = request.form['name']
+            pos.is_active = 0           
             db.session.commit()
             return jsonify({'message': 'OK', 'alertType': 'success', 'timer': 500, 'callback': 'goTo', 'param' : url_for('positions')})
         else:
-            return redirect(url_for('positions')) 
-    return redirect(url_for('logout'))
+            return redirect(url_for('positions'))
+    else: 
+        return redirect(url_for('logout'))
+
+#=============================MENU ROUTES=========================================#
 
 @app.route('/menu', methods=['POST', 'GET'])
 def menu():
-    if session.get('role') == 'Administrator':
-        if request.method == 'GET':
-            cat = Menu_Categorey.query.all()
-            i = Menu_Item.query.all()
-            s = []
-            for a in i:
-                t = Menu_Categorey.query.filter_by(id = a.item_category).first()
-                bb = {'item': a, 'cat': t.name}
-                s.append(bb)
-            user = Staff.query.filter_by(id = session.get('id')).first()
-            return render_template('/admin/dash/pages/menu.html', title="SalesPoint - Version 1.0-build 1", bodyClass="menu", menu_mng_active='active', ops_post='active', ops_expand='true', mng_show='show', date=getDate(), role=session.get('role'), user=user, cat=cat, items=s, menutable='Menu Categories', itemtable='Menu Items')
-    return redirect(url_for('logout'))    
+    if session.get('role') == 'Administrator':       
+        cat = Menu_Category.query.all()
+        catkeys =Menu_Category.__table__.columns.keys()
+        i = Menu_Item.query.all()
+        itemkeys = Menu_Item.__table__.columns.keys()
+        s = []
+        for a in i:
+            t = Menu_Category.query.filter_by(id = a.item_category).first()
+            bb = {'item': a, 'cat': t.name}
+            s.append(bb)
+        user = Staff.query.filter_by(id = session.get('id')).first()
+        return render_template('/admin/dash/pages/menu.html', title="SalesPoint - Version 1.0-build 1", bodyClass="menu", menu_mng_active='active', ops_post='active', ops_expand='true', mng_show='show', date=getDate(), role=session.get('role'), user=user, cat=cat, items=s, menutable='Menu Categories', itemtable='Menu Items', catkeys=catkeys, itemkeys=itemkeys)
+    else:    
+        return redirect(url_for('logout'))    
 
-@app.route('/edit_cat/<int:id>', methods=['POST'])
+@app.route('/menu/edit_cat/<int:id>', methods=['POST'])
 def edit_cat(id):
-    return
+    if session.get('role') == 'Administrator':
+        if request.method == 'POST':        
+            cate = Menu_Category.query.filter_by(id = id).first()
+            cate.name = request.form['cat_name']
+            if 'active' in request.form:
+               cate.is_active = True           
+            db.session.commit()
+            return jsonify({'message': 'OK', 'alertType': 'success', 'timer': 500, 'callback': 'loadElement', 'param' : 'cat'})
+        else:
+            return redirect(url_for('menu'))
+    else: 
+        return redirect(url_for('logout'))
 
-@app.route('/add_cat/', methods=['POST'])
-def add_cat():
-    return
+@app.route('/menu/cat/add', methods=['POST'])
+def addCat():
+    if session.get('role') == "Administrator":
+        if request.method == 'POST':
+            catname = request.form['cat_name']
+            is_active = False
+            if 'active' in request.form:
+                is_active = True
+            newcat = Menu_Category(catname, is_active)
+            db.session.add(newcat)
+            db.session.commit()        
+            return jsonify({'message': 'OK', 'alertType': 'success', 'timer': 500, 'callback': 'loadElement', 'param' : 'cat'})
+        else:
+            return redirect(url_for('menu'))
+    else:
+        return redirect(url_for('logout'))
 
 @app.route('/edit_item/<int:id>', methods=['POST'])
 def edit_item(id):
-    return
+   return
 
 @app.route('/add_item/', methods=['POST'])
 def add_item():
@@ -494,4 +538,4 @@ def add_item():
 if (__name__) == '__main__':
     db.create_all()
     #db.drop_all()
-    #app.run()
+    app.run()
