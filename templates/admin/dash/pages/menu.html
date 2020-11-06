@@ -4,13 +4,13 @@
 
 <!--Menu category and items tables and forms-->
 <div class="row">
-    <div class="col-md-10">
-        <div id="configCard" class="card">
+    <div class="col-md-12">
+        <div id="menuCard" class="card">
             <!-- <div class="card-header"> -->
                 <!-- colors: "header-primary", "header-info", "header-success", "header-warning", "header-danger" -->
                 <div class="card nav-tabs-navigation">
                     <div class="nav-tabs-wrapper">
-                        <ul class="nav nav-pills nav-pills-success" role="tablist">
+                        <ul class="nav nav-pills nav-pills-success" role="tablist" id=menuTabs>
                             <li class="nav-item">
                                 <a id="menucat" class="nav-link active" href="#cat" data-toggle="tab">Categories</a>
                             </li>
@@ -24,9 +24,9 @@
             <!-- <div class="card-body "> -->
                 <div class="tab-content">
                     <div class="tab-pane card active" id="cat">
-                        <div class="col-md-4 category-filter">
+                        <div class="col-md-3 col-lg-2 category-filter">
                             <select class="selectpicker" data-size="2" data-style="btn btn-success btn-round" title="Filter">
-                              <option disabled selected>Active Categories</option>
+                              <option value="all" selected>All</option>
                               <option value="True">Active</option>
                               <option value="False">Inactive</option>                              
                             </select>
@@ -40,14 +40,14 @@
                         
                         <div id="categories" class="col-md-12">                            
                             <div class="table-responsive">
-                                <table id="catTable" class="table table-striped">
+                                <table id="catTable" class="table table-striped w-auto">
                                 <thead>
                                     <tr> 
                                         <th></th>
                                         <th></th>                                                                      
                                         {% if catkeys %}
                                             {% for key in catkeys %}                                                                      
-                                            <th class="text-center text-capitalize">{{key}}</th>
+                                            <th class="th-sm text-center text-capitalize">{{key}}</th>
                                             {% endfor %}
                                         {% endif %}                                        
                                         <th class="text-center">Actions</th>                                                      
@@ -56,7 +56,7 @@
                                 <tbody>
                                 {% if cat %}
                                     {% for c in cat %}                                                      
-                                <tr id="{{c.id}}" class="{{c.is_active}}">
+                                <tr id="{{c.id}}" data-class="cat" class="{{c.is_active}} all">
                                     <td class="text-center"></td>                                                        
                                     <td>
                                         <div class="form-check">
@@ -68,14 +68,14 @@
                                         </label>
                                         </div>
                                     </td>
-                                    <td class="data text-center text-capitalize">{{c.id}}</td>
+                                    <td class="text-center text-capitalize">{{c.id}}</td>
                                     <td class="name text-center text-capitalize">{{c.name}}</td>
                                     <td class="is_active text-center text-capitalize" data-cat_active="{{c.is_active}}">{{c.is_active}}</td>                                                                                            
                                     <td class="td-actions justify-content-center">                                                            
-                                        <button data-id="{{c.id}}" type="button" id="edit" data-toggle="modal" data-target="#catModal" class="btn btn-success btn-link lime-accent-4-text cat-action" rel="tooltip" data-placement="bottom" title="Edit" data-func="edit" data-title="Edit Category">
-                                            <i class="material-icons">edit</i>
+                                        <button data-id="{{c.id}}" type="button" id="edit" class="btn btn-link lime-accent-4-text cat-task" rel="tooltip" data-placement="bottom" title="Set Active" data-func="active" data-title="Edit Category">
+                                            <i class="material-icons">check</i>
                                         </button>
-                                        <button data-id="{{c.id}}" type="button" id="archive_cat" class="btn btn-danger btn-link red-accent-3-text cat-action" rel="tooltip" data-placement="bottom" title="Set inactive" data-title="Archive Category" data-func="archive">
+                                        <button data-id="{{c.id}}" type="button" id="archive_cat" class="btn btn-link red-accent-3-text cat-task" rel="tooltip" data-placement="bottom" title="Set inactive" data-title="Archive Category" data-func="archived">
                                             <i class="material-icons">close</i>
                                         </button>
                                     </td>
@@ -95,11 +95,34 @@
                             </div>
                         </div>
                         <!--Category Modal-->
-                        {% include 'admin/dash/componets/catModal.html' %}                                 
+                        {% include 'admin/dash/componets/catModal.html' %}
+                        <script src="{{ url_for('static', filename='assets/js/dash/menu_cat.js')}}"></script>                                 
                     </div> 
                 <!--End Category table-->  
         <!--==========MENU ITEMS===========-->        
                     <div class="tab-pane card" id="item">
+                        <div class=" col-sm-8 col-md-4 col-lg-2 category-filter">
+                            <div class="dropdown">
+                              <button class="dropdown-toggle btn btn-success btn-round btn-block" type="button" id="multiDropdownMenu" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                               Filter
+                              </button>
+                              <div class="dropdown-menu" aria-labelledby="multiDropdownMenu">                                
+                                <a class="dropdown-item dropdown-toggle" href="#">Categories</a>
+                                <div class="dropdown-menu">
+                                    {% if cat %}
+                                            {% for c in cat %}                                                                      
+                                            <a data-filter="{{c.id}}" class="selects dropdown-item text-center text-capitalize">{{c.name}}</a>
+                                            {% endfor %}
+                                        {% endif %}              
+                                </div>
+                                <a class="dropdown-item dropdown-toggle" href="#">Offered</a>
+                                <div class="dropdown-menu">                                                                                                        
+                                    <a data-filter="True" class="selects dropdown-item text-center text-capitalize">Is Offered</a>
+                                    <a data-filter="False" class="selects dropdown-item text-center text-capitalize">Is Not Offered</a>                                                   
+                                </div>                                
+                              </div>
+                            </div>
+                          </div>
                         <div class="card-header card-header-success card-header-icon">
                             <div class="card-icon">
                               <i class="material-icons">fastfood</i>
@@ -109,66 +132,73 @@
                         
                             <div id="items" class="col-md-12">                  
                                 <div class="table-responsive">
-                                    <table id="itemTable" class="table table-striped">
+                                    <table id="itemTable" class="table table-striped w-auto">
                                     <thead>
                                         <tr> 
                                             <th></th>
-                                            <th>
-                                                <!-- <div class="form-check">
-                                                    <label class="form-check-label">
-                                                        <input id="bulk-actions-check" class="form-check-input" type="checkbox" value="">
-                                                        <span class="form-check-sign">
-                                                            <span class="check"></span>
-                                                        </span>
-                                                    </label>
-                                                </div> -->
-                                            </th>
+                                            <th></th>
                                             {% if itemkeys %}
                                                 {% for key in itemkeys %}                                                                      
-                                            <th class="text-center">{{key}}</th>
+                                            <th class="th-lg text-center">{{key}}</th>
                                                 {% endfor %}
                                             {% endif %}                                                                   
                                             <th class="text-center">Actions</th>                                                      
                                         </tr>
                                     </thead>
-                                    <tbody>                                                      
-                                    <tr id="">
-                                        <td class="text-center"></td>                                                        
-                                        <td>
-                                            <div class="form-check">
-                                            <label class="form-check-label">
-                                                <input class="row-check form-check-input" type="checkbox" value="" data-id="">
-                                                <span class="form-check-sign">
-                                                <span class="check"></span>
-                                                </span>
-                                            </label>
-                                            </div>
-                                        </td>
-                                        <td class="name text-center text-capitalize">Name</td>
-                                        <td class="printer text-center text-capitalize">Printer</td>
-                                        <td class="type text-center text-uppercase">Type</td>                                                        
-                                        <td class="td-actions justify-content-center">                                                            
-                                            <button data-id="" type="button" id="edit_item" data-toggle="modal" data-target="#itemModal" class="btn btn-success btn-link lime-accent-4-text printer-tasks" rel="tooltip" data-placement="bottom" title="Edit" data-func="edit" data-title="Edit Menu Item">
-                                                <i class="material-icons">edit</i>
-                                            </button>
-                                            <button data-id="" type="button" id="archive_item" class="btn btn-danger btn-link red-accent-3-text" rel="tooltip" data-placement="bottom" title="Archive Item" data-func="archive">
-                                                <i class="material-icons">close</i>
-                                            </button>
-                                        </td>
-                                    </tr>                                                    
-                                    </tbody>
+                                    <tbody>
+                                        {% if items %}
+                                            {% for i in items %}                                                      
+                                        <tr id="{{i.item.id}}" data-class="itemrow"  class="{{i.item.is_offered}} {{i.item.item_category}}">
+                                            <td class="text-center"></td>                                                        
+                                            <td>
+                                                <div class="form-check">
+                                                <label class="form-check-label">
+                                                    <input class="row-check form-check-input" type="checkbox" value="" data-id="{{i.item.id}}">
+                                                    <span class="form-check-sign">
+                                                    <span class="check"></span>
+                                                    </span>
+                                                </label>                                                                                               
+                                                </div>
+                                            </td>
+                                            <td id="theID" class="text-center text-capitalize">{{i.item.id}}</td>
+                                            <td class="item_name text-center text-capitalize">{{i.item.item_name}}</td>
+                                            <td class="price text-center text-capitalize">{{i.item.unit_price}}</td>
+                                            <td class="category text-center text-capitalize" data-cat="{{i.item.item_category}}">{{i.cat}}</td>
+                                            <td class="desc text-center text-capitalize">{{i.item.item_description}}</td>
+                                            <td class="img text-center text-capitalize">
+                                                {% if i.img %}
+                                                <div class="img-container">                                                    
+                                                    <img class="img" src="{{i.img}}" alt="...">
+                                              </div>
+                                              {% endif %}
+                                            </td>
+                                            <td class="offered text-center text-capitalize">{{i.item.is_offered}}</td>
+                                            <td class="special text-center text-capitalize">{{i.item.is_special}}</td>                                                                                            
+                                            <td class="td-actions justify-content-center">                                                            
+                                                <button data-id="{{i.item.id}}" type="button" id="edit" class="btn btn-link lime-accent-4-text item-task" rel="tooltip" data-placement="bottom" title="Set Active" data-func="active" data-title="Edit Item">
+                                                    <i class="material-icons">check</i>
+                                                </button>
+                                                <button data-id="{{i.item.id}}" type="button" id="archive_cat" class="btn btn-link red-accent-3-text item-task" rel="tooltip" data-placement="bottom" title="Set inactive" data-func="archived" data-title="Archive Item">
+                                                    <i class="material-icons">close</i>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                            {% endfor %}
+                                        {% endif %}                                                    
+                                        </tbody>
                                     </table>
                                 </div>
                                 <div class="row itemActions">
                                     <span>
-                                        <div class="btn icon-link-size green lighten-3" data-toggle="modal" data-target="#itemModal"><a data-href="{{url_for('add_item')}}" class="item-task" title="Add" data-toggle="tooltip" data-func="add" data-title="Add Menu Item"><i class="material-icons">add</i></a></div>                                                        
-                                        <div class="btn icon-link-size green lighten-3" data-toggle="modal" data-target="#itemModal"><a class="item-task" data-href="" title="Edit" data-toggle="tooltip" data-func="edit" data-title="Edit Menu Item"><i class="material-icons">edit</i></a></div>
+                                        <div class="btn icon-link-size green lighten-3" data-toggle="modal" data-target="#itemModal"><a class="item-task" data-href="{{url_for('add_item')}}"  title="Add" data-toggle="tooltip" data-func="add" data-title="Add Menu Item"><i class="material-icons">add</i></a></div>                                                        
+                                        <div class="btn icon-link-size green lighten-3"><a class="item-task" data-href="" title="Edit" data-toggle="tooltip" data-func="edit" data-title="Edit Menu Item"><i class="material-icons">edit</i></a></div>
                                         <div class="btn icon-link-size green lighten-3"><a class="item-task" title= "Archive Item" data-toggle="tooltip" data-func="archive"><i class="material-icons">close</i></a></div>
                                     </span>
                                 </div>
                             </div>                        
                          <!--Item Modal-->
                          {% include 'admin/dash/componets/itemModal.html' %}
+                         <script src="{{ url_for('static', filename='assets/js/dash/menu_item.js')}}"></script>
                          <!--End Item table-->                    
                     </div>
                 </div>
@@ -176,5 +206,4 @@
         </div>           
     </div>
 </div>
-<script src="{{ url_for('static', filename='assets/js/dash/menu.js')}}"></script>
 {% endblock %}

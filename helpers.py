@@ -131,6 +131,3 @@ def getAutolog():
         data = json.load(jfile)
         autolog = data['autolog']
     return autolog
-
-    
-    

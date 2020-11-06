@@ -9,6 +9,9 @@ from jinja2 import TemplateNotFound
 from sqlalchemy.orm import backref
 from hashutil import make_pw_hash, check_pw_hash
 from helpers import *
+from mimetypes import MimeTypes
+from werkzeug.utils import secure_filename
+from collections import defaultdict
 
 
 app = Flask(__name__)
@@ -184,14 +187,15 @@ class Menu_Item(db.Model):
     __tablename__ = "menu_item"
     id = db.Column(db.Integer, primary_key=True)
     item_name = db.Column(db.String(50), unique=True, nullable = False)
-    unit_price = db.Column(db.Numeric(2), nullable=False)
+    unit_price = db.Column(db.Numeric(12, 2), nullable=False)
     item_category = db.Column(db.Integer, db.ForeignKey('menu_category.id'), nullable=False)
     item_description = db.Column(db.Text, nullable=True, default="")
     image = db.Column(db.Text, nullable=True)
     is_offered = db.Column(db.Boolean, nullable=False)
-    is_special = db.Column(db.Boolean, nullable = True)
+    is_special = db.Column(db.Boolean, nullable=True)
     ordered_item = db.relationship('Ordered_Item', backref='ordered_item', lazy=True)
     special_item = db.relationship('Menu_Special', backref='special', lazy=True)
+    item_image = db.relationship('Item_Image', backref='image', lazy=True)
     
 
     def __init__(self, name, price, cat, descr="", is_offered=True, is_special=False):
@@ -229,6 +233,20 @@ class Menu_Special(db.Model):
         self.has_appetizer = app
         self.has_soup = soup
 
+class Item_Image(db.Model):
+    __tablename__ = "image"
+    id = db.Column(db.Integer, primary_key=True)
+    filename = db.Column(db.Text, nullable=False)
+    item_id = db.Column(db.Integer, db.ForeignKey('menu_item.id'), nullable=True)
+    path = db.Column(db.Text, nullable=False)
+
+    def __init__(self, name, path, item_id):
+        self.filename =name
+        self.path = path
+        self.item_id = item_id
+
+
+
 class Table(db.Model):
     __tablename__ = "table"
     id = db.Column(db.Integer, primary_key=True)
@@ -265,7 +283,11 @@ event.listen(Order_Type.__table__, 'after_create', DDL(""" INSERT INTO order_typ
 event.listen(Discount_Type.__table__, 'after_create', DDL(""" INSERT INTO discount_type (id, name) VALUES (1, 'Amount'),  (2, 'Percentage') """))
 event.listen(Printer_Type.__table__, 'after_create', DDL(""" INSERT INTO printer_type (id, name) VALUES (1, 'report'),  (2, 'receipt'), (3, 'kitchen') """))
 
-
+#==================Methods=================================================
+def getItemImage(item_id):
+    if Item_Image.query.filter(Item_Image.item_id == item_id).first():
+        return  app.config['RELATIVE_PATH'] + Item_Image.query.filter(Item_Image.item_id == item_id).first().filename 
+     
 
 #======================ROUTES==============================================
 @app.route('/', methods=['GET', 'POST'] )
@@ -482,7 +504,10 @@ def menu():
         s = []
         for a in i:
             t = Menu_Category.query.filter_by(id = a.item_category).first()
+            p = getItemImage(a.id)
             bb = {'item': a, 'cat': t.name}
+            if p:
+                bb['img'] = p
             s.append(bb)
         user = Staff.query.filter_by(id = session.get('id')).first()
         return render_template('/admin/dash/pages/menu.html', title="SalesPoint - Version 1.0-build 1", bodyClass="menu", menu_mng_active='active', ops_post='active', ops_expand='true', mng_show='show', date=getDate(), role=session.get('role'), user=user, cat=cat, items=s, menutable='Menu Categories', itemtable='Menu Items', catkeys=catkeys, itemkeys=itemkeys)
@@ -496,7 +521,9 @@ def edit_cat(id):
             cate = Menu_Category.query.filter_by(id = id).first()
             cate.name = request.form['cat_name']
             if 'active' in request.form:
-               cate.is_active = True           
+               cate.is_active = True
+            else:
+                cate.is_active = False           
             db.session.commit()
             return jsonify({'message': 'OK', 'alertType': 'success', 'timer': 500, 'callback': 'loadElement', 'param' : 'cat'})
         else:
@@ -523,13 +550,72 @@ def addCat():
 
 @app.route('/edit_item/<int:id>', methods=['POST'])
 def edit_item(id):
-   return
+    if session.get('role') == 'Administrator':
+        if request.method == 'POST':        
+            item = Menu_Item.query.filter_by(id = id).first()
+            item.item_name = request.form['item_name']
+            item.unit_price=request.form['price']
+            item.item_category = request.form['category']
+            item.item_description = request.form['desc']            
+            if 'offered' in request.form:
+               item.is_offered = True
+            else:
+                item.is_offered = False
+            if 'special' in request.form:
+               item.is_special = True
+            else:
+                item.is_special = False
+            if 'image' in request.files:           
+                img  = request.files['image']
+                print(img)
+                if img:
+                    filename = secure_filename(img.filename)
+                    img.save(os.path.join(app.config['ABSOLUTE_PATH'], filename))
+                    image = Item_Image.query.filter_by(item_id = id).first()
+                    if image:
+                        image.path = os.path.join(app.config['ABSOLUTE_PATH'], img.filename)
+                    else:
+                        newimg = Item_Image(img.filename, os.path.join(app.config['ABSOLUTE_PATH'], img.filename), id)
+                        db.session.add(newimg)            
+            db.session.commit()
+            return jsonify({'message': 'OK', 'alertType': 'success', 'timer': 500, 'callback': 'loadElement', 'param' : 'item'})
+        else:
+            return redirect(url_for('menu'))
+    else: 
+        return redirect(url_for('logout'))
 
 @app.route('/add_item/', methods=['POST'])
 def add_item():
-    return
+    if session.get('role') == 'Administrator':
+        if request.method == 'POST':          
+            item_name = request.form['item_name']
+            unit_price=request.form['price']
+            item_category = request.form['category']
+            item_description = request.form['desc']
+            is_offered = False           
+            if 'offered' in request.form:
+               is_offered = True
+            is_special = False
+            if 'special' in request.form:
+               is_special = True
+            item = Menu_Item(item_name, unit_price, item_category, item_description, is_offered, is_special)
+            db.session.add(item)           
+            db.session.commit()
+            return jsonify({'message': 'OK', 'alertType': 'success', 'timer': 500, 'callback': 'loadElement', 'param' : 'item'})
+        else:
+            return redirect(url_for('menu'))
+    else: 
+        return redirect(url_for('logout'))
 
-
+@app.route('/edit_actions/<int:id>', methods=['POST'])
+def actions(id):
+    if session.get('role') == "Administrator":
+        if request.method == 'POST':
+            print(request.args)
+        else:
+            return redirect(url_for('menu'))
+    else:
+        return redirect(url_for('logout'))
     
 
 
