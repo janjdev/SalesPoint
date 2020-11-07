@@ -286,7 +286,23 @@ event.listen(Printer_Type.__table__, 'after_create', DDL(""" INSERT INTO printer
 #==================Methods=================================================
 def getItemImage(item_id):
     if Item_Image.query.filter(Item_Image.item_id == item_id).first():
-        return  app.config['RELATIVE_PATH'] + Item_Image.query.filter(Item_Image.item_id == item_id).first().filename 
+        return  app.config['RELATIVE_PATH'] + Item_Image.query.filter(Item_Image.item_id == item_id).first().filename
+
+def getCategory():
+    cat = Menu_Category.query.all()
+    return cat
+
+def getItems():
+    i = Menu_Item.query.all()
+    s = []
+    for a in i:
+        t = Menu_Category.query.filter_by(id = a.item_category).first()
+        p = getItemImage(a.id)
+        bb = {'item': a, 'cat': t.name}
+        if p:
+            bb['img'] = p
+        s.append(bb)
+    return s 
      
 
 #======================ROUTES==============================================
@@ -329,7 +345,7 @@ def carry_out():
             return jsonify({'status': 'error', 'message': 'ID Not Found', 'alertType': 'error'})
     if 'id' in session:
         staff = Staff.query.filter_by(id = session.get('id')).first()
-        return render_template('tasks/pages/new_order.html', title="SalesPoint - Version 1.0-build 1.0.1", bodyClass='shared-tasks', images=getImages(), date=getDate(), user=staff)
+        return render_template('tasks/pages/new_order.html', title="SalesPoint - Version 1.0-build 1.0.1", bodyClass='shared-tasks', images=getImages(), date=getDate(), user=staff, ordertype="Carry-Out", orderstatus="New Ticket", cat=getCategory(), items=getItems(), orderstatusID=1, ordertypeID=2)
     return redirect(url_for('home'))
 
 @app.route('/orders', methods=['GET', 'POST'])

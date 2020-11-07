@@ -102,7 +102,7 @@ def getURL():
     return False
 
 def getImages():
-    list_images = os.listdir(app.config['SITE_UPLOADS'])
+    list_images = os.listdir(app.config['ABSOLUTE_PATH'])
     images = []
     i = 0
     length = len(list_images)
@@ -111,7 +111,7 @@ def getImages():
         img_part = list_images[i].split('.')
         img['name'] = img_part[0]
         ext = img_part[1]
-        img['url'] = os.path.join(app.config['RELATIVE_PATH_ADMIN'], img['name']+'.'+ext)
+        img['url'] = os.path.join(app.config['RELATIVE_PATH'], img['name']+'.'+ext)
         images.append(img)
         i+=1 
     return images

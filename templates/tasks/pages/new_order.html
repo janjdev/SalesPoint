@@ -11,109 +11,124 @@
     <div id="ticket_list" class="col-md-5 order-box ">
       <form id="new-ticket">
         <fieldset class="form-group">        
-            <legend class=""><h5>Carry Out [New Ticket]</h5></legend>            
+            <legend class=""><h5>{{ordertype}} [{{orderstatus}}]</h5></legend>            
               <div class="form-group new_order_search">            
                 <input type="text" class="col-md-6 form-control success" id="search_ticket" name="search-ticket" placeholder="search current order">
                 <button type="button" data-toggle="modal" data-target="#searchModal" class="btn btn-info btn-sm">items</button>
               </div>
               <div class="col-md-12 ticket_table">
-                <div class="card col-md-10">                
-                    <div class="card-header card-header-icon card-header-rose">
-                      <div class="card-icon">
-                        <i class="material-icons">receipt</i>
-                      </div>
-                      <h4 class="card-title ">Simple Table</h4>
+                <div class="card">                
+                  <div class="card-header card-header-icon card-header-rose">
+                    <div class="card-icon">
+                      <i class="material-icons">receipt</i>
                     </div>
-                    <div class="card-body">
-                      <div class="table-responsive">
-                        <table class="table">
-                          <thead class=" text-secondary">
-                            <th class="text-center">
-                              Unit
-                            </th>
-                            <th class="text-center">
-                            Item
-                            </th>
-                            <th class="text-center">
-                            Price
-                            </th>
-                          </thead>
-                          <tbody>
-                            <tr>
-                              <td>
-                                1
-                              </td>
-                              <td>
-                                Dakota Rice
-                              </td>
-                              <td>
-                                Niger
-                              </td>
-                            </tr>                                            
-                          </tbody>
-                        </table>
+                    <h4 class="card-title ">{{orderid}}</h4>
+                  </div>
+                  <div class="card-body">
+                    <div id="table" class="table-editable pull-left">
+                      <span class="table-add float-right mb-3 mr-2"><a id="custom" href="#!" class="text-success">
+                        <i class="fas fa-plus fa-2x" aria-hidden="true"></i></a>
+                      </span>
+                      <table class="table table-bordered table-responsive-md table-striped text-center">
+                        <thead>
+                          <tr>
+                            <th class="text-center">Qty</th>
+                            <th class="text-center">Item</th>
+                            <th class="text-center">Price</th>                              
+                            <th class="text-center">Remove</th>
+                          </tr>
+                        </thead>
+                        <tbody id="orderlist">
+                          <form>
+                            <input hidden name="ordertype" value="{{ordertypeID}}"/>
+                            <input hidden name="orderstatus" value="{{orderstatusID}}"/>                         
+                          <!-- This is our clonable table line --> 
+                        </form>                           
+                        </tbody>                        
+                      </table>
+                      <div id="order_total" class="col-md-12">
+                        <div class="form-group">
+                          <label for="ticket-total" class="total_label" >Total:</label>
+                          <input class="form-control" disabled id="ticket-total" name="total" placeholder="$0.00"  />
                       </div>
-                    </div>                
-                </div> 
-                <div class="col-md-1">
-                  <button class="btn btn-social btn-just-icon">
-                    <i class="material-icons">keyboard_arrow_up</i>
-                  </button><br>
-                  <button class="btn btn-social btn-just-icon">
-                    <i class="material-icons">add</i>
-                  </button><br>
-                  <button class="btn btn-social btn-just-icon">
-                    <i class="material-icons">minimize</i>
-                  </button><br>
-                  <button class="btn btn-social btn-just-icon">
-                    <i class="material-icons">close</i>
-                  </button><br>
-                  <button class="btn btn-social btn-just-icon">
-                    <i class="material-icons">keyboard_arrow_down</i>
-                  </button><br>  
-                </div>                             
+                    </div>
+                  </div><!--End of table-->
+                  <!--Table Control Buttons-->
+                  <div class="pull-right ticket-btns">
+                    <button id="up" class="btn btn-social btn-just-icon">
+                      <i class="material-icons">keyboard_arrow_up</i>
+                    </button><br>
+                    <button id="add" class="btn btn-social btn-just-icon">
+                      <i class="material-icons">add</i>
+                    </button><br>
+                    <button id="sub" class="btn btn-social btn-just-icon">
+                      <i class="material-icons">minimize</i>
+                    </button><br>
+                    <button id="remove" class="btn btn-social btn-just-icon">
+                      <i class="material-icons">close</i>
+                    </button><br>
+                    <button id="down" class="btn btn-social btn-just-icon">
+                      <i class="material-icons">keyboard_arrow_down</i>
+                    </button><br>  
+                  </div> <!--End of Table Buttons-->                  
+                </div><!--End Card body-->
+              </div><!--End Card-->
+            </div><!--End of Ticket table-->
+          </fieldset>
+        </form><!--End of Ticket Form-->
+      </div><!--End Ticket-->
+<!---------------------Menu Items------------------------------------------------>
+      <div id="menu_items" class="col-md-5 order-box">
+        <fieldset class="form-group">        
+          <legend class=""><h5>Items</h5></legend>
+          {% if items %}
+          <div class="photography">
+              <div class="row">
+              {% for item in items %}
+                  <div id="{{item.item.id}}" class="menu-item col-md-2 {{item.item.item_category}} all" data-name="{{item.item.item_name}}" data-price="{{item.item.unit_price}}" >
+                      <a data-href="{{item.img}}" href="#" class="item-btn photography-entry img d-flex justify-content-center align-items-center" style="background-image: url({{item.img}});">                        
+                        <div class="overlay"></div>  
+                        <div class="text text-center">
+                              <h3>{{item.item.item_name}}</h3>
+                              <span class="tag">{{item.cat}}</span>
+                          </div>
+                      </a>
+                  </div>
+              {% endfor %}
               </div>
-              <div id="order_total" class="col-md-12">
-                <div class="col-md-10 form-group">
-                  <label for="ticket-total" class="total_label" >Total:</label>
-                  <input class="form-control" id="ticket-total" name="total" placeholder="$0.00"  />
-                </div>
-              </div>                 
+          </div>
+          {% endif %}
         </fieldset>
-      </form>
-    </div>
-
-    <div id="menu_items" class="col-md-5 order-box">
-      <fieldset class="form-group">        
-        <legend class=""><h5>Items</h5></legend>
-        {% if images %}
-        <div class="photography">
-            <div class="row">
-            {% for image in images %}
-                <div class="menu-item col-md-2">
-                    <a data-href="{{image.url}}" href="#" class="photography-entry img d-flex justify-content-center align-items-center" style="background-image: url({{image.url}});">                        
-                      <div class="overlay"></div>  
-                      <div class="text text-center">
-                            <h3>{{image.name}}</h3>
-                            <span class="tag">category</span>
-                        </div>
-                    </a>
-                </div>
+      </div> <!--End of Items-->
+<!---------------------Categories-------------------------->
+      <div id="menu_categories" class="col-md-2 order-box">
+        <button id="all" class="cat-btn btn btn-primary col-md-12 ">All</button>       
+          {% if cat %}
+            {% for c in cat%}      
+            <button id="{{c.id}}" class="cat-btn btn btn-primary col-md-12 ">{{c.name}}</button>
             {% endfor %}
-            </div>
-        </div>
-        {% endif %}
-        </div>
-      </fieldset>
+          {% endif %}
+      </div><!-- End of Categories-->
+    </div><!--End of the Row-->               
+    <script src="{{ url_for('static', filename='assets/js/tasks/neworder.js')}}"></script>                                    
+                   
+                  
+                                        
+                    
+
+                   
+                 
+                                                            
+              
+                              
+                                     
+        
+    
 
     
-    <div id="menu_categories" class="col-md-2 order-box">
-      <fieldset class="form-group">        
-        <legend class=""><h5>Category</h5></legend>      
-          <button class="btn btn-primary">Category</button>
-      </fieldset> 
-    </div>
-  </div>
+
+    
+    
 
 
 
