@@ -383,6 +383,15 @@ def carry_out():
         return render_template('tasks/pages/new_order.html', title="SalesPoint - Version 1.0-build 1.0.1", bodyClass='shared-tasks', images=getImages(), date=getDate(), user=staff, ordertype="Carry-Out", orderstatus="New Ticket", cat=getCategory(), items=getItems(), orderstatusID=1, ordertypeID=2, customers=customers)
     return redirect(url_for('logout'))
 
+
+@app.route('/order/', methods=['POST'])
+def order():
+    if 'id' in session:
+        if request.method == 'POST':
+            print(request.form)
+            return jsonify({'status': 'success', 'alertType': 'success', 'timer': 500})        
+    return redirect(url_for('logout'))
+
 @app.route('/orders', methods=['GET', 'POST'])
 def orders():
     if request.method == 'POST':

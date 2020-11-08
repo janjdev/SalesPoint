@@ -9,7 +9,7 @@
   </style>
   <div class="row order-row">
     <div id="ticket_list" class="col-md-6 order-box ">
-      <form id="new-ticket">
+      <form id="new-ticket" method="POST">
         <fieldset class="form-group">        
             <legend class=""><h5>{{ordertype}} [{{orderstatus}}]</h5></legend>            
               <div class="form-group new_order_notes">            
@@ -37,13 +37,11 @@
                             <th class="th-sm text-center">Remove</th>
                           </tr>
                         </thead>
-                        <tbody id="orderlist">
-                          <form id=orderForm>                            
+                        <tbody id="orderlist">                                              
                             <input hidden name="customer" value=""/>
                             <input hidden name="ordertype" value="{{ordertypeID}}"/>
                             <input hidden name="orderstatus" value="{{orderstatusID}}"/>                         
-                          <!-- This is our clonable table line --> 
-                        </form>                           
+                          <!-- This is our clonable table line -->                                            
                         </tbody>                        
                       </table>
                       <div id="order_total" class="col-md-12">
@@ -116,25 +114,30 @@
           </button>
         </div>
         <div class="col-md-3 col-lg-2">
-          <button class="btn btn-success col-md-12">
+          <button class="hold btn btn-success col-md-12">
             HOLD
           </button>
         </div>
-        <div class="col-md-3 col-lg-2">
-          <button class="btn btn-success col-md-12">
+        <div class=" col-md-3 col-lg-2">
+          <button class="send btn btn-success col-md-12">
             SEND
           </button>
         </div>
         <div class="col-md-3 col-lg-2">
-          <button class="btn btn-success col-md-12">
+          <button class="cancel btn btn-success col-md-12">
             Cancel
           </button>
         </div>
       </div>
-    </div><!--End of the Row-->               
-    <script src="{{ url_for('static', filename='assets/js/tasks/neworder.js')}}"></script>    
+    </div><!--End of the Row-->   
     
-    {% include 'tasks/components/add-customer-to-order.html' %}                                
+    {% include 'tasks/components/add-customer-to-order.html' %}
+    
+    <script src="{{ url_for('static', filename='assets/js/tasks/neworder.js')}}"></script>    
+
+    <script src="{{ url_for('static', filename='assets/js/tasks/order.js')}}"></script>    
+    
+                                    
                    
                   
                                         
