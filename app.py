@@ -278,7 +278,7 @@ class Printer_Type(db.Model):
 
 event.listen(Staff_Role.__table__, 'after_create', DDL(""" INSERT INTO role (id, type) VALUES (1, 'administrator'),  (2, 'user') """))
 event.listen(Staff_Position.__table__, 'after_create', DDL(""" INSERT INTO position (id, type, is_active) VALUES (1, 'manager', True),  (2, 'server', True) """))
-event.listen(Order_Status.__table__, 'after_create', DDL(""" INSERT INTO order_status (id, status) VALUES (1, 'open'),  (2, 'settled'), (3, 'canceled'), (4, 'refund') """))
+event.listen(Order_Status.__table__, 'after_create', DDL(""" INSERT INTO order_status (id, status) VALUES (1, 'open'),  (2, 'settled'), (3, 'canceled'), (4, 'refund'), (5, 'pending') """))
 event.listen(Order_Type.__table__, 'after_create', DDL(""" INSERT INTO order_type (id, order_type) VALUES (1, 'dine-in'),  (2, 'carry-out') """))
 event.listen(Discount_Type.__table__, 'after_create', DDL(""" INSERT INTO discount_type (id, name) VALUES (1, 'Amount'),  (2, 'Percentage') """))
 event.listen(Printer_Type.__table__, 'after_create', DDL(""" INSERT INTO printer_type (id, name) VALUES (1, 'report'),  (2, 'receipt'), (3, 'kitchen') """))
@@ -327,6 +327,40 @@ def logout():
     session.clear()
     return redirect(url_for('home'))   
 
+@app.route('/customer', methods=['POST'])
+def customer():
+    if 'id' in session:
+        if request.method == 'POST':
+            cname = request.form['cname']
+            newCust = Customer(cname)
+            db.session.add(newCust)
+            db.session.commit()
+            return jsonify({'status': 'success', 'alertType': 'success', 'timer': 500, 'callback': 'newCust'})
+        return redirect(url_for('carry_out'))
+    return redirect(url_for('logout'))
+
+@app.route('/edit_cust/<int:user_id>', methods=['POST'])
+def edit_cust(user_id):
+    if 'id' in session:
+        if request.method == 'POST':
+            customer = Customer.query.filter_by(id = user_id).first()
+            print(request.form)
+            print(customer) 
+            if 'delete' in request.form:
+                corders = Order.query.filter_by(customer_id = user_id).all() and (Order.query.filter_by(status_id = 1))
+                if len(corders) > 0:
+                    jsonify({'status': 'Cannot delete customers with open orders. Settle orders before trying again', 'alertType': 'warning', 'timer': 2500, 'callback': 'newCust'})
+                else:
+                    db.session.delete(customer)             
+            else:         
+                cname = request.form['cname']
+                print(cname)
+                customer.name = cname
+            db.session.commit()
+            return jsonify({'status': 'success', 'alertType': 'success', 'timer': 500, 'callback': 'newCust'})
+        return redirect(url_for('carry_out'))
+    return redirect(url_for('logout'))
+
 
 @app.route('/dine-in', methods=['GET', 'POST'])
 def dine_in():
@@ -339,14 +373,15 @@ def carry_out():
         ID = request.form['staffID']
         staff = Staff.query.filter_by(staff_id = ID).first()
         if staff:              
-            session['id'] = staff.id                
+            session['id'] = staff.id                         
             return jsonify({'status': 'success', 'alertType': 'success', 'timer': 500, 'callback': 'goTo', 'param': url_for('carry_out')})
         else:
             return jsonify({'status': 'error', 'message': 'ID Not Found', 'alertType': 'error'})
     if 'id' in session:
         staff = Staff.query.filter_by(id = session.get('id')).first()
-        return render_template('tasks/pages/new_order.html', title="SalesPoint - Version 1.0-build 1.0.1", bodyClass='shared-tasks', images=getImages(), date=getDate(), user=staff, ordertype="Carry-Out", orderstatus="New Ticket", cat=getCategory(), items=getItems(), orderstatusID=1, ordertypeID=2)
-    return redirect(url_for('home'))
+        customers = Customer.query.all()
+        return render_template('tasks/pages/new_order.html', title="SalesPoint - Version 1.0-build 1.0.1", bodyClass='shared-tasks', images=getImages(), date=getDate(), user=staff, ordertype="Carry-Out", orderstatus="New Ticket", cat=getCategory(), items=getItems(), orderstatusID=1, ordertypeID=2, customers=customers)
+    return redirect(url_for('logout'))
 
 @app.route('/orders', methods=['GET', 'POST'])
 def orders():

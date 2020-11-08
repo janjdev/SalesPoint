@@ -8,13 +8,12 @@
     }
   </style>
   <div class="row order-row">
-    <div id="ticket_list" class="col-md-5 order-box ">
+    <div id="ticket_list" class="col-md-6 order-box ">
       <form id="new-ticket">
         <fieldset class="form-group">        
             <legend class=""><h5>{{ordertype}} [{{orderstatus}}]</h5></legend>            
-              <div class="form-group new_order_search">            
-                <input type="text" class="col-md-6 form-control success" id="search_ticket" name="search-ticket" placeholder="search current order">
-                <button type="button" data-toggle="modal" data-target="#searchModal" class="btn btn-info btn-sm">items</button>
+              <div class="form-group new_order_notes">            
+                <input type="text" class="col-md-6 form-control success" id="notes" name="notes" placeholder="Notes">                
               </div>
               <div class="col-md-12 ticket_table">
                 <div class="card">                
@@ -29,17 +28,18 @@
                       <span class="table-add float-right mb-3 mr-2"><a id="custom" href="#!" class="text-success">
                         <i class="fas fa-plus fa-2x" aria-hidden="true"></i></a>
                       </span>
-                      <table class="table table-bordered table-responsive-md table-striped text-center">
+                      <table class="table table-bordered table-responsive-md table-striped text-center w-auto">
                         <thead>
                           <tr>
-                            <th class="text-center">Qty</th>
-                            <th class="text-center">Item</th>
-                            <th class="text-center">Price</th>                              
-                            <th class="text-center">Remove</th>
+                            <th class="th-sm text-center">Qty</th>
+                            <th class="th-sm text-center">Item</th>
+                            <th class="th-sm text-center">Price</th>                              
+                            <th class="th-sm text-center">Remove</th>
                           </tr>
                         </thead>
                         <tbody id="orderlist">
-                          <form>
+                          <form id=orderForm>                            
+                            <input hidden name="customer" value=""/>
                             <input hidden name="ordertype" value="{{ordertypeID}}"/>
                             <input hidden name="orderstatus" value="{{orderstatusID}}"/>                         
                           <!-- This is our clonable table line --> 
@@ -78,7 +78,7 @@
         </form><!--End of Ticket Form-->
       </div><!--End Ticket-->
 <!---------------------Menu Items------------------------------------------------>
-      <div id="menu_items" class="col-md-5 order-box">
+      <div id="menu_items" class="col-md-4 order-box">
         <fieldset class="form-group">        
           <legend class=""><h5>Items</h5></legend>
           {% if items %}
@@ -105,12 +105,36 @@
         <button id="all" class="cat-btn btn btn-primary col-md-12 ">All</button>       
           {% if cat %}
             {% for c in cat%}      
-            <button id="{{c.id}}" class="cat-btn btn btn-primary col-md-12 ">{{c.name}}</button>
+            <button id="{{c.id}}" class="cat-btn btn {{btncolor}} col-md-12 ">{{c.name}}</button>
             {% endfor %}
           {% endif %}
       </div><!-- End of Categories-->
+      <div id="bottomfunctions" class="row">
+        <div class="col-md-3 col-lg-2">
+          <button class="btn btn-success col-md-12" data-toggle="modal" data-target="#addCustModal">
+            Customer
+          </button>
+        </div>
+        <div class="col-md-3 col-lg-2">
+          <button class="btn btn-success col-md-12">
+            HOLD
+          </button>
+        </div>
+        <div class="col-md-3 col-lg-2">
+          <button class="btn btn-success col-md-12">
+            SEND
+          </button>
+        </div>
+        <div class="col-md-3 col-lg-2">
+          <button class="btn btn-success col-md-12">
+            Cancel
+          </button>
+        </div>
+      </div>
     </div><!--End of the Row-->               
-    <script src="{{ url_for('static', filename='assets/js/tasks/neworder.js')}}"></script>                                    
+    <script src="{{ url_for('static', filename='assets/js/tasks/neworder.js')}}"></script>    
+    
+    {% include 'tasks/components/add-customer-to-order.html' %}                                
                    
                   
                                         
