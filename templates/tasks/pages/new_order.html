@@ -11,24 +11,28 @@
     <div id="ticket_list" class="col-md-6 order-box ">
       <form id="new-ticket" method="POST">
         <fieldset class="form-group">        
-            <legend class=""><h5>{{ordertype}} [{{orderstatus}}]</h5></legend>            
+            <legend class=""><h5>{{ordertype}} [{{orderstatus}}]</h5></legend>
+            <div class="form-group pull-right order_customer">
+              <input type="text" class="col-md-2 form-control pull-right" hidden name="customer" id="assignedCust" placeholder="Notes" value="0"/>            
+              <span id="custName">Guest</span>               
+            </div>            
               <div class="form-group new_order_notes">            
                 <input type="text" class="col-md-6 form-control success" id="notes" name="notes" placeholder="Notes">                
-              </div>
+              </div>              
               <div class="col-md-12 ticket_table">
                 <div class="card">                
                   <div class="card-header card-header-icon card-header-rose">
                     <div class="card-icon">
                       <i class="material-icons">receipt</i>
                     </div>
-                    <h4 class="card-title ">{{orderid}}</h4>
+                    <h4 class="card-title ">Check Number<input class="text-center text-line dbAction" type="number" min="1" name="chknum" required/></h4>
+                    <span class="table-add float-right mb-3 mr-2"><a id="custom" href="#!" class="text-success" title= "Add Custom Item" data-toggle="tooltip">
+                      <i class="fas fa-plus fa-2x" aria-hidden="true"></i></a>
+                    </span>
                   </div>
-                  <div class="card-body">
-                    <div id="table" class="table-editable pull-left">
-                      <span class="table-add float-right mb-3 mr-2"><a id="custom" href="#!" class="text-success">
-                        <i class="fas fa-plus fa-2x" aria-hidden="true"></i></a>
-                      </span>
-                      <table class="table table-bordered table-responsive-md table-striped text-center w-auto">
+                  <div class="card-body">                    
+                    <div id="table" class="table-editable">                     
+                      <table id="orderTable" class="table table-bordered table-responsive-md table-striped text-center pull-left w-auto">
                         <thead>
                           <tr>
                             <th class="th-sm text-center">Qty</th>
@@ -36,39 +40,40 @@
                             <th class="th-sm text-center">Price</th>                              
                             <th class="th-sm text-center">Remove</th>
                           </tr>
-                        </thead>
-                        <tbody id="orderlist">                                              
-                            <input hidden name="customer" value=""/>
-                            <input hidden name="ordertype" value="{{ordertypeID}}"/>
-                            <input hidden name="orderstatus" value="{{orderstatusID}}"/>                         
-                          <!-- This is our clonable table line -->                                            
-                        </tbody>                        
-                      </table>
-                      <div id="order_total" class="col-md-12">
+                        </thead>                        
+                          <tbody id="orderlist">                                            
+                              <input hidden name="ordertype" value="{{ordertypeID}}"/>
+                              <input hidden name="orderstatus" value="{{orderstatusID}}"/>                         
+                            <!-- This is our clonable table line -->                                            
+                          </tbody>
+                          <!--Table Control Buttons-->
+                            <div class="ticket-btns pull-right">
+                              <a href="#" id="up" class="btn btn-social btn-just-icon">
+                                <i class="material-icons">keyboard_arrow_up</i>
+                              </a><br>
+                              <a href="#" id="add" class="btn btn-social btn-just-icon">
+                                <i class="material-icons">add</i>
+                              </a><br>
+                              <a href="#" id="sub" class="btn btn-social btn-just-icon">
+                                <i class="material-icons">minimize</i>
+                              </a><br>
+                              <a href="#" id="remove" class="btn btn-social btn-just-icon">
+                                <i class="material-icons">close</i>
+                              </a><br>
+                              <a href="#" id="down" class="btn btn-social btn-just-icon">
+                                <i class="material-icons">keyboard_arrow_down</i>
+                              </a><br>  
+                            </div> <!--End of Table Buttons-->                         
+                        </table>                     
+                        <!--Ticket Total-->
+                      
+                      <div id="order_total" class="col-md-6">
                         <div class="form-group">
                           <label for="ticket-total" class="total_label" >Total:</label>
                           <input class="form-control" disabled id="ticket-total" name="total" placeholder="$0.00"  />
                       </div>
-                    </div>
-                  </div><!--End of table-->
-                  <!--Table Control Buttons-->
-                  <div class="pull-right ticket-btns">
-                    <button id="up" class="btn btn-social btn-just-icon">
-                      <i class="material-icons">keyboard_arrow_up</i>
-                    </button><br>
-                    <button id="add" class="btn btn-social btn-just-icon">
-                      <i class="material-icons">add</i>
-                    </button><br>
-                    <button id="sub" class="btn btn-social btn-just-icon">
-                      <i class="material-icons">minimize</i>
-                    </button><br>
-                    <button id="remove" class="btn btn-social btn-just-icon">
-                      <i class="material-icons">close</i>
-                    </button><br>
-                    <button id="down" class="btn btn-social btn-just-icon">
-                      <i class="material-icons">keyboard_arrow_down</i>
-                    </button><br>  
-                  </div> <!--End of Table Buttons-->                  
+                    </div><!--End Ticket Total-->
+                  </div><!--End of table-->                 
                 </div><!--End Card body-->
               </div><!--End Card-->
             </div><!--End of Ticket table-->
@@ -114,17 +119,17 @@
           </button>
         </div>
         <div class="col-md-3 col-lg-2">
-          <button class="hold btn btn-success col-md-12">
+          <button type="submit" form="new-ticket" class="hold btn btn-success col-md-12">
             HOLD
           </button>
         </div>
         <div class=" col-md-3 col-lg-2">
-          <button class="send btn btn-success col-md-12">
+          <button type="submit" form="new-ticket" class="send btn btn-success col-md-12">
             SEND
           </button>
         </div>
         <div class="col-md-3 col-lg-2">
-          <button class="cancel btn btn-success col-md-12">
+          <button id="cancelbtn" class="cancel btn btn-success col-md-12">
             Cancel
           </button>
         </div>
@@ -133,9 +138,9 @@
     
     {% include 'tasks/components/add-customer-to-order.html' %}
     
-    <script src="{{ url_for('static', filename='assets/js/tasks/neworder.js')}}"></script>    
+    <script  src="{{ url_for('static', filename='assets/js/tasks/neworder.js')}}"></script>    
 
-    <script src="{{ url_for('static', filename='assets/js/tasks/order.js')}}"></script>    
+    <script  src="{{ url_for('static', filename='assets/js/tasks/order.js')}}"></script>    
     
                                     
                    

@@ -627,7 +627,6 @@ def edit_item(id):
                 item.is_special = False
             if 'image' in request.files:           
                 img  = request.files['image']
-                print(img)
                 if img:
                     filename = secure_filename(img.filename)
                     img.save(os.path.join(app.config['ABSOLUTE_PATH'], filename))
@@ -658,6 +657,17 @@ def add_item():
             is_special = False
             if 'special' in request.form:
                is_special = True
+            if 'image' in request.files:           
+                img  = request.files['image']
+                if img:
+                    filename = secure_filename(img.filename)
+                    img.save(os.path.join(app.config['ABSOLUTE_PATH'], filename))
+                    image = Item_Image.query.filter_by(item_id = id).first()
+                    if image:
+                        image.path = os.path.join(app.config['ABSOLUTE_PATH'], img.filename)
+                    else:
+                        newimg = Item_Image(img.filename, os.path.join(app.config['ABSOLUTE_PATH'], img.filename), id)
+                        db.session.add(newimg)
             item = Menu_Item(item_name, unit_price, item_category, item_description, is_offered, is_special)
             db.session.add(item)           
             db.session.commit()

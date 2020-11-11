@@ -45,13 +45,13 @@
                 <td class="pos text-center text-capitalize" data-pos="{{staff.staff.position_id}}" class="text-left text-uppercase">{{staff.posID}}</td>
                 <td class ="rol text-center text-capitalize" data-rol="{{staff.staff.role_id}}" class="text-left text-uppercase">{{staff.rolID}}</td>
                 <td class="td-actions text-center">
-                      <button data-id="{{ staff.staff.id }}" type="button" id="view_post" class="row_action btn btn-default btn-link teal-lighten-2-text " rel="tooltip" data-placement="bottom" title="Copy" data-func="copy"  data-href="{{url_for('add_staff')}}">
+                      <button data-id="{{ staff.staff.id }}" type="button" id="view_post" class="row_action btn btn-link teal-lighten-2-text " rel="tooltip" data-placement="bottom" title="Copy" data-func="copy"  data-href="{{url_for('add_staff')}}">
                               <i class="material-icons">content_copy</i>
                             </button>
-                            <button data-id="{{ staff.staff.id }}" type="button" id="edit_post" class="row_action btn btn-success btn-link lime-accent-4-text" rel="tooltip" data-placement="bottom" title="Edit" data-func="edit">
+                            <button data-id="{{ staff.staff.id }}" type="button" id="edit_post" class="row_action btn btn-link lime-accent-4-text" rel="tooltip" data-placement="bottom" title="Edit" data-func="edit">
                               <i class="material-icons">edit</i>
                             </button>
-                            <button data-id="{{ staff.staff.id }}" type="button" id="delete_post" class="row_action btn btn-danger btn-link red-accent-3-text" rel="tooltip" data-placement="bottom" title="Delete" data-func="terminate">
+                            <button data-id="{{ staff.staff.id }}" type="button" id="delete_post" class="row_action btn btn-link red-accent-3-text" rel="tooltip" data-placement="bottom" title="Delete" data-func="terminate">
                               <i class="material-icons">close</i>
                             </button>
                     </td>
