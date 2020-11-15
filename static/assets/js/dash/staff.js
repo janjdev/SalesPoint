@@ -118,6 +118,15 @@ window.addEventListener('DOMContentLoaded', () => {
           $('#staff_pos').change();
           document.querySelector('#staff_role').value = $('tr#' + id + ' td.rol')[0].getAttribute('data-rol');
           $('#staff_role').change();
+          //Is offered
+          if ($('tr#' + id + ' td.status')[0].getAttribute('data-status') === "1" )
+          {
+            document.querySelector('input[name="status"]').checked = true;
+          }
+          else
+          {
+            document.querySelector('input[name="status"]').removeAttribute('checked');
+          }
           $('#staffModal').modal('show');  
         }
         else{

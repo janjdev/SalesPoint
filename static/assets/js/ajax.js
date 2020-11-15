@@ -78,6 +78,25 @@ $('#updateAvatar').on('submit', function(e){
     }
 });
 
+//import menu
+const link = document.querySelector('#importlink');
+const csvForm = document.getElementById('importForm');
+$(csvForm).on('submit', function(e){
+  e.preventDefault();
+  let formData = new FormData(csvForm);
+  ajaxforms('/importmenu', 'POST', formData, false,false);
+});
+link.addEventListener('click', function(e){
+  e.preventDefault();
+  $('#import').trigger('click');
+});
+
+$('#import').change(function(e){
+  e.preventDefault();
+  $(csvForm).submit();
+})
+
+
 //Publish a new Post
 const pub = document.getElementById('pubPost');
 $(pub).unbind('click').click(function(e){

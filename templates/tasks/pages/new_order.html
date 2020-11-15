@@ -41,9 +41,10 @@
                             <th class="th-sm text-center">Remove</th>
                           </tr>
                         </thead>                        
-                          <tbody id="orderlist">                                            
-                              <input hidden name="ordertype" value="{{ordertypeID}}"/>
-                              <input hidden name="orderstatus" value="{{orderstatusID}}"/>                         
+                          <tbody id="orderlist">
+                            <input hidden name="ordertable" value="{{ordertapleID}}"/>                                            
+                            <input hidden name="ordertype" value="{{ordertypeID}}"/>
+                            <input hidden name="orderstatus" value="{{orderstatusID}}"/>                         
                             <!-- This is our clonable table line -->                                            
                           </tbody>
                           <!--Table Control Buttons-->
@@ -119,7 +120,7 @@
           </button>
         </div>
         <div class="col-md-3 col-lg-2">
-          <button type="submit" form="new-ticket" class="hold btn btn-success col-md-12">
+          <button id="hold" type="submit" form="new-ticket" class="hold btn btn-success col-md-12">
             HOLD
           </button>
         </div>
@@ -140,29 +141,6 @@
     
     <script  src="{{ url_for('static', filename='assets/js/tasks/neworder.js')}}"></script>    
 
-    <script  src="{{ url_for('static', filename='assets/js/tasks/order.js')}}"></script>    
-    
-                                    
-                   
-                  
-                                        
-                    
-
-                   
-                 
-                                                            
-              
-                              
-                                     
-        
-    
-
-    
-
-    
-    
-
-
-
+    <script  src="{{ url_for('static', filename='assets/js/tasks/order.js')}}"></script> 
   
   {% endblock %}

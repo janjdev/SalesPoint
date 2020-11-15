@@ -117,6 +117,10 @@ button.btn.btn-primary.btn-lg.taskbtn, .mw_cards a {
 
 /*=================DASHBOARD==================*/
 
+form#importForm {
+    display: none;
+}
+
 .card{
     box-shadow: none;
     border-radius: 0;
@@ -171,7 +175,7 @@ body.config ul.dropdown-menu.inner.show {
 }
 
 /*====================Staff Table==================*/
-body.staff .card-body .table-responsive ~ .row, body.position .card-body .table-responsive ~ .row {
+body.staff .card-body .table-responsive ~ .row, body.position .card-body .table-responsive ~ .row, body.tax .card-body .table-responsive ~ .row {
     justify-content: center;
 }
 
@@ -262,10 +266,18 @@ span.table-remove button.btn {
     top: 10px !important;
 }
 
-#orderlist td.pt-3-half input, #add-edit td.pt-3-half input {
+#orderlist td.pt-3-half input, #add-edit td.pt-3-half input, #taxlist input[name="taxtype"], #taxlist input[name="taxrate"] {
     max-width: 100px;
     border: none;
     background: transparent;
+}
+
+#taxlist input[name="taxtype"]:disabled, #taxlist input[name="taxrate"]:disabled{
+    background: transparent;
+}
+
+#taxlist input[name="taxtype"], #taxlist input[name="taxrate"]{
+    background: #e1f5fe;
 }
 
 .input-line{
@@ -415,7 +427,7 @@ body.shared-tasks .tooltip{
 }
 
 /*=========================Positions===============================*/
-body.position #posRow.row{
+body.position #posRow.row, body.tax #taxRow{
     justify-content: center;
 }
 

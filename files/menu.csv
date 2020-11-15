@@ -1,0 +1,10 @@
+id,item_name,unit_price,item_category,item_description,is_offered,is_special
+1,Burger,500,3,Juicy Impossible Burger Test,TRUE,FALSE
+2,French Fries,299,1,Test,FALSE,FALSE
+3,Cob Sala,799,1,"Kale, Spring Lettuce, Cherry Tomatoes, Green Onion, Choice Of House Dressings",TRUE,FALSE
+4,Grilled Chicken Thigh,1099,1,More testing,TRUE,FALSE
+5,Burrito,5000,1,,TRUE,FALSE
+6,Crab Ragoon,399,5,,TRUE,FALSE
+7,Turkey and Swiss,399,6,,TRUE,FALSE
+8,Sweet n Sour Chicken,999,7,,TRUE,FALSE
+9,Cheese Pizza,799,1,Nothing at all,TRUE,FALSE

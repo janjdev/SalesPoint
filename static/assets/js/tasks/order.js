@@ -5,8 +5,16 @@ window.addEventListener('DOMContentLoaded', () => {
     //get the generated list of items
     const orderlist = document.querySelector('#orderlist');
 
+    //get the button for hold order
+    const hold = document.querySelector('button#hold');
+
     //Flag to validate inputs
     let isValid = true;
+
+  //=================Order Hold Function=================
+    hold.addEventListener('click', function(e){
+      document.querySelector('input[name="orderstatus"]').value = 5;
+    });
 
 
   //=============Submit Form Function======================

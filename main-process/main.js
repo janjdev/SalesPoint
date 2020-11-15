@@ -1,8 +1,7 @@
 // Modules to control application life and create native browser window
-const {app, BrowserWindow} = require('electron');
+const {app, BrowserWindow, protocol} = require('electron');
 const path = require('path');
 const { PythonShell } = require('python-shell');
-
 
 
 //Function to start the backend server
@@ -27,6 +26,7 @@ function createWindow () {
     show: false,
     webPreferences: {
       nodeIntegration: false,
+      webSecurity: false,
       preload: path.join(__dirname, 'preload.js')
     },
     icon: path.join(__dirname, '../static/assets/img/icons/salespoint-green.png')
@@ -58,7 +58,11 @@ function createWindow () {
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
-app.on('ready', function ()  {  
+app.on('ready', function ()  { 
+  protocol.registerFileProtocol('file', (request, callback) => {
+    const pathname = decodeURI(request.url.replace('file:///', ''));
+    callback(pathname);
+  }); 
   createWindow(); 
  });  
   

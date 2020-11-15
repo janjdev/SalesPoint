@@ -20,6 +20,7 @@
                   <th class="text-center">Last Name</th>
                   <th class="text-center">Position</th>
                   <th class="text-center">Role</th>
+                  <th class="text-center">Status</th> 
                   <th class="text-center">Actions</th>
               </tr>
             </thead>
@@ -44,6 +45,7 @@
                 <td  class="last_name text-center text-capitalize">{{staff.staff.last_name}}</td>
                 <td class="pos text-center text-capitalize" data-pos="{{staff.staff.position_id}}" class="text-left text-uppercase">{{staff.posID}}</td>
                 <td class ="rol text-center text-capitalize" data-rol="{{staff.staff.role_id}}" class="text-left text-uppercase">{{staff.rolID}}</td>
+                <td class ="status text-center text-capitalize" data-status="{% if staff.staff.is_active == True %}{{1}}{% else %}{{2}}{% endif %}" class="text-left text-uppercase">{% if staff.staff.is_active == True %}{{'Active'}}{% else %}{{'Not Active'}}{% endif %}</td>
                 <td class="td-actions text-center">
                       <button data-id="{{ staff.staff.id }}" type="button" id="view_post" class="row_action btn btn-link teal-lighten-2-text " rel="tooltip" data-placement="bottom" title="Copy" data-func="copy"  data-href="{{url_for('add_staff')}}">
                               <i class="material-icons">content_copy</i>
@@ -113,6 +115,14 @@
                   {% endfor %}
                 {% endif %}                 
               </select>
+              </div>
+              <div class="form-check">
+                <label class="form-check-label"> Status
+                  <input class="form-check-input" name="status" type="checkbox" value=>
+                  <span class="form-check-sign">
+                    <span class="check"></span>
+                  </span>
+                </label>
               </div>
               <div class="row col-md-12 justify-content-center">
                 <div class="">

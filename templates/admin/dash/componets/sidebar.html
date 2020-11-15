@@ -50,15 +50,20 @@
               </div>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="">
+              <a class="nav-link" href="{{url_for('export')}}">
                   <i class="material-icons">import_export</i>
                 <span class="sidebar-normal"> Export Menu Items </span>
               </a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="">
+              <form id="importForm" action="" enctype="multipart/form-data">
+                <input type="file" name="importfile" id="import" accept="csv">/>
+            </form>
+              <a id="importlink" class="nav-link" href="#">
                   <i class="material-icons">import_export</i>
+                  
                 <span class="sidebar-normal"> Import Menu Items </span>
+                
               </a>
             </li>
             <li class="nav-item">
@@ -95,7 +100,7 @@
                     </a>
                   </li>
                   <li class="nav-item {{ tax_active}} " >
-                    <a class="nav-link" href="">
+                    <a class="nav-link" href="{{url_for('tax')}}">
                       <i class="material-icons">account_balance</i>
                       <span class="sidebar-normal">Taxes</span>
                     </a>

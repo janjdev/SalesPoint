@@ -33,7 +33,7 @@ window.addEventListener('DOMContentLoaded', () => {
     `
         <td id="qty${id}" class="qty pt-3-half" ><input class="dbAction text-center" name="qty" type="number" value="${1}" /><span></span></td>
         <td class="pt-3-half" ><input class="dbAction" hidden name="item" type="text" value="${id}" />${name}</td>
-        <td class="pt-3-half" ><input class="dbAction" hidden name="price" type="text" pattern="[+-]?[0-9]{1,3}(?:,?[0-9]{3})*(?:\.[0-9]{2})?" value="${price}" />${price}</td>                              
+        <td class="pt-3-half" ><input class="dbAction" hidden name="price" type="text" pattern="[+-]?[0-9]{1,3}(?:,?[0-9]{3})*(?:\.[0-9]{1,2})?" value="${price/100}" />${price/100}</td>                              
         <td>
         <span class="table-remove"><button type="button"
             class="btn btn-danger btn-rounded btn-sm my-0">x</button></span>
@@ -49,7 +49,7 @@ window.addEventListener('DOMContentLoaded', () => {
         
         <td class="qty pt-3-half"><input class="dbAction text-center" name="qty" type="number" value="1" required/><span></span></td>
         <td class="name pt-3-half"><input class="dbAction text-center"  name="itemname" type="text" value="" required /></td>
-        <td class="price pt-3-half"><input class="dbAction text-center" name="price" type="text" pattern="[+-]?[0-9]{1,3}(?:,?[0-9]{3})*(?:\.[0-9]{2})?" value="" required/></td>                              
+        <td class="price pt-3-half"><input class="dbAction text-center" name="price" type="text" pattern="[+-]?[0-9]{1,3}(?:,?[0-9]{3})*(?:\.[0-9]{1,2})?" value="" required/></td>                              
         <td>
             <span class="table-remove">
                 <button type="button" class="btn btn-danger btn-rounded btn-sm my-0">x</button>

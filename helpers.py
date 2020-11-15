@@ -1,9 +1,23 @@
+import ast, csv
 from datetime import datetime
 from os import name
 from app import app, db, Staff,os
+from numpy import genfromtxt
 from flask import Flask, session, request, json
 from flask_sqlalchemy import SQLAlchemy
 from hashutil import make_pw_hash, check_pw_hash
+
+#Get list of rows from table form
+def multiRow(list):
+    q = ast.literal_eval(list)            
+    r = []
+    for i in q:
+        v = {}
+        for e in i:
+            k = e.split('=')
+            v.update({k[0]: k[1]})
+        r.append(v)
+    return r
 
 #Create function to get default values from other columns when needed
 def same_as(column_name):
@@ -131,3 +145,12 @@ def getAutolog():
         data = json.load(jfile)
         autolog = data['autolog']
     return autolog
+
+def Load_Data(file_name):
+    # data = genfromtxt(file_name,  delimiter=',', skip_header=1, converters={0: lambda s: str(s)})
+    with open(file_name) as f:
+        reader = csv.reader(f)
+        next(f)
+        # data = [tuple(row) for row in reader]
+        data = list(reader)
+    return data #.tolist()
