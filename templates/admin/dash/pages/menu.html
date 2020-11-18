@@ -106,7 +106,8 @@
                               <button class="dropdown-toggle btn btn-success btn-round btn-block" type="button" id="multiDropdownMenu" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                Filter
                               </button>
-                              <div class="dropdown-menu" aria-labelledby="multiDropdownMenu">                                
+                              <div class="dropdown-menu" aria-labelledby="multiDropdownMenu">
+                                <a data-filter="all" class="selects dropdown-item" href="#">All</a>                                
                                 <a class="dropdown-item dropdown-toggle" href="#">Categories</a>
                                 <div class="dropdown-menu">
                                     {% if cat %}
@@ -142,14 +143,15 @@
                                             <th class="th-lg text-center w-auto">{{key}}</th>
                                                 {% endfor %}
                                             {% endif %}
-                                            <th class="text-center">Tax</th>                                                                   
-                                            <th class="text-center">Actions</th>                                                      
+                                            <th class="th-lg text-center w-auto">Tax</th>
+                                            <th class="th-lg text-center w-auto">item_image</th>                                                                   
+                                            <th class="th-lg text-center w-auto">Actions</th>                                                      
                                         </tr>
                                     </thead>
                                     <tbody>
                                         {% if items %}
                                             {% for i in items %}                                                      
-                                        <tr id="{{i.item.id}}" data-class="itemrow"  class="{{i.item.is_offered}} {{i.item.item_category}}">
+                                        <tr id="{{i.item.id}}" data-class="itemrow"  class="{{i.item.is_offered}} {{i.item.item_category}} all">
                                             <td class="text-center"></td>                                                        
                                             <td>
                                                 <div class="form-check">
@@ -165,7 +167,10 @@
                                             <td class="item_name text-center text-capitalize">{{i.item.item_name}}</td>
                                             <td class="price text-center text-capitalize">{{'%.2f'|format(i.item.unit_price/100)}}</td> 
                                             <td class="category text-center text-capitalize" data-cat="{{i.item.item_category}}">{{i.cat}}</td>
-                                            <td class="desc text-center text-capitalize">{{i.item.item_description}}</td>
+                                            <td class="desc text-center text-capitalize">{{i.item.item_description}}</td>                                            
+                                            <td class="offered text-center text-capitalize">{{i.item.is_offered}}</td>
+                                            <td class="special text-center text-capitalize">{{i.item.is_special}}</td>
+                                            <td class="special text-center text-capitalize">{% for tax in i.item.taxes %} {{tax.tax_type}}: {{'%.2f'|format(tax.tax_rate/100000)}}<br>{% endfor %}</td> 
                                             <td class="img text-center text-capitalize">
                                                 {% if i.img %}
                                                 <div class="img-container">                                                    
@@ -174,9 +179,7 @@
                                               </div>
                                               {% endif %}
                                             </td>
-                                            <td class="offered text-center text-capitalize">{{i.item.is_offered}}</td>
-                                            <td class="special text-center text-capitalize">{{i.item.is_special}}</td>
-                                            <td class="special text-center text-capitalize">{{i.tax}}</td>                                                                                            
+                                                                                                                                      
                                             <td class="td-actions justify-content-center">                                                            
                                                 <button data-id="{{i.item.id}}" type="button" id="edit" class="btn btn-link lime-accent-4-text item-task" rel="tooltip" data-placement="bottom" title="Set Active" data-func="active" data-title="Edit Item">
                                                     <i class="material-icons">check</i>
@@ -210,3 +213,4 @@
     </div>
 </div>
 {% endblock %}
+

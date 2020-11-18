@@ -41,7 +41,7 @@ window.addEventListener('DOMContentLoaded', () => {
       "aaSorting": [],
       columnDefs: [{
       orderable: false,
-      targets: [0,1,6,7,10,11],
+      targets: [0,1,10],
       "scrollY": "10vh",
       "scrollCollapse": true,
       "scrollX": true

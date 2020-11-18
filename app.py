@@ -75,6 +75,8 @@ class Staff_Role(db.Model):
     def __init__(self, role_type):
         self.role_type = role_type
 
+
+
 class Order(db.Model):
     __tablename__ = "order"
     id = db.Column(db.Integer, primary_key=True)
@@ -83,14 +85,14 @@ class Order(db.Model):
     date_created = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
     date_last_changed = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
     notes = db.Column(db.Text, nullable=True, default="")
-    created_by_id = db.Column(db.Integer, db.ForeignKey('staff.id'), nullable=False)
-    last_changed_by_id = db.Column(db.Integer, db.ForeignKey('staff.id'), nullable=True)
+    created_by_id = db.Column(db.Integer, db.ForeignKey('staff.id', ondelete='CASCADE'), nullable=False)
+    last_changed_by_id = db.Column(db.Integer, db.ForeignKey('staff.id', ondelete='CASCADE'), nullable=True)
     chk_num = db.Column(db.Integer, nullable=True)
     customer_id = db.Column(db.Integer, db.ForeignKey('customer.id'), nullable=False)
-    items = db.relationship('Ordered_Item', backref='items')
+    items = db.relationship('Order_Items', backref='items')
     applied_discounts = db.relationship('Order_Discount', backref="discounts")           
 
-    def __init__(self, type_id, created_by_id, chknum, status=1, notes="", customer_id=1):
+    def __init__(self, type_id, created_by_id, chknum, customer_id=1,  status=1, notes="",):
         self.type_id = type_id
         self.created_by_id = created_by_id
         self.chk_num = chknum
@@ -108,12 +110,12 @@ class Order_Type(db.Model):
     def __init__(self, order_type):
         self.order_type = order_type
 
-class Ordered_Item(db.Model):
-    __tablename__ = "ordered_item"
+class Order_Items(db.Model):
+    __tablename__ = "order_items"
     id = db.Column(db.Integer, primary_key=True)
-    order_id = db.Column(db.Integer, db.ForeignKey('order.id'), nullable=False)
+    order_id = db.Column(db.Integer, db.ForeignKey('order.id', ondelete='CASCADE'), nullable=False)
     order = db.relationship('Order', backref='order.id', lazy=True)
-    menu_item_id = db.Column(db.Integer, db.ForeignKey('menu_item.id'), nullable=False)
+    menu_item_id = db.Column(db.Integer, db.ForeignKey('menu_item.id', ondelete='CASCADE'), nullable=False)
     quantity = db.Column(db.Integer)
 
     def __init__(self, orID, itID, qty):
@@ -134,14 +136,18 @@ class Order_Status(db.Model):
 class Order_Discount(db.Model):
     __tablename__ = "order_discount"
     id = db.Column(db.Integer, primary_key=True)
-    order_id = db.Column(db.Integer, db.ForeignKey('order.id'), nullable=False)
-    discount_id = db.Column(db.Integer, db.ForeignKey('discount.id'), nullable=False)
+    order_id = db.Column(db.Integer, db.ForeignKey('order.id', ondelete='CASCADE'), nullable=False)
+    discount_id = db.Column(db.Integer, db.ForeignKey('discount.id', ondelete='CASCADE'), nullable=False)
+
+    def __init__(self, order, discount):
+        self.order_id = order
+        self.discount_id = discount
 
 class Discount(db.Model):
     __tablename__ = "discount"
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(50), nullable = False, unique=True)
-    type_id = db.Column(db.Integer, db.ForeignKey('discount_type.id'), nullable=False)
+    type_id = db.Column(db.Integer, db.ForeignKey('discount_type.id', ondelete='CASCADE'), nullable=False)
     value = db.Column(db.Numeric(2), nullable=False)
     expir_date = db.Column(db.DateTime, nullable=True)
     is_active = db.Column(db.Boolean, nullable=False)
@@ -153,7 +159,7 @@ class Discount(db.Model):
         self.discount_type = dtype
         self.value = value
         self.is_active = is_active
-        self.no_expiry = no_expiry          
+        self.no_expiry = no_expiry                    
 
 class Discount_Type(db.Model):
     __tablename__ = "discount_type"
@@ -168,7 +174,7 @@ class Discount_Type(db.Model):
 class Sale(db.Model):
     __tablename__ = "sale"
     id = db.Column(db.Integer, primary_key=True)
-    order_id = db.Column(db.Integer, db.ForeignKey('order.id'), nullable=True)
+    order_id = db.Column(db.Integer, db.ForeignKey('order.id', ondelete='CASCADE'), nullable=True)
     final_tax = db.Column(db.Numeric(2), nullable=False)
     final_price = db.Column(db.Numeric(2), nullable=False)
     final_date = db.Column(db.DateTime, nullable=False)
@@ -192,8 +198,8 @@ class Tax(db.Model):
 class ItemTax(db.Model):
     __tablename__ = "item_tax"
     id = db.Column(db.Integer, primary_key=True)
-    tax = db.Column(db.Integer, db.ForeignKey("tax.id"), nullable=False)
-    item = db.Column(db.Integer, db.ForeignKey("menu_item.id"), nullable=False)
+    tax = db.Column(db.Integer, db.ForeignKey("tax.id", ondelete='CASCADE'), nullable=False)
+    item = db.Column(db.Integer, db.ForeignKey("menu_item.id", ondelete='CASCADE'), nullable=False)
 
     def __init__(self, tax, item):
         self.tax = tax
@@ -203,17 +209,15 @@ class Menu_Item(db.Model):
     __tablename__ = "menu_item"
     id = db.Column(db.Integer, primary_key=True)
     item_name = db.Column(db.String(50), unique=True, nullable = False)
-    unit_price = db.Column(db.Numeric(12, 2), nullable=False)
-    item_category_id = db.Column(db.Integer, db.ForeignKey('menu_category.id'), nullable=False)
-    item_description = db.Column(db.Text, nullable=True, default="")
-    image = db.Column(db.Text, nullable=True)
+    unit_price = db.Column(db.Numeric(12, 2), nullable=False) 
+    item_category = db.Column(db.Integer, ForeignKey('menu_category.id', ondelete='CASCADE'), nullable=False)  
+    item_description = db.Column(db.Text, nullable=True, default="")   
     is_offered = db.Column(db.Boolean, nullable=False)
     is_special = db.Column(db.Boolean, nullable=True)
-    ordered_items = db.relationship('Ordered_Item', backref='ordered_item', lazy=True)
     special_item = db.relationship('Menu_Special', backref='special', lazy=True)
     item_image = db.relationship('Item_Image', backref='image', lazy=True)
-    taxes = db.relationship('Tax', seconday='item_tax', backref='taxes', lazy='dynamic')
-    item_category = db.relationship('Menu_Category', secondary='item_category', backref="caegory", lazy='dynamie')
+    taxes = db.relationship('Tax', secondary='item_tax', backref='taxes', lazy=True)
+    category = db.relationship('Menu_Category', secondary='item_category', backref="category", lazy=True)
     
     
 
@@ -231,7 +235,7 @@ class Menu_Category(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column('category_name', db.String(50), nullable=False, unique=True)
     is_active = db.Column(db.Boolean, nullable=False)
-    items = db.relationship('Menu_Item', secondary='item_category', backref='menu_item', lazy='dynamic')     
+    items = db.relationship('Menu_Item', secondary='item_category', backref='menu_item', lazy=True)     
 
     def __init__(self, name, is_active=True):
         self.name = name
@@ -240,14 +244,15 @@ class Menu_Category(db.Model):
 class Item_Category(db.Model):
     __tablename__ = 'item_category'
     id = db.Column(db.Integer, primary_key=True)
-    item_id =  db.Column(db.Integer, ForeignKey('menu_item.id'), nullable=False)
-    category_id = db.Column(db.Integer, ForeignKey('menu_category.id'), nullable=False)
+    item_id =  db.Column(db.Integer, ForeignKey('menu_item.id', ondelete='CASCADE'), nullable=False)
+    category_id = db.Column(db.Integer, ForeignKey('menu_category.id', ondelete='CASCADE'), nullable=False)
+
 
 
 class Menu_Special(db.Model):
     __tablename__ = "special"
     id = db.Column(db.Integer, primary_key=True)
-    menu_item_id = db.Column(db.Integer, db.ForeignKey('menu_item.id'), nullable=False)
+    menu_item_id = db.Column(db.Integer, db.ForeignKey('menu_item.id', ondelete='CASCADE'), nullable=False)
     has_entree = db.Column(db.Boolean, nullable = False)
     has_appetizer = db.Column(db.Boolean, nullable = False)
     has_soup = db.Column(db.Boolean, nullable = False)
@@ -262,7 +267,7 @@ class Item_Image(db.Model):
     __tablename__ = "image"
     id = db.Column(db.Integer, primary_key=True)
     filename = db.Column(db.Text, nullable=False)
-    item_id = db.Column(db.Integer, db.ForeignKey('menu_item.id'), nullable=True)
+    item_id = db.Column(db.Integer, db.ForeignKey('menu_item.id', ondelete='CASCADE'), nullable=True)
     path = db.Column(db.Text, nullable=False)
 
     def __init__(self, name, path, item_id):
@@ -279,7 +284,7 @@ class Table(db.Model):
     description = db.Column(db.Text, nullable=True,)
     available = db.Column(db.Boolean, nullable=False)
 
-    def __init__(self, no, cap, desc="", avail=True):
+    def __init__(self, no, cap=4, desc="", avail=True):
         self.table_no = no
         self.capacity = cap 
         self.description = desc
@@ -291,12 +296,21 @@ class OrderTable(db.Model):
     table = db.Column(db.Integer, ForeignKey("table.id"), nullable=False)
     order = db.Column(db.Integer, ForeignKey("order.id"), nullable=False)
 
+    def __init__(self, table, order):
+        self.table = table
+        self.order = order
+
 class Printer(db.Model):
     __tablename__ = "printer"      
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), unique=True, nullable = False)
     printer =  db.Column(db.String(255), unique=True, nullable = False)
-    type_id = db.Column(db.Integer, db.ForeignKey('printer_type.id'), nullable=False)
+    type_id = db.Column(db.Integer, db.ForeignKey('printer_type.id', ondelete='CASCADE'), nullable=False)
+
+    def __init__(self, pname, printer, ptype):
+        self.name = pname
+        self.printer = printer
+        self.type_id = ptype
     
 
 class Printer_Type(db.Model):
@@ -304,6 +318,9 @@ class Printer_Type(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), unique=True, nullable = False)
     printer = db.relationship('Printer', backref='Printer', lazy=True)
+
+    def __init__(self, name):
+        self.name = name
     
 
 event.listen(Customer.__table__, 'after_create', DDL(""" INSERT INTO customer (id, name) VALUES (1, 'Guest')"""))
@@ -340,9 +357,9 @@ def getUser():
 
 def exportTable(table, filename="table"):
     #create a csv file with the given filename
-    outfile = open('./files/'+filename+'.csv', 'wb')
+    outfile = open('./files/'+filename+'.csv', 'w', newline='')
     #create a writer to write to the file    
-    outcsv = csv.writer(outfile)
+    outcsv = csv.writer(outfile, dialect='excel')
     #get the records from the table
     records = table.query.all()    
     #write the column header names
@@ -352,15 +369,15 @@ def exportTable(table, filename="table"):
     outfile.close()
 
 def importToSQL(file):
-    try:
-        file_name = file #sample CSV file used:  http://www.google.com/finance/historical?q=NYSE%3AT&ei=W4ikVam8LYWjmAGjhoHACw&output=csv
+    # try:
+        file_name = file 
         data = Load_Data(file_name)
         for row in data: 
-            itemExist1 = Menu_Item.query.filter_by(item_name=row[0]).first() is not None 
-            itemExist2 = Menu_Item.query.filter_by(item_name=row[1]).first() is not None              
-            if row[0].isdigit() or itemExist1 or itemExist2:
+            # itemExist1 = Menu_Item.query.filter_by(item_name=row[0]).first() is not None 
+            # itemExist2 = Menu_Item.query.filter_by(item_name=row[1]).first() is not None              
+            if row[0].isdigit() or Menu_Item.query.filter_by(item_name=row[0]).first() is not None or Menu_Item.query.filter_by(item_name=row[1]).first() is not None:
                 item = db.Model
-                if row[0].isdigit() or itemExist2:              
+                if row[0].isdigit() or Menu_Item.query.filter_by(item_name=row[1]).first() is not None:              
                     if row[0].isdigit():
                         item = Menu_Item.query.filter_by(id=row[0]).first()
                     else:
@@ -386,7 +403,7 @@ def importToSQL(file):
                         if row[6] == "FALSE":
                                 item.is_special = False
                 else:
-                    if Menu_Item.query.filter_by(item_name = row[0]).first():
+                    if Menu_Item.query.filter_by(item_name=row[0]).first() is not None:
                         item = Menu_Item.query.filter_by(item_name = row[0]).first()
                         item.item_name = row[0]              
                         item.unit_price = row[1].replace('.', '', 1)
@@ -452,16 +469,16 @@ def importToSQL(file):
                             db.session.commit()
                             print(newcat.id)                           
                             row[2] = newcat.id
-                    record = Menu_Item(row[0], row[1], row[2], row[3])
+                    record = Menu_Item(row[0], row[1], [2], row[3])
                     db.session.add(record) #Add all the records
         db.session.commit() #Attempt to commit all the records
-    except Exception as e:
-        db.session.rollback() #Rollback the changes on error
-        print('error: '+ e)
-        return -3
-    finally:
-        print('final')
-        db.session.close() #Close the connection
+    # except Exception as e:
+    #     db.session.rollback() #Rollback the changes on error
+    #     print(e)
+    #     return -3
+    # finally:
+    #     print('final')
+    #     db.session.close() #Close the connection
 #======================ROUTES==============================================
 @app.route('/', methods=['GET', 'POST'] )
 def home():
@@ -497,11 +514,12 @@ def importTable():
         filename = secure_filename(file.filename)        
         file.save(os.path.join(app.config['IMPORTS'], filename))
         filepath = os.path.join(app.config['IMPORTS'], filename)
-        try:     
-            importToSQL(filepath)
-            return jsonify({'status': 'success', 'alertType': 'success', 'timer': 500,})
-        except:
-            return jsonify({'status': 'Could not import all items. Check that the form is in the correct format. See "help" for more information', 'alertType': 'error', 'timer': 2500,})
+        # try:     
+        importToSQL(filepath)
+        return redirect(request.referrer)
+        # return jsonify({'status': 'success', 'alertType': 'success', 'timer': 500,})
+        # except:
+        #     return jsonify({'status': 'Could not import all items. Check that the form is in the correct format. See "help" for more information', 'alertType': 'error', 'timer': 2500,})
 
         
 
@@ -570,7 +588,16 @@ def carry_out():
 def order():
     if 'id' in session:
         if request.method == 'POST':
-            print(request.form)
+            i = request.form['items']
+            neworder = Order(request.form['ordertype'], session.get('id'), request.form['chknum'], request.form['customer'], request.form['orderstatus'], request.form['notes'])
+            db.session.add(neworder)
+            db.session.commit()
+            orderID = neworder.id
+            items = multiRow(i)
+            for item in items:
+               newitem = Order_Items(orderID, item['item'], item['qty'])
+               db.session.add(newitem)                   
+            db.session.commit()
             return jsonify({'status': 'success', 'alertType': 'success', 'timer': 500})        
     return redirect(url_for('logout'))
 
@@ -802,7 +829,8 @@ def addCat():
 @app.route('/edit_item/<int:id>', methods=['POST'])
 def edit_item(id):
     if session.get('role') == 'Administrator':
-        if request.method == 'POST':           
+        if request.method == 'POST': 
+            print(request.form)          
             item = Menu_Item.query.filter_by(id = id).first()
             item.item_name = request.form['item_name']
             item.unit_price=D(request.form['price'])* 100
@@ -828,8 +856,10 @@ def edit_item(id):
                     else:
                         newimg = Item_Image(img.filename, app.config['RELATIVE_PATH'] + img.filename, id)
                         db.session.add(newimg)
-            newitemtax = ItemTax(request.form['tax'], id)
-            db.session.add(newitemtax)                                
+            taxes = request.form.getlist('tax')
+            for tax in taxes:
+                newitemtax = ItemTax(tax, id)
+                db.session.add(newitemtax)                                
             db.session.commit()
             return jsonify({'message': 'OK', 'alertType': 'success', 'timer': 500, 'callback': 'loadElement', 'param' : 'item'})
         else:
@@ -902,23 +932,56 @@ def tax():
 def taxedit():
     if session.get('role') == 'Administrator':
         if request.method == 'POST':
-            l = request.form['items'].encode('ascii', 'ignore')
-            rows = multiRow(l)        
+            l = request.form['items']
+            print(l)
+            rows = multiRow(l)
+            print(rows)        
             for row in rows:
                 tax = Tax.query.filter_by(id = row['taxid']).first()                   
                 if tax:                        
                     tax.tax_type = row['taxtype']
                     tax.tax_rate = D(row['taxrate']) * 10000
                     db.session.add(tax)
-                    db.session.commit()
-            return jsonify({'message': 'OK', 'alertType': 'success', 'timer': 500, 'callback': 'loadTable'})
+            db.session.commit()
+            return jsonify({'message': 'OK', 'alertType': 'success', 'timer': 500, 'callback': 'reload'})
         return redirect(url_for('tax'))
+    return redirect(url_for('logout'))
+
+#==========================================Tables===================================================
+@app.route('/setTable/', methods=['GET', 'POST'])
+def setTable():
+    if session.get('role') == 'Administrator':
+        if request.method == 'POST':
+             return redirect(request.referrer)
+        else:
+            tables = Table.query.all()
+            print(tables)
+            keys = Table.__table__.columns.keys()
+            return render_template('/admin/dash/pages/setTable.html', title="SalesPoint - Version 1.0-build 1", bodyClass="tax", table_active='active', ops_post='active', ops_expand='true', mng_expand='true', mng_show='show', menu_show='show', mng_active='active', date=getDate(), role=session.get('role'), user=getUser(), tablename='Tables', itemtable='Menu Items', tables=tables, keys=keys)
+    else:
+        return redirect(url_for('logout'))
+
+@app.route('/table-multi-add/', methods=['POST'])
+def tablemultiAdd():
+    if session.get('role') == 'Administrator':
+        if request.method == 'POST':
+            num = int(request.form['num'])
+            count = len(Table.query.all())
+            counter = count+1
+            stopper = num + count                    
+            for n in range(counter, stopper):
+                newtable = Table(n)                   
+                db.session.add(newtable)
+            db.session.commit()
+            return jsonify({'message': 'OK', 'alertType': 'success', 'timer': 500})
+        return redirect(url_for('setTable'))
     return redirect(url_for('logout'))
 
 
 
 
 if (__name__) == '__main__':
+    print(sys.version)
     db.create_all()
     #db.drop_all()
     app.run()

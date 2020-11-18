@@ -14,16 +14,35 @@ window.addEventListener('DOMContentLoaded', () => {
     const taxform = document.getElementById('taxForm');
 
     //get the tax form inputs
-    let inputs = document.querySelectorAll('input.dbaction');
+    let inputs = document.querySelectorAll('input.dbAction');
+
+    const tinputs = taxform.querySelectorAll('input.dbAction');
+
+    const re = /[+-]?[0-9]{1,3}(?:,?[0-9]{3})*(?:\.[0-9]{1,4})?/;
+
+    const ra = /^[A-Za-z]+$/;
 
     //Flag to validate inputs
     let isValid = true;
 
 
+    $('#editCancel').click(function(e){
+
+      $(editbtn).removeClass('update');
+      $('#edit_cancel').addClass('hide');
+      $(editbtn).attr('data-original-title', 'Edit');
+      $(editbtn).find('i').text('edit');    
+     $('input.taxRow:checked').prop('checked', false);
+     $('input.taxRow').closest('tr').find('input').not('input[type="checkbox"]').prop('disabled', true)
+      location.reload();
+    
+    });
+
     //Edite functions
     editbtn.addEventListener('click', function(e){
         e.preventDefault();
         let checked = document.querySelectorAll('input.taxRow:checked');
+        console.log(checked);
 
         if(checked.length < 1)
         {
@@ -37,8 +56,11 @@ window.addEventListener('DOMContentLoaded', () => {
 
         if($(this).hasClass('update'))
         {
+
+          // $(editForm).submit();
             let items = [];
             let rows = $(checked).closest('tr').toArray()
+            console.log(rows);
             let inputs;
             
             rows.forEach(function(row){
@@ -58,10 +80,19 @@ window.addEventListener('DOMContentLoaded', () => {
             console.log(items);
             
             
-            validate(inputs);
+            validate(editForm.querySelectorAll('input.dbAction'));
             if(isValid)
             {
+              $(editForm).submit();
                 ajaxforms('/tax_edit/', 'POST', formData, false, false)
+                checked.forEach(function(check){
+                  $(check).closest('tr').find('input').not('input[type="checkbox"]').prop('disabled', true)
+                  $('input.taxRow:checked').prop('checked', false);
+              });
+              $(this).removeClass('update');
+              $('#edit_cancel').addClass('hide');
+              $(this).attr('data-original-title', 'Edit');
+              $(this).find('i').text('edit');
             }
             else
             {
@@ -74,28 +105,68 @@ window.addEventListener('DOMContentLoaded', () => {
         {
             checked.forEach(function(check){
                 $(check).closest('tr').find('input').removeAttr('disabled')
+                $(check).val('');
             });
             $(this).addClass('update');
             $(this).attr('data-original-title', 'Update');
             $(this).find('i').text('arrow_circle_up');
+            $('#edit_cancel').removeClass('hide');
         }
     });
 
+
+
+    //Edit current tax info form
+
+    jQuery(editForm).on('submit', function(e){
+      e.preventDefault();
+      let checked = document.querySelectorAll('input.taxRow:checked');
+      console.log('it submits');
+      let items = [];
+            let rows = $(checked).closest('tr').toArray()
+            let inputs;
+            
+            rows.forEach(function(row){
+                let item = [];
+                inputs = row.querySelectorAll('input.dbAction');
+                inputs.forEach(function(input){
+                    item.push($(input).serialize())
+                });
+                items.push(item);
+            });
+            let data = JSON.stringify(items) 
+      console.log(inputs);   
+      validate(inputs);
+      console.log(isValid);
+      if(isValid){
+      simpleAjaxforms('/tax/', 'POST', taxform)
+      }else{
+        noMatch(editForm);
+        isValid = true;
+        console.log(isValid);
+      } 
+    });
+
+
+
+
+  //Nex tax Form
+
     jQuery(taxform).on('submit', function(e){
-        e.preventDefault();    
-        validate(inputs);
+        e.preventDefault(); 
+
+        
+        
+        validate(tinputs)
+        console.log(isValid);
         if(isValid){
-        simpleAjaxforms('/tax/', 'POST', taxform)
+        //simpleAjaxforms('/tax/', 'POST', taxform)
         }else{
           noMatch(taxform);
           isValid = true;
         } 
       });
-
-});
-
-
-
+  
 
 //validate form fields - checks that fields are not empty
 function validate(args){
@@ -105,6 +176,16 @@ function validate(args){
       if (el.value == '' || /\S/.test(el.value) == false)
       {
         isValid = false;
+      }
+      else if (el.dataset.type == 'rate'){
+        if(!re.test(el.value)){
+          isValid = false;
+        }
+      }
+      else if (el.dataset.type == 'text'){
+        if(!ra.test(el.value)){
+          isValid = false;
+        }
       }     
     });    
   
@@ -179,10 +260,16 @@ function validate(args){
         
       })
     }
+
+}); //End of doc read function
     
 //---------------Callbacks----------------------------------
 function loadTable(){
     $('#taxModal').modal('hide');
-    $('#taxTable').load(document.URL +  '  #table');
-}    
+    $('#taxRow').load(document.URL +  '  #tax_table');
+}
+
+function reload(){
+  location.reload();
+}
 

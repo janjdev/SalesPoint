@@ -203,6 +203,18 @@ th.theID {
     display: block;
 }
 
+
+/*============================-Tax Table-===============================*/
+
+#taxlist input[name="taxtype"]:disabled, #taxlist input[name="taxrate"]:disabled{
+    background: transparent;
+}
+
+#taxlist input[name="taxtype"], #taxlist input[name="taxrate"]{
+    background: #e1f5fe;
+    border: none;
+}
+
 /*===========================Tasks====================*/
 
 body.shared-tasks .sidebar{
@@ -266,18 +278,10 @@ span.table-remove button.btn {
     top: 10px !important;
 }
 
-#orderlist td.pt-3-half input, #add-edit td.pt-3-half input, #taxlist input[name="taxtype"], #taxlist input[name="taxrate"] {
+#orderlist td.pt-3-half input, #add-edit td.pt-3-half input, #taxlist input[name="taxtype"]:disabled, #taxlist input[name="taxrate"]:disabled {
     max-width: 100px;
     border: none;
     background: transparent;
-}
-
-#taxlist input[name="taxtype"]:disabled, #taxlist input[name="taxrate"]:disabled{
-    background: transparent;
-}
-
-#taxlist input[name="taxtype"], #taxlist input[name="taxrate"]{
-    background: #e1f5fe;
 }
 
 .input-line{
@@ -345,7 +349,6 @@ label.total_label {
     width: 100px;
     min-width: 107px;
     padding: 5px 5px 0;
-    /* margin: 0 5px; */
 }
 
 .menu-item a.photography-entry.img.d-flex.justify-content-center.align-items-center {
@@ -389,8 +392,6 @@ label.total_label {
 #menu_items fieldset.form-group {
     padding: 0;
 }
-
-
 
 /*------------------Menu Category-----------------------------*/
 
@@ -966,3 +967,10 @@ a.photography-entry.img.image-popup.d-flex.justify-content-center.align-items-ce
     background: -webkit-linear-gradient(50deg, #7873f5, #ff6ec4 ) !important;
     background: -o-linear-gradient(50deg, #7873f5, #ff6ec4 ) !important;
     background: linear-gradient(40deg, #7873f5, #ff6ec4 ) !important; }
+
+
+.hide 
+{
+    display: none !important;
+}
+    
