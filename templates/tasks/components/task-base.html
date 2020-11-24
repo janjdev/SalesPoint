@@ -6,7 +6,11 @@
         <!-- End Google Tag Manager (noscript) -->
 <div class="wrapper ">
     <!--Include the sidebar-->
-    {% include 'tasks/components/task-sidebar.html' %}
+    {% if bodyClass == 'shared-tasks orders' %}
+        {% include 'tasks/components/orders-sidebar.html' %}  
+    {% else %}
+        {% include 'tasks/components/task-sidebar.html' %}
+    {% endif %}
     <div class="main-panel">
         <!--Include the navbar-->
         {% include 'tasks/components/task-navbar.html' %}

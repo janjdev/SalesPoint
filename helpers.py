@@ -1,11 +1,7 @@
 import ast, csv, os
 from datetime import datetime
-from os import name, read
-# from app import db, Staff,os
-from numpy import genfromtxt
-from flask import Flask, session, request, json
+from flask import Flask, request, json
 from flask_sqlalchemy import SQLAlchemy
-from hashutil import make_pw_hash, check_pw_hash
 import config
 
 #Get list of rows from table form
@@ -25,14 +21,6 @@ def same_as(column_name):
     def default_function(context):
         return context.get_current_parameters()[column_name]
     return default_function
-
-#Validation function called before every operation
-# def login(secret_key):
-#     secrets = db.session.query(Staff.staff_id).all()
-#     for key in secrets:
-#         if check_pw_hash(secret_key, key):
-#             return True
-#     return False
 
 def getDate():
     return datetime.now().strftime("%A, %B, %d")
@@ -147,8 +135,7 @@ def getAutolog():
         autolog = data['autolog']
     return autolog
 
-def Load_Data(file_name):
-    # data = genfromtxt(file_name,  delimiter=',', skip_header=1, converters={0: lambda s: str(s)})
+def Load_Data(file_name):   
     with open(file_name, 'r+', newline='') as f:
         reader = csv.reader(f, dialect='excel')
         next(f)

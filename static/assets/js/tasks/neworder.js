@@ -161,7 +161,6 @@ window.addEventListener('DOMContentLoaded', () => {
   
           }
         });
-
         prevItem.addEventListener('click', function(e){
           e.preventDefault();
           let bitems=[];
@@ -431,8 +430,7 @@ window.addEventListener('DOMContentLoaded', () => {
             tableSort.clear().draw();
             orderform.querySelector('input[name="customer"]').value = 1;
             
-          } else if (
-            /* Read more about handling dismissals below */
+          } else if (            
             result.dismiss === Swal.DismissReason.cancel
           ) {
           }
@@ -441,58 +439,54 @@ window.addEventListener('DOMContentLoaded', () => {
     });
   //-----------------------------------------------------------------------------
 
-   //Customer actions
-   ctasks.forEach(function(task){
-       task.addEventListener('click', function(e){
-           e.preventDefault();
-            func = task.getAttribute('data-func');
-            cID = task.getAttribute('data-id');           
-            page = '/edit_cust/' + cID;         
-            if(func === 'delete')
-            {
-                document.querySelector('input[name="delete"]').setAttribute('checked', 'checked');
-                Swal.fire({
-                    title: 'Are you sure?',
-                    text: 'Delete: ' +  $('tr#'+cID + ' span').text(),
-                    type: 'warning',
-                    showCancelButton: true,
-                    confirmButtonText: 'Yes!',
-                    cancelButtonText: 'No, cancel!',
-                    reverseButtons: true
-                  }).then((result) => {
-                    if (result.value) {
-                        ajaxforms(page, 'POST', editform)
-                    } else if (
-                      /* Read more about handling dismissals below */
-                      result.dismiss === Swal.DismissReason.cancel
-                    ) {
-                      document.querySelector('input[name="delete"]').removeAttribute('checked');
-                      Swal.fire({
-                      title:  'Cancelled',
-                      text:  'Customer, ' +$('tr#'+cID + ' span').text() + ' was not deleted',
-                      type:  'error'
-                      })
-                    }
-                  });
-            }           
-            if (func === 'update')
-            {
-                document.querySelector('form#updateCust input[name="cname"]').value = $('tr#'+cID + ' span').text();
-                $(editform).submit();
-            }
-            localStorage.clear();          
-       });
-   });
 
+    $(document).on('click', '.c-task', function(e){
+      e.preventDefault();
+      func = $(this).attr('data-func');
+      cID =  $(this).attr('data-id');           
+      page = '/edit_cust/' + cID;         
+      if(func === 'delete')
+      {
+          document.querySelector('input[name="delete"]').setAttribute('checked', 'checked');
+          Swal.fire({
+              title: 'Are you sure?',
+              text: 'Delete: ' +  $('tr#cust'+cID + ' span').text(),
+              type: 'warning',
+              showCancelButton: true,
+              confirmButtonText: 'Yes!',
+              cancelButtonText: 'No, cancel!',
+              reverseButtons: true
+            }).then((result) => {
+              if (result.value) {
+                  ajaxforms(page, 'POST', editform)
+              } else if (               
+                result.dismiss === Swal.DismissReason.cancel
+              ) {
+                document.querySelector('input[name="delete"]').removeAttribute('checked');
+                Swal.fire({
+                title:  'Cancelled',
+                text:  'Customer, ' +$('tr#cust'+cID + ' span').text() + ' was not deleted',
+                type:  'error'
+                })
+              }
+            });
+      }           
+      if (func === 'update')
+      {
+          document.querySelector('form#updateCust input[name="cname"]').value = $('tr#cust'+cID + ' span').text();
+          $(editform).submit();
+      }        
+ });
+    
    //-------Add/Remove Customer to Order-----------------
-   $(add_remove).click(function(e){
+   $(document).on('click', '.c-add-remove', function(e){
      if($(this).hasClass('c-remove'))
      {
       document.querySelector('input[name="customer"]').value = 1;
       $('span#custName').text('Guest'); 
       $(this).attr('data-original-title', 'Add to Order');
       $(this).find('i').text('add');
-      $(add_remove).prop('disabled', false);
+      $('.c-add-remove').prop('disabled', false);
       $(this).next().next('button.c-delete').prop('disabled', false);
 
       $(this).removeClass('c-remove');
@@ -500,21 +494,18 @@ window.addEventListener('DOMContentLoaded', () => {
      else
      {
       document.querySelector('input[name="customer"]').value = $(this).attr('data-id');
-      $('span#custName').text($(this).closest('td').prev().find('span').text());                
-      // $('#addCustModal').modal('hide');
-      $(add_remove).not($(this)).prop('disabled', true);
+      $('span#custName').text($(this).closest('td').prev().find('span').text());
+      console.log($(this).closest('td').prev().find('span').text());                
+      $('#addCustModal').modal('toggle');    
+      $('.c-add-remove').not($(this)).prop('disabled', true);
       $(this).next().next('button.c-delete').prop('disabled', true)
       $(this).addClass('c-remove');
       $(this).attr('data-original-title', 'Remove from Order');
       $(this).find('i').text('minimize');
      }
-     $('#addCustModal').modal('hide');
-     localStorage.clear();
    });
 
-  document.querySelector('#addCustCancel').addEventListener('click', function(){
-    localStorage.clear();
-  });
+ 
 
 ncb.addEventListener('click', function(e){
     e.preventDefault();
@@ -589,32 +580,35 @@ jQuery(editform).on('submit', function(e){
     })
   }
 
-  //Set Local Storage to show reloaded modal 
-let cModal = localStorage.getItem('customerModal');
 
-if(cModal)
-{
-  sm();
-}
-
-function sm(){
-  jQuery('#addCustModal').modal('show');
-}
 
  });
 
 //=============CALLBACK FUNCTIONS======================
 
 function newCust(){
+ 
     document.querySelector('#newCust').reset();
     $('#newCustModal').modal('hide');
-    localStorage.clear();
-    localStorage.setItem('customerModal', 'show');
-    location.reload();  
- }
 
 
+    customerTable.destroy();
+    $('#addCustWrapper').load(document.URL + ' #cust-content');
+    setTimeout(function(){
+      customerTable = $('#customer-table').DataTable({"bSort": true, "bLengthChange": true, "bFilter": true, 
+      "pageLength": 6,
+      "aaSorting": [],
+      "scrollY":"500px", 
+      "scrollCollapse":true, 
+      columnDefs: [{
+        orderable: false,
+        targets: [1]             
+        }]})
+        $('.dataTables_length').addClass('bs-select');
+        $('div.dataTables_wrapper div.dataTables_filter').parent().prev().css({'display': 'none'});
+      }, 150)
+}
+ 
 function updateCust(){
     $('#addCustModal').modal('hide');
-    localStorage.clear();
 }

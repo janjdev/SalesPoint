@@ -27,7 +27,7 @@ class Customer(db.Model):
     __tablename__ = "customer"
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(255), nullable=True)
-    customer_orders = db.relationship('Order', backref='customer')
+    customer_orders = db.relationship('Order', backref='orders')
     
     def __init__(self, name=""):
         self.name = name
@@ -90,7 +90,12 @@ class Order(db.Model):
     chk_num = db.Column(db.Integer, nullable=True)
     customer_id = db.Column(db.Integer, db.ForeignKey('customer.id'), nullable=False)
     items = db.relationship('Order_Items', backref='items')
-    applied_discounts = db.relationship('Order_Discount', backref="discounts")           
+    applied_discounts = db.relationship('Order_Discount', backref="discounts") 
+    type = db.relationship('Order_Type', backref="type")          
+    status = db.relationship('Order_Status', backref='order_status')
+    table = db.relationship('OrderTable', backref='ordertable')
+    customer = db.relationship('Customer', backref='customerorder')
+    createdby = db.relationship('Staff', foreign_keys='Order.created_by_id', backref='createdby')
 
     def __init__(self, type_id, created_by_id, chknum, notes="", customer_id=1, status=1, ):
         self.type_id = type_id
@@ -114,9 +119,9 @@ class Order_Items(db.Model):
     __tablename__ = "order_items"
     id = db.Column(db.Integer, primary_key=True)
     order_id = db.Column(db.Integer, db.ForeignKey('order.id', ondelete='CASCADE'), nullable=False)
-    order = db.relationship('Order', backref='order.id', lazy=True)
     menu_item_id = db.Column(db.Integer, db.ForeignKey('menu_item.id', ondelete='CASCADE'), nullable=False)
     quantity = db.Column(db.Integer, nullable=False)
+    item = db.relationship('Menu_Item', backref="item")
 
     def __init__(self, orID, itID, qty):
         self.order_id = orID 
@@ -241,14 +246,6 @@ class Menu_Category(db.Model):
         self.name = name
         self.is_active = is_active        
    
-# class Item_Category(db.Model):
-#     __tablename__ = 'item_category'
-#     id = db.Column(db.Integer, primary_key=True)
-#     item_id =  db.Column(db.Integer, ForeignKey('menu_item.id', ondelete='CASCADE'), nullable=False)
-#     category_id = db.Column(db.Integer, ForeignKey('menu_category.id', ondelete='CASCADE'), nullable=False)
-
-
-
 class Menu_Special(db.Model):
     __tablename__ = "special"
     id = db.Column(db.Integer, primary_key=True)
@@ -649,7 +646,7 @@ def orders():
             allorders = Order.query.all()
         else:
             allorders = Order.query.filter_by(created_by_id = session.get('id')).all()
-        return render_template('tasks/pages/orders.html', title="SalesPoint - Version 1.0-build 1.0.1", bodyClass='shared-tasks', date=getDate(), user=getUser(), orders=allorders)
+        return render_template('tasks/pages/orders.html', title="SalesPoint - Version 1.0-build 1.0.1", bodyClass='shared-tasks orders', date=getDate(), user=getUser(), orders=allorders, cardtitle='Orders')
     return redirect(url_for('logout'))
 
 @app.route('/settle/<int:orderid>', methods=['POST', 'GET'])

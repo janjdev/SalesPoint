@@ -1,9 +1,116 @@
 {% extends 'tasks/components/task-base.html' %}
   {% block content %}
+  <div class="row">
+    <div class="col-md-12">
+        <div id="menuCard" class="card">
+            <div class="card-header">
+                <!-- colors: "header-primary", "header-info", "header-success", "header-warning", "header-danger" -->                
+                <div class="nav-tabs-wrapper">
+                    <ul class="nav nav-pills nav-pills-success" id=orderFilterBtns>
+                        <li class="nav-item">
+                          <button class="btn btn-primary btn-round text-uppercase">Open</button>
+                        </li>
+                        <li class="nav-item">
+                          <button class="btn btn-primary btn-round text-uppercase">settled</button>
+                        </li> 
+                        <li class="nav-item">
+                          <button class="btn btn-primary btn-round text-uppercase">pending</button>
+                        </li>
+                        <li class="nav-item">
+                          <button class="btn btn-primary btn-round text-uppercase">closed</button>
+                        </li>
+                        <li class="nav-item">
+                          <button class="btn btn-primary btn-round text-uppercase">All</button>
+                        </li>  
+                        <li class="nav-item">
+                          <button class="btn btn-primary btn-round text-uppercase">dine in</button>
+                        </li>  
+                        <li class="nav-item">
+                          <button class="btn btn-primary btn-round text-uppercase">take out</button>
+                        </li>                            
+                    </ul>
+                </div>
+            </div>
+            <!-- <div class="card-body "> -->
+                <div class="tab-content">
+                    <div class="tab-pane card active" id="cat">                       
+                        <div class="card-header card-header-success card-header-icon">
+                            <div class="card-icon">
+                              <i class="material-icons">list_alt</i>
+                            </div>                  
+                            <h4 class="card-title">{{cardtitle}}</h4>
+                        </div>
+                        
+                        <div id="categories" class="col-md-12">                            
+                            <div class="table-responsive">
+                                <table id="catTable" class="table table-striped w-auto">
+                                <thead>
+                                  <tr> 
+                                    <th class="th-sm text-center text-capitalize">id</th>
+                                    <th class="th-sm text-center text-capitalize">Check number</th>                                                                                                             
+                                    <th class="th-sm text-center text-capitalize">Created</th>                             
+                                    <th class="th-sm text-center text-capitalize">type</th>
+                                    <th class="th-sm text-center text-capitalize">table</th>
+                                    <th class="th-sm text-center text-capitalize">server</th>
+                                    <th class="th-sm text-center text-capitalize">status</th>
+                                    <th class="th-sm text-center text-capitalize">Customer</th>
+                                    <th class="th-sm text-center text-capitalize">Total</th>
+                                   
+                                  </tr>
+                                </thead>
+                                <tbody>
+                                {% if orders %}
+                                    {% for order in orders %}                                                      
+                                <tr id="{{order.id}}" data-class="cat" class=" all">
+                                  <td class="text-center">{{order.id}}</td>                                              
+                                  <td class="text-center text-capitalize">{{order.chk_num}}</td>
+                                  <td class="name text-center text-capitalize">{{order.date_created.strftime('%b-%d-%y')}} {{order.date_created.strftime('%I:%M')}}  {{order.date_created.strftime('%p')}}</td>
+                                  <td class="is_active text-center text-capitalize">{{order.type.order_type}}</td>
+                                  <td class="is_active text-center text-capitalize">{{order.table}}</td>
+                                  <td class="is_active text-center text-capitalize">{{order.createdby.first_name}}</td>  
+                                  <td class="is_active text-center text-capitalize">{{order.status.status}}</td>
+                                  <td class="is_active text-center text-capitalize">{{order.customer.name}}</td>
+                                  {% set subtotal = namespace(value=0) %}
+                                  {% set taxtotal = namespace(tvalue=0) %}
+                                    {% for item in order.items %}
+                                      {% set currenttotal = namespace(bvalue=0) %}                                      
+                                      {% set currenttotal.bvalue = currenttotal.bvalue + (item.item.unit_price * item.quantity) %}
+                                        {% set currenttax = namespace(ctvalue=0) %}
+                                        {% for tax in item.item.taxes %}
+                                          {% set currenttax.ctvalue = currenttax.ctvalue + tax.tax_rate|float %}
+                                        {% endfor %}
+                                        {% set taxtotal.tvalue =  taxtotal.tvalue + (currenttotal.bvalue|float * (currenttax.ctvalue|round(5, 'floor')/100) ) %}   
+                                        {% set subtotal.value = subtotal.value + currenttotal.bvalue %}
+                                    {% endfor %}                        
+                                  <td class="is_active text-center text-capitalize">{{'%.2f'|format(subtotal.value|float + taxtotal.tvalue)}}</td>
+                                    
+                                </tr>
+                                    {% endfor %}
+                                {% endif %}                                                    
+                                </tbody>
+                                </table>                          
+                            </div>
+                            <div class="row categoryActions">
+                                <span>
+                                    <div class="btn icon-link-size green lighten-3" data-toggle="modal" data-target="#catModal"><a data-href="{{url_for('addCat')}}" class="cat-task" title="Add" data-toggle="tooltip" data-func="add" data-title="Add Menu Category"><i class="material-icons">add</i></a></div>
+                                    <div class="btn icon-link-size green lighten-3"><a class="cat-task" title= "Edit" data-toggle="tooltip" data-func="edit" data-title="Edit Menu Category"><i class="material-icons">edit</i></a></div>                                                        
+                                    <div class="btn icon-link-size green lighten-3"><a class="cat-task" title="Set inactive" data-toggle="tooltip" data-func="archive"><i class="material-icons">close</i></a></div>
+                                    
+                                </span>
+                            </div>
+                        </div>
+                        <!--Category Modal-->
+                        {% include 'admin/dash/componets/catModal.html' %}
+                        <script src="{{ url_for('static', filename='assets/js/dash/menu_cat.js')}}"></script>                                 
+                    </div> 
+                <!--End Category table-->
+              </div>
+              <!-- </div> -->
+          </div>           
+      </div>
+  </div>
 
 
-  {% if orders %}
-    {{orders}}
-  {% endif %}
+ 
   
   {% endblock %}
