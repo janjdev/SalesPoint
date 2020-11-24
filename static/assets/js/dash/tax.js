@@ -5,6 +5,9 @@ window.addEventListener('DOMContentLoaded', () => {
 
     //get the action buttons
     const editbtn = document.querySelector('#edit');
+
+    console.log(editbtn);
+
     const deletebtn = document.querySelector('#delete');
 
     //Form to edit current taxes
@@ -55,9 +58,7 @@ window.addEventListener('DOMContentLoaded', () => {
         }
 
         if($(this).hasClass('update'))
-        {
-
-          // $(editForm).submit();
+        {         
             let items = [];
             let rows = $(checked).closest('tr').toArray()
             console.log(rows);
@@ -82,8 +83,7 @@ window.addEventListener('DOMContentLoaded', () => {
             
             validate(editForm.querySelectorAll('input.dbAction'));
             if(isValid)
-            {
-              $(editForm).submit();
+            {             
                 ajaxforms('/tax_edit/', 'POST', formData, false, false)
                 checked.forEach(function(check){
                   $(check).closest('tr').find('input').not('input[type="checkbox"]').prop('disabled', true)
@@ -114,53 +114,13 @@ window.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-
-
-    //Edit current tax info form
-
-    jQuery(editForm).on('submit', function(e){
-      e.preventDefault();
-      let checked = document.querySelectorAll('input.taxRow:checked');
-      console.log('it submits');
-      let items = [];
-            let rows = $(checked).closest('tr').toArray()
-            let inputs;
-            
-            rows.forEach(function(row){
-                let item = [];
-                inputs = row.querySelectorAll('input.dbAction');
-                inputs.forEach(function(input){
-                    item.push($(input).serialize())
-                });
-                items.push(item);
-            });
-            let data = JSON.stringify(items) 
-      console.log(inputs);   
-      validate(inputs);
-      console.log(isValid);
-      if(isValid){
-      simpleAjaxforms('/tax/', 'POST', taxform)
-      }else{
-        noMatch(editForm);
-        isValid = true;
-        console.log(isValid);
-      } 
-    });
-
-
-
-
-  //Nex tax Form
+  //New tax Form
 
     jQuery(taxform).on('submit', function(e){
-        e.preventDefault(); 
-
-        
-        
+        e.preventDefault();    
         validate(tinputs)
-        console.log(isValid);
         if(isValid){
-        //simpleAjaxforms('/tax/', 'POST', taxform)
+        simpleAjaxforms('/tax/', 'POST', taxform)
         }else{
           noMatch(taxform);
           isValid = true;
@@ -231,8 +191,7 @@ function validate(args){
           })
         })
   }
-  
-  
+ 
   //================================Simple Forms===============================//
   
   function simpleAjaxforms(url, type, form){
@@ -261,7 +220,7 @@ function validate(args){
       })
     }
 
-}); //End of doc read function
+}); //End of doc ready function
     
 //---------------Callbacks----------------------------------
 function loadTable(){

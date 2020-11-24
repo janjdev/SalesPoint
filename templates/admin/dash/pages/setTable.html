@@ -1,65 +1,80 @@
 {% extends 'admin/dash/componets/base.html' %}
 {% block content %}
 {% include 'shared/logs.html' %}
-<div class="row">
-    <div id="categories" class="col-md-12">                            
-        <div class="table-responsive">
-            <table id="tablesTable" class="table table-striped w-auto">
-            <thead>
-                <tr> 
-                    <th></th>
-                    <th></th>                                                                      
-                    {% if keys %}
-                        {% for key in keys %}                                                                      
-                        <th class="th-sm text-center text-capitalize">{{key}}</th>
-                        {% endfor %}
-                    {% endif %}                                        
-                    <th class="text-center">Actions</th>                                                      
-                </tr>
-            </thead>
-            <tbody>
-            {% if tables %}
-                {% for table in tables %}                                                      
-            <tr id="{{table.id}}" data-class="table" class="{{table.available}} all">
-                <td class="text-center"></td>                                                        
-                <td>
-                    <div class="form-check">
-                    <label class="form-check-label">
-                        <input class="row-check form-check-input" type="checkbox" value="" data-id="{{table.id}}">
-                        <span class="form-check-sign">
-                        <span class="check"></span>
-                        </span>
-                    </label>
+<div id="tableRow" class="row">
+    <div id="tables_Table" class="col-md-12"> 
+        <form id="tablesEditForm">
+            <input id="tableAction" name="action" type="text" hidden>
+            <div class="card">
+                <div class="card-header card-header-success card-header-icon">
+                    <div class="card-icon">
+                    <i class="material-icons">table_chart</i>
+                    </div>                  
+                    <h4 class="card-title">{{tablename}} </h4>
+                </div>
+                <div id="tables-Table" class="card-body">
+                    <div class="table-responsive">
+                        <table id="tablesTable" class="table table-striped w-auto">
+                        <thead>
+                            <tr> 
+                                <th></th>
+                                <th></th>                                                                      
+                                {% if keys %}
+                                    {% for key in keys %}                                                                      
+                                    <th class="th-sm text-center text-capitalize">{{key}}</th>
+                                    {% endfor %}
+                                {% endif %}                                                                       
+                                <th class="th-sm text-left text-capitalize">Actions</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody id="tableList">
+                        {% if tables %}
+                            {% for table in tables %}                                                      
+                        <tr id="{{table.id}}" data-class="table" class="{{table.available}} all">
+                            <td class="text-center"></td>                                                        
+                            <td>
+                                <div class="form-check">
+                                <label class="form-check-label">
+                                    <input class="tableRow row-check form-check-input" type="checkbox" value="" data-id="{{table.id}}">
+                                    <span class="form-check-sign">
+                                    <span class="check"></span>
+                                    </span>
+                                </label>
+                                </div>
+                            </td>
+                            <td class="text-center text-capitalize">{{table.id}}</td>
+                            <td class="num text-center text-capitalize"><input data-type="number" class="dbAction tedits text-center text-uppercase" disabled name="num" type="number" min="1" value="{{table.table_no}}" required/></td>
+                            <td class="cap text-center text-capitalize"><input data-type="number" class="dbAction tedits text-center text-uppercase" disabled name="cap" type="number" min="1" value="{{table.capacity}}" required/></td>
+                            <td class="text-center text-capitalize"><input data-type="text" class="dbAction tedits text-center text-uppercase" disabled name="des" type="text" value="{{table.description}}" /></td>
+                            <td class="available text-center text-capitalize" data-cat_active="{{table.available}}">{{table.available}}</td>                                                                                         
+                            <td class="td-actions justify-content-center">                                                            
+                                <button data-id="{{table.id}}" type="button" id="edit" class="btn btn-link lime-accent-4-text table-task" rel="tooltip" data-placement="bottom" title="Set Available" data-func="active">
+                                    <i class="material-icons">check</i>
+                                </button>
+                                <button data-id="{{table.id}}" type="button" id="archive_cat" class="btn btn-link red-accent-3-text table-task" rel="tooltip" data-placement="bottom" title="Set Unavailable" data-func="archived">
+                                    <i class="material-icons">close</i>
+                                </button>
+                            </td>
+                            <td><input class="dbAction" name="tableid" value="{{table.id}}" hidden></td> 
+                        </tr>
+                            {% endfor %}
+                        {% endif %}                                                    
+                        </tbody>
+                        </table>                          
                     </div>
-                </td>
-                <td class="text-center text-capitalize">{{table.id}}</td>
-                <td class="num text-center text-capitalize">{{table.table_no}}</td>
-                <td class="cap text-center text-capitalize">{{table.capacity}}</td>
-                <td class="text-center text-capitalize">{{table.description}}</td>
-                <td class="available text-center text-capitalize" data-cat_active="{{table.available}}">{{table.available}}</td>                                                                                            
-                <td class="td-actions justify-content-center">                                                            
-                    <button data-id="{{table.id}}" type="button" id="edit" class="btn btn-link lime-accent-4-text cat-task" rel="tooltip" data-placement="bottom" title="Set Active" data-func="active" data-title="Edit Category">
-                        <i class="material-icons">check</i>
-                    </button>
-                    <button data-id="{{table.id}}" type="button" id="archive_cat" class="btn btn-link red-accent-3-text cat-task" rel="tooltip" data-placement="bottom" title="Set inactive" data-title="Archive Category" data-func="archived">
-                        <i class="material-icons">close</i>
-                    </button>
-                </td>
-            </tr>
-                {% endfor %}
-            {% endif %}                                                    
-            </tbody>
-            </table>                          
-        </div>
-        <div class="row categoryActions">
-            <span>
-                <div class="btn icon-link-size green lighten-3" data-toggle="modal" data-target="#catModal"><a data-href="{{url_for('setTable')}}" class="cat-task" title="Add" data-toggle="tooltip" data-func="add" data-title="Add Menu Category"><i class="material-icons">add</i></a></div>
-                <div class="btn icon-link-size green lighten-3"><a class="cat-task" title= "Edit" data-toggle="tooltip" data-func="edit" data-title="Edit Menu Category"><i class="material-icons">edit</i></a></div>
-                <div class="btn icon-link-size green lighten-3" data-toggle="modal" data-target="#multiTableModal"><a id="multiAdd" data-href="{{url_for('tablemultiAdd')}}" class="multiAdd" title="Multi Add" data-toggle="tooltip" data-func="add" data-title="Add Menu Category"><i class="material-icons">library_add_check</i></a></div>                                                                        
-                <div class="btn icon-link-size green lighten-3"><a class="cat-task" title="Set inactive" data-toggle="tooltip" data-func="archive"><i class="material-icons">close</i></a></div>
-                
-            </span>
-        </div>
+                    <div class="row categoryActions">
+                        <span>                
+                            <div class="btn icon-link-size green lighten-3"><a id="tableedit" class="" title= "Edit" data-toggle="tooltip" data-func="edit" data-title="Edit Menu Category"><i class="material-icons">edit</i></a></div>
+                            <div id="edit_cancel" class=" btn icon-link-size green lighten-3  hide" ><a id="editCancel"  title="Cancel Updates" data-toggle="tooltip" data-title="Cancel"><i class="material-icons">cancel</i></a></div>
+                            <div class="btn icon-link-size green lighten-3" data-toggle="modal" data-target="#multiTableModal"><a id="multiAdd" data-href="{{url_for('tablemultiAdd')}}" class="multiAdd" title="Multi Add" data-toggle="tooltip" data-func="add" data-title="Add Menu Category"><i class="material-icons">library_add_check</i></a></div>                                                                        
+                            <div class="btn icon-link-size green lighten-3"><a id="tabledelete" class="" title="Delete" data-toggle="tooltip"><i class="material-icons">close</i></a></div>
+                            
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </form>                           
     </div>
 </div>
 <!--Category Modal-->

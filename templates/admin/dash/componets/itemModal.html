@@ -24,7 +24,7 @@
                 <input type="text" class="form-control" id="desc" name="desc" placeholder="Description"/>
               </div>
               <div class="col-md-5 pull-left form-group">               
-                <select class="itemAction selectpicker" data-style="select-with-transition" multiple id="item_tax" name="tax" >                              
+                <select id="taxselection" class="itemAction selectpicker" data-style="select-with-transition" multiple id="item_tax" name="tax" >                              
                   {% if taxes %}
                     {% for tax in taxes %}
                     <option value="{{tax.id}}">{{tax.tax_type}}</option>

@@ -29,7 +29,7 @@
             </li>
             <li class="nav-item {{ staff_active}}">
               <a class="nav-link" data-toggle="collapse" href="#staff" aria-expanded="{{staff_expand}}">
-                <i class="material-icons">people_outline</i>
+                <i class="fas fa-users-cog"></i>
                 <p> STAFF 
                   <b class="caret"></b>
                 </p>
@@ -37,12 +37,14 @@
               <div id="staff" class="collapse {{mng_staff_show}}">
                 <ul class="nav">
                   <li class="nav-item {{ mng_staff_active}} ">
-                    <a class="nav-link" href="{{url_for('staff')}}">                      
+                    <a class="nav-link" href="{{url_for('staff')}}">
+                      <i class="material-icons">groups</i>                      
                       <span class="sidebar-normal">Manage Staff</span>
                     </a>
                   </li>
                   <li class="nav-item {{ pos_active}}" >
-                    <a class="nav-link" href="{{url_for('positions')}}">                      
+                    <a class="nav-link" href="{{url_for('positions')}}">
+                      <i class="fas fa-user-shield"></i>                      
                       <span class="sidebar-normal">Positions</span>
                     </a>
                   </li>                 

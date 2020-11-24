@@ -18,7 +18,7 @@ window.addEventListener('DOMContentLoaded', () => {
     let itemtasks = document.querySelectorAll('.item-task');
   
     //The form to submit
-    let itemform = document.querySelector('form#itemform'); 
+   const itemform = document.querySelector('form#itemform'); 
        
     //Needed variables
     let page, title, func, id, isValid=true, iteminputs = document.querySelectorAll('.itemAction');
@@ -60,7 +60,7 @@ window.addEventListener('DOMContentLoaded', () => {
   
   //tasks function for add, edit, copy
   itemtasks.forEach(function(task) {
-    task.addEventListener('click', function(e){        
+    task.addEventListener('click', function(e){       
       //get the route      
       page = task.getAttribute('data-href');
       //get the title of the action
@@ -97,6 +97,14 @@ window.addEventListener('DOMContentLoaded', () => {
           document.querySelector('input[name="price"]').value = $('tr#' + id + ' td.price')[0].innerText;
           document.querySelector('#item_cat').value = $('tr#' + id + ' td.category').attr('data-cat');
           $('#item_cat').change();
+          let taxids=[];
+          $.each($('tr#2 td.tax span.taxtype'), function(i, el){
+            taxids.push(el.getAttribute('data-taxid'));        
+          });        
+          $.each(taxids, function(i,e){
+              $("#taxselection option[value='" + e + "']").prop("selected", true);
+          });
+          $('#taxselection').change();
           document.querySelector('input[name="desc"]').value = $('tr#' + id + ' td.desc')[0].innerText;
           if (document.querySelector('img.img' != null))
           {
@@ -129,24 +137,24 @@ window.addEventListener('DOMContentLoaded', () => {
           }
           else
           { 
-            if(func == "archived" || func == 'archive')
+            if(func == "archived" || func == 'archive')            
             {
               document.querySelector('input[name="offered"]').removeAttribute('checked');
             }
             else
             {
-              document.querySelector('input[name="active"]').setAttribute('checked', 'checked');
-            }     
-            
+              document.querySelector('input[name="offered"]').checked = true;
+            }
+
             $(itemform).submit();        
-          }            
+          }                   
         }
       });
     });  
   
-   //Add/Edit a Categorey
-  jQuery(itemform).on('submit', function(e){
-    e.preventDefault();    
+   //Add/Edit a Item
+  $(itemform).on('submit', function(e){
+    e.preventDefault(); 
     validate(iteminputs);
     if(isValid){        
       let formData = new FormData(itemform);

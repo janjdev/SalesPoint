@@ -1,5 +1,5 @@
 <div id="addCustModal" class="modal fade" tabindex="-1" role="dialog" data-backdrop="static">
-    <div class="modal-dialog" role="document">
+    <div id="addCustWrapper" class="modal-dialog" role="document">
       <div class="modal-content">
         <div class="modal-header">
           <h5 id="modal-title" class="modal-title">Customers</h5>
@@ -7,7 +7,7 @@
             <span aria-hidden="true">&times;</span>
           </button>
         </div>
-        <div class="modal-body">
+        <div id="addCustBody" class="modal-body">
             <div class="card-header card-header-success card-header-icon">
                 <div class="card-icon">
                   <i class="material-icons">supervised_user_circle</i>
@@ -17,11 +17,11 @@
                 <div class="card-body">
                     <div class="col-md-12">                  
                         <div id="customerTable" class="table-editable">                       
-                            <table class="table table-bordered table-responsive-md table-striped text-center w-auto">
+                            <table id="customer-table" class="table table-bordered table-responsive-md table-striped text-center w-auto">
                             <thead>
                                 <tr>                                  
-                                    <th class="th-sm text-center">Name</th>
-                                    <th class="text-center">Actions</th>                              
+                                    <th class="th-sm text-center w-auto">Name</th>
+                                    <th class="th-sm text-center w-auto">Actions</th>                              
                                 </tr>
                             </thead>
                             <tbody id="add-edit">
@@ -53,7 +53,7 @@
                         <div class="row col-md-12 justify-content-center">                        
                             <span>
                                 <button class="btn icon-link-size green lighten-3" data-toggle="modal" data-target="#newCustModal">New<div class="ripple-container"></div></button>
-                                <button id="cancel" type="reset" class="cancel btn icon-link-size green lighten-3" data-dismiss="modal">Cancel<div class="ripple-container"></div></button>                                
+                                <button id="addCustCancel" type="reset" class="cancel btn icon-link-size green lighten-3" data-dismiss="modal">Cancel<div class="ripple-container"></div></button>                                
                             </span>                                     
                         </div>
                     </div>

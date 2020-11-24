@@ -29,7 +29,7 @@
             {% if staff %}
               {% for staff  in staff %}
               
-              <tr id="{{ staff.staff.id }}">            
+              <tr id="{{ staff.staff.id }}" class="{{staff.staff.is_active}}">            
                 <td class="text-center">{{ loop.index }}</td>
                 <td>
                   <div class="form-check">
@@ -45,22 +45,25 @@
                 <td  class="last_name text-center text-capitalize">{{staff.staff.last_name}}</td>
                 <td class="pos text-center text-capitalize" data-pos="{{staff.staff.position_id}}" class="text-left text-uppercase">{{staff.posID}}</td>
                 <td class ="rol text-center text-capitalize" data-rol="{{staff.staff.role_id}}" class="text-left text-uppercase">{{staff.rolID}}</td>
-                <td class ="status text-center text-capitalize" data-status="{% if staff.staff.is_active == True %}{{1}}{% else %}{{2}}{% endif %}" class="text-left text-uppercase">{% if staff.staff.is_active == True %}{{'Active'}}{% else %}{{'Not Active'}}{% endif %}</td>
+                <td class ="status text-center text-capitalize" data-status="{{staff.staff.is_active}}" class="text-left text-uppercase">{% if staff.staff.is_active == True %}{{'Active'}}{% else %}{{'Not Active'}}{% endif %}</td>
                 <td class="td-actions text-center">
-                      <button data-id="{{ staff.staff.id }}" type="button" id="view_post" class="row_action btn btn-link teal-lighten-2-text " rel="tooltip" data-placement="bottom" title="Copy" data-func="copy"  data-href="{{url_for('add_staff')}}">
-                              <i class="material-icons">content_copy</i>
-                            </button>
-                            <button data-id="{{ staff.staff.id }}" type="button" id="edit_post" class="row_action btn btn-link lime-accent-4-text" rel="tooltip" data-placement="bottom" title="Edit" data-func="edit">
-                              <i class="material-icons">edit</i>
-                            </button>
-                            <button data-id="{{ staff.staff.id }}" type="button" id="delete_post" class="row_action btn btn-link red-accent-3-text" rel="tooltip" data-placement="bottom" title="Delete" data-func="terminate">
-                              <i class="material-icons">close</i>
-                            </button>
-                    </td>
+                  <button data-id="{{ staff.staff.id }}" type="button" class="row_action btn btn-link teal-lighten-2-text " rel="tooltip" data-placement="bottom" title="Copy" data-func="copy"  data-href="{{url_for('add_staff')}}">
+                    <i class="material-icons">content_copy</i>
+                  </button>
+                  <button data-id="{{ staff.staff.id }}" type="button" class="row_action btn btn-link lime-accent-4-text" rel="tooltip" data-placement="bottom" title="Edit" data-func="edit">
+                    <i class="material-icons">edit</i>
+                  </button>
+                  <button data-id="{{ staff.staff.id }}" type="button" class="row_action btn btn-link red-accent-3-text" rel="tooltip" data-placement="bottom" title="Set Inactive" data-func="terminate">
+                    <i class="material-icons">close</i>
+                  </button>
+                  <button data-id="{{staff.staff.id}}" type="button" class="row_action btn btn-link lime-accent-4-text" rel="tooltip" data-placement="bottom" title="Set Active" data-func="active">
+                    <i class="material-icons">check</i>
+                  </button>
+                </td>
               </tr>
               {% endfor %}       
             {% endif %}
-            </tbody>
+            </tbody> 
           </table>
         </div>
         <div class="row">
@@ -117,7 +120,7 @@
               </select>
               </div>
               <div class="form-check">
-                <label class="form-check-label"> Status
+                <label class="form-check-label"> Active
                   <input class="form-check-input" name="status" type="checkbox" value=>
                   <span class="form-check-sign">
                     <span class="check"></span>

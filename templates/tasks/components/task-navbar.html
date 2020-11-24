@@ -28,9 +28,20 @@
             </div>
           </form> -->
         <ul class="navbar-nav">
+          {% if user.role_id == 1 %}
           <li class="nav-item">
-            <a class="nav-link btn btn-white btn-round" href="{{url_for('home')}}" data-toggle="tooltip" data-placement="bottom" title="storefront">
-              <i class="material-icons">storefront</i>
+            <a class="nav-link btn btn-white btn-round" href="{{url_for('admin')}}" data-toggle="tooltip" data-placement="bottom" title="dashboard">
+              <i class="material-icons">dashboard</i>
+              <p class="d-lg-none d-md-block">
+                Admin
+              </p>
+            </a>
+            <div class="ripple-container"></div>
+          </li>
+          {% endif %}
+          <li class="nav-item">
+            <a class="nav-link btn btn-white btn-round" href="{{url_for('kitchen')}}" data-toggle="tooltip" data-placement="bottom" title="kitchen">
+              <i class="icon-chef_hat"></i>
               <p class="d-lg-none d-md-block">
                 Admin
               </p>
@@ -38,7 +49,7 @@
             <div class="ripple-container"></div>
           </li>
           <li class="nav-item">
-            <a class="nav-link btn btn-white btn-round" href="{{url_for('order_activity')}}" data-toggle="tooltip" data-placement="bottom" title="Orders and Activity">
+            <a class="nav-link btn btn-white btn-round" href="{{url_for('orders')}}" data-toggle="tooltip" data-placement="bottom" title="Orders and Activity">
               <i class="material-icons">add_task</i>
               <p class="d-lg-none d-md-block">
                 Orders and Acivities

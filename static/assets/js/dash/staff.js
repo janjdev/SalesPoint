@@ -23,10 +23,15 @@ window.addEventListener('DOMContentLoaded', () => {
     "aaSorting": [],
     columnDefs: [{
     orderable: false,
-    targets: [0, 1, 6]
+    targets: [0, 1, 7]
     }]
   });
-  $('.dataTables_length').addClass('bs-select');  
+  $('.dataTables_length').addClass('bs-select');
+  
+  
+  //Toggle Actions Enabled
+  $('tr.True button[data-func="active"]').attr('disabled', true);
+  $('tr.False button[data-func="terminate"]').attr('disabled', true);
 
   //Function to disable multi row select in staff table
   staffChecks.forEach(function(check){
@@ -53,7 +58,6 @@ window.addEventListener('DOMContentLoaded', () => {
         task.addEventListener('click', function(e){
           //get the route      
           page = task.getAttribute('data-href');
-          console.log(page);
           //get the title of the action
           title = task.getAttribute('data-title');
           //get the specific task
@@ -81,6 +85,15 @@ window.addEventListener('DOMContentLoaded', () => {
               $('#staff_pos').change();
               document.querySelector('#staff_role').value = $('tr#' + id + ' td.rol')[0].getAttribute('data-rol');
               $('#staff_role').change();
+              if ($('tr#' + id + ' td.status').attr('data-status') == 'True')
+              {
+              
+                document.querySelector('input[name="status"]').checked = true;
+              }
+              else
+              {
+                document.querySelector('input[name="status"]').removeAttribute('checked');
+              }
               $('#staffModal').modal('show');             
 
             }            
@@ -101,7 +114,6 @@ window.addEventListener('DOMContentLoaded', () => {
         e.preventDefault();
         id = action.getAttribute('data-id');
         func = action.getAttribute('data-func');
-        
         if (func == 'edit')
         {
           page = '/staff/edit/' + id;
@@ -112,21 +124,22 @@ window.addEventListener('DOMContentLoaded', () => {
         }
         if (func != 'terminate')
         {
-          document.querySelector('input[name="fname"]').value = $('tr#' + id + ' td.first_name')[0].innerText;
-          document.querySelector('input[name="lname"]').value = $('tr#' + id + ' td.last_name')[0].innerText;
-          document.querySelector('#staff_pos').value = $('tr#' + id + ' td.pos')[0].getAttribute('data-pos');
-          $('#staff_pos').change();
-          document.querySelector('#staff_role').value = $('tr#' + id + ' td.rol')[0].getAttribute('data-rol');
-          $('#staff_role').change();
-          //Is offered
-          if ($('tr#' + id + ' td.status')[0].getAttribute('data-status') === "1" )
+          //Is offered         
+          if ($('tr#' + id + ' td.status').attr('data-status') == 'True')
           {
+           
             document.querySelector('input[name="status"]').checked = true;
           }
           else
           {
             document.querySelector('input[name="status"]').removeAttribute('checked');
           }
+          document.querySelector('input[name="fname"]').value = $('tr#' + id + ' td.first_name')[0].innerText;
+          document.querySelector('input[name="lname"]').value = $('tr#' + id + ' td.last_name')[0].innerText;
+          document.querySelector('#staff_pos').value = $('tr#' + id + ' td.pos')[0].getAttribute('data-pos');
+          $('#staff_pos').change();
+          document.querySelector('#staff_role').value = $('tr#' + id + ' td.rol')[0].getAttribute('data-rol');
+          $('#staff_role').change();
           $('#staffModal').modal('show');  
         }
         else{
@@ -242,7 +255,7 @@ function loadStaffTable(){
   document.querySelectorAll('.modal-backdrop')[0].remove();
   $('#staffModal').removeClass('show').css({'display': 'none'});
   $('#staff_table').load(document.URL +  '  #stafflist');
-  
+   
   
 }
 function clearPassFields(){

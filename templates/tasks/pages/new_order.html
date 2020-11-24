@@ -7,7 +7,7 @@
       text-align: right;
     }
   </style>
-  <div class="row order-row">
+  <div id="neworder-screen" class="row order-row">
     <div id="ticket_list" class="col-md-6 order-box ">
       <form id="new-ticket" method="POST">
         <fieldset class="form-group">        
@@ -37,12 +37,13 @@
                           <tr>
                             <th class="th-sm text-center">Qty</th>
                             <th class="th-sm text-center">Item</th>
-                            <th class="th-sm text-center">Price</th>                              
+                            <th class="th-sm text-center">Price</th>
+                            <th class="th-sm text-center">Note</th>                              
                             <th class="th-sm text-center">Remove</th>
                           </tr>
                         </thead>                        
                           <tbody id="orderlist">
-                            <input hidden name="ordertable" value="{{ordertapleID}}"/>                                            
+                            <input hidden name="ordertable" value="{{ordertableID}}"/>                                            
                             <input hidden name="ordertype" value="{{ordertypeID}}"/>
                             <input hidden name="orderstatus" value="{{orderstatusID}}"/>                         
                             <!-- This is our clonable table line -->                                            
@@ -87,14 +88,19 @@
           <legend class=""><h5>Items</h5></legend>
           {% if items %}
           <div class="photography">
-              <div class="row">
+              <div id="orderItemsRow" class="row">
               {% for item in items %}
-                  <div id="{{item.item.id}}" class="menu-item col-md-2 {{item.item.item_category}} all" data-name="{{item.item.item_name}}" data-price="{{item.item.unit_price}}" >
-                      <a data-href="{{item.img}}" href="#" class="item-btn photography-entry img d-flex justify-content-center align-items-center" style="background-image: url({{item.img}});">                        
+                {% if loop.index < 6 %}
+                  {% set active='active' %}
+                {% else %}
+                  {% set active='' %}
+                {% endif %}
+                  <div id="{{item.id}}" class="menu-item item-page {{active}} col-md-2 {{item.item_category}} all" data-name="{{item.item_name}}" data-price="{{item.unit_price}}">{% for tax in item.taxes %}<span class="taxes">{{'%.4f'|format(tax.tax_rate)}}</span>  {%endfor%}
+                      <a data-href="{% for img in item.item_image %}{{img.path}}{% endfor %}" href="#" class="item-btn photography-entry img d-flex justify-content-center align-items-center" style="background-image: url({% for img in item.item_image %}{{img.path}}{% endfor %});">                        
                         <div class="overlay"></div>  
                         <div class="text text-center">
-                              <h3>{{item.item.item_name}}</h3>
-                              <span class="tag">{{item.cat}}</span>
+                              <h3>{{item.item_name}}</h3>
+                              <span class="tag">{{item.category.name}}</span>
                           </div>
                       </a>
                   </div>
@@ -102,17 +108,47 @@
               </div>
           </div>
           {% endif %}
+          <div class="row">
+         
+            <a id="previtem" class="pagi" href="#" class="btn btn-primary btn-fab btn-fab-mini btn-round">
+              <i class="material-icons">arrow_back_ios</i>
+            </a>
+           
+            
+            <a id="nextitem" class="pagi" href="#" class="btn btn-primary btn-fab btn-fab-mini btn-round">
+              <i class="material-icons">arrow_forward_ios</i>
+            </a>         
+          </div>
         </fieldset>
       </div> <!--End of Items-->
 <!---------------------Categories-------------------------->
       <div id="menu_categories" class="col-md-2 order-box">
+        
         <button id="all" class="cat-btn btn btn-primary col-md-12 ">All</button>       
           {% if cat %}
-            {% for c in cat%}      
-            <button id="{{c.id}}" class="cat-btn btn {{btncolor}} col-md-12 ">{{c.name}}</button>
+            {% for c in cat%}
+            {% if loop.index < 3 %}
+              {% set active='active' %}
+            {% else %}
+              {% set active='' %}
+            {% endif %}      
+            <button id="{{c.id}}" class="cat-btn cat-page {{active}} btn {{btncolor}} col-md-12 ">{{c.name}}</button>
             {% endfor %}
           {% endif %}
+          <div class="row">
+           
+            <a id="prevcat" class="pagi" href="#" class="btn btn-primary btn-fab btn-fab-mini btn-round">
+              <i class="material-icons">arrow_back_ios</i>
+            </a>
+           
+           
+            <a id="nextcat" class="pagi" href="#" class="btn btn-primary btn-fab btn-fab-mini btn-round">
+              <i class="material-icons">arrow_forward_ios</i>
+            </a>
+          </div>
       </div><!-- End of Categories-->
+
+<!-----------------------Bottom Buttons--------------------------------->      
       <div id="bottomfunctions" class="row">
         <div class="col-md-3 col-lg-2">
           <button class="btn btn-success col-md-12" data-toggle="modal" data-target="#addCustModal">
@@ -138,6 +174,9 @@
     </div><!--End of the Row-->   
     
     {% include 'tasks/components/add-customer-to-order.html' %}
+
+    {% include 'tasks/components/custItemTax.html' %}
+
     
     <script  src="{{ url_for('static', filename='assets/js/tasks/neworder.js')}}"></script>    
 

@@ -1,10 +1,10 @@
 id,item_name,unit_price,item_category,item_description,is_offered,is_special
-1,Burger,500.00,1,Impossible Burger,True,False
-2,French Fries,299.00,1,Test,True,False
-3,Cob Sala,799.00,2,"Kale, Spring Lettuce, Cherry Tomatoes, Green Onion, Choice Of House Dressings",True,False
-4,Grilled Chicken Thigh,1099.00,1,More Testing,True,False
-5,Burrito,5000.00,1,,True,False
-6,Crab Ragoon,399.00,3,,True,False
-7,Turkey And Swiss,399.00,1,,True,False
-8,Sweet N Sour Chicken,999.00,1,,True,False
-9,Cheese Pizza,799.00,1,Nothing At All,True,False
+1,Burger,5,1,Impossible Burger,TRUE,FALSE
+2,French Fries,2.99,1,Test,TRUE,FALSE
+3,Cob Sala,7.99,2,"Kale, Spring Lettuce, Cherry Tomatoes, Green Onion, Choice Of House Dressings",TRUE,FALSE
+4,Grilled Chicken Thigh,10.99,1,More Testing,TRUE,FALSE
+5,Burrito,50,1,,TRUE,FALSE
+6,Crab Ragoon,3.99,3,,TRUE,FALSE
+7,Turkey And Swiss,3.99,1,,TRUE,FALSE
+8,Sweet N Sour Chicken,9.99,1,,TRUE,FALSE
+9,Cheese Pizza,7.99,1,Nothing At All,TRUE,FALSE

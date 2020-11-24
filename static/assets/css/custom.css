@@ -206,11 +206,11 @@ th.theID {
 
 /*============================-Tax Table-===============================*/
 
-#taxlist input[name="taxtype"]:disabled, #taxlist input[name="taxrate"]:disabled{
+#taxlist input[name="taxtype"]:disabled, #taxlist input[name="taxrate"]:disabled, #tableList input:disabled{
     background: transparent;
 }
 
-#taxlist input[name="taxtype"], #taxlist input[name="taxrate"]{
+#taxlist input[name="taxtype"], #taxlist input[name="taxrate"], #tableList input{
     background: #e1f5fe;
     border: none;
 }
@@ -381,6 +381,11 @@ label.total_label {
     margin: 0 0 5px;
 }
 
+#menu_items .row{
+    margin: 0;
+    justify-content: space-around;
+}
+
 .menu-item a.photography-entry .overlay{
     opacity: .5;
 }
@@ -389,8 +394,33 @@ label.total_label {
     opacity: 1;
 }
 
+.menu-item span.taxes, .taxes{
+    display: none;
+}
+
 #menu_items fieldset.form-group {
     padding: 0;
+}
+
+#menu_items .row a.disabled {
+    pointer-events: none;
+}
+
+#menu_categories .row a, #menu_items .row a.pagi {
+    width: 40px;
+    height: 40px;
+}
+
+#menu_categories .row {
+    justify-content: center;
+}
+
+.item-page, .cat-page{
+    display: none !important;
+}
+
+.item-page.active, .cat-page.active{
+    display: block !important;
 }
 
 /*------------------Menu Category-----------------------------*/
@@ -425,6 +455,17 @@ div#bottomfunctions {
 
 body.shared-tasks .tooltip{
     z-index: 5000;
+}
+
+
+/* ---------------------Add Customer Modal---------------------- */
+
+#customer-table_wrapper .col-sm-12.col-md-5 {
+    position: absolute;
+    top: -35px;
+    right: 0;
+    margin-right: 20px;
+    font-size: .8em;
 }
 
 /*=========================Positions===============================*/

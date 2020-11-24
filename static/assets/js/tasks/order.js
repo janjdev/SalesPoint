@@ -8,11 +8,17 @@ window.addEventListener('DOMContentLoaded', () => {
     //get the button for hold order
     const hold = document.querySelector('button#hold');
 
+    const add_remove = document.querySelectorAll('.c-add-remove');
+
+    //Ticket Table
+    const table = document.getElementById('orderlist');
+
     //Flag to validate inputs
     let isValid = true;
 
   //=================Order Hold Function=================
     hold.addEventListener('click', function(e){
+      // e.preventDefault();
       document.querySelector('input[name="orderstatus"]').value = 5;
     });
 
@@ -36,7 +42,7 @@ window.addEventListener('DOMContentLoaded', () => {
             
         });
 
-         let data = JSON.stringify(items);
+         let data = JSON.stringify(items);         
 
         //convert form as needed
          let formData = new FormData(orderform);
@@ -63,9 +69,25 @@ window.addEventListener('DOMContentLoaded', () => {
         
     });
 
-     
-});
-
+   // clear the order ticket
+   function clearOrder(){
+    orderform.reset(); 
+     $(add_remove).removeClass('c-remove');
+     $(add_remove).text('Guest'); 
+     $(add_remove).attr('data-original-title', 'Add to Order');
+     $(add_remove).find('i').text('add');
+     $(add_remove).prop('disabled', false);
+     $(add_remove).next().next('button.c-delete').prop('disabled', false);
+    
+    let rows = table.querySelectorAll('tr');    
+     for(i = 0; i < rows.length; i++){
+       if(rows)
+       $(rows[i]).detach();
+     }
+     tableSort.clear().draw();
+     orderform.querySelector('input[name="customer"]').value = 1;   
+}
+    
 //validate form fields - checks that fields are not empty
 function validate(args){
   let fields = [];
@@ -148,5 +170,11 @@ function simpleAjaxforms(url, type, form){
       
     })
   }
+
+});
   
+// ----------------------------CallBacks------------------------------------
+function goTo(page){
+  window.location.href = page;
+}  
   
