@@ -1,0 +1,37 @@
+<div id="tablesModal" class="modal fade" tabindex="-1" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 id="modal-title" class="modal-title">Select Table(s)</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">                           
+               <div class="tablesRow row">
+                {% if tables %}
+                {% for table in tables%}
+                {% if loop.index < 18 %}
+                  {% set active='tshow' %}
+                {% else %}
+                  {% set active='' %}
+                {% endif %}      
+                <button id="table{{table.id}}" class="btn btn-primary table-btn table-page{{active}} {{btncolor}}">
+                    <div class="tableno">{{table.table_no}}</div>
+                    <div>Capcity: {{table.capacity}}</div>
+                </button>
+                {% endfor %}
+              {% endif %}
+               </div>               
+            </div>
+            <div class="modal-footer">
+                <div class="row col-md-12 justify-content-center">
+                    <div class="">
+                      <button id="cancelTable" type="reset" class="cancel btn btn-secondary pull-left" data-dismiss="modal">Cancel<div class="ripple-container"></div></button>
+                      <button id="doneTable" class="btn btn-success pull-right">Done<div class="ripple-container"></div></button>
+                    </div>
+                </div>
+            </div>         
+        </div>
+    </div>
+</div>        

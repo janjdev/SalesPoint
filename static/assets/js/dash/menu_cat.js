@@ -164,7 +164,6 @@ jQuery(catform).on('submit', function(e){
 
           //get the check input
           checked = document.querySelectorAll('input.row-check:checked');
-          console.log(checked);
         }
         else
         {

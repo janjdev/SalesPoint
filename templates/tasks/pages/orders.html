@@ -1,51 +1,57 @@
 {% extends 'tasks/components/task-base.html' %}
   {% block content %}
-  <div class="row">
-    <div class="col-md-12">
-        <div id="menuCard" class="card">
-            <div class="card-header">
+  <div class="row orders">
+    <div id="ordersWrapper" class="col-md-12">
+        <div id="ordersCard" class="card">
+            <div class="routeBtns card-header">
                 <!-- colors: "header-primary", "header-info", "header-success", "header-warning", "header-danger" -->                
-                <div class="nav-tabs-wrapper">
-                    <ul class="nav nav-pills nav-pills-success" id=orderFilterBtns>
-                        <li class="nav-item">
-                          <button class="btn btn-primary btn-round text-uppercase">Open</button>
-                        </li>
-                        <li class="nav-item">
-                          <button class="btn btn-primary btn-round text-uppercase">settled</button>
-                        </li> 
-                        <li class="nav-item">
-                          <button class="btn btn-primary btn-round text-uppercase">pending</button>
-                        </li>
-                        <li class="nav-item">
-                          <button class="btn btn-primary btn-round text-uppercase">closed</button>
-                        </li>
-                        <li class="nav-item">
-                          <button class="btn btn-primary btn-round text-uppercase">All</button>
-                        </li>  
-                        <li class="nav-item">
-                          <button class="btn btn-primary btn-round text-uppercase">dine in</button>
-                        </li>  
-                        <li class="nav-item">
-                          <button class="btn btn-primary btn-round text-uppercase">take out</button>
-                        </li>                            
-                    </ul>
-                </div>
+                <div class="card-header card-header-success card-header-icon">
+                  <div class="card-icon">
+                    <i class="material-icons">list_alt</i>
+                  </div>                  
+                  <h4 class="card-title">{{cardtitle}}</h4>
+                  <div class="routeBtnContainer">
+                    <button class="btn secondary btn-round  btn-lg"><a href="{{url_for('carry_out')}}">Carry-Out</a></button>
+                    <button class="btn secondary btn-round  btn-lg"><a href="{{url_for('dine_in')}}">Dine-In</a></button>
+                  </div>
+              </div>
             </div>
             <!-- <div class="card-body "> -->
-                <div class="tab-content">
-                    <div class="tab-pane card active" id="cat">                       
-                        <div class="card-header card-header-success card-header-icon">
-                            <div class="card-icon">
-                              <i class="material-icons">list_alt</i>
-                            </div>                  
-                            <h4 class="card-title">{{cardtitle}}</h4>
-                        </div>
+                <div class="">
+                    <div class="tab-pane card active"> 
+                      <div class="filterBtns">
+                        <ul class="nav nav-pills nav-pills-success" id=orderFilterBtns>
+                            <li class="nav-item">
+                              <button data-filter="1" class="status filters btn btn-primary btn-round text-uppercase">Open</button>
+                            </li>
+                            <li class="nav-item">
+                              <button data-filter="2" class="status filters btn btn-primary btn-round text-uppercase">settled</button>
+                            </li> 
+                            <li class="nav-item">
+                              <button data-filter="5" class="status filters btn btn-primary btn-round text-uppercase">pending</button>
+                            </li>
+                            <li class="nav-item">
+                              <button data-filter="4" class="status filters btn btn-primary btn-round text-uppercase">closed</button>
+                            </li>
+                            <li class="nav-item">
+                              <button data-filter="all" class="all filters btn btn-primary btn-round text-uppercase">All</button>
+                            </li>  
+                            <li class="nav-item">
+                              <button data-filter="1" class="type filters btn btn-primary btn-round text-uppercase">dine in</button>
+                            </li>  
+                            <li class="nav-item">
+                              <button data-filter="2" class="type filters btn btn-primary btn-round text-uppercase">take out</button>
+                            </li>                            
+                        </ul>
+                    </div>                      
                         
-                        <div id="categories" class="col-md-12">                            
-                            <div class="table-responsive">
-                                <table id="catTable" class="table table-striped w-auto">
+                        
+                        <div id="orders" class="col-md-12">                            
+                            <div id="tableWrapper" class="table-responsive">
+                                <table id="ordersTable" class="table table-striped w-auto">
                                 <thead>
-                                  <tr> 
+                                  <tr>
+                                    <th></th> 
                                     <th class="th-sm text-center text-capitalize">id</th>
                                     <th class="th-sm text-center text-capitalize">Check number</th>                                                                                                             
                                     <th class="th-sm text-center text-capitalize">Created</th>                             
@@ -61,7 +67,17 @@
                                 <tbody>
                                 {% if orders %}
                                     {% for order in orders %}                                                      
-                                <tr id="{{order.id}}" data-class="cat" class=" all">
+                                <tr id="{{order.id}}" data-status="{{order.status_id}}" data-class="orders" class="{% if order.status_id == 3 or order.status_id == 4 %}stat4 {% else %} {{order.status_id}} {% endif %} type{{order.type_id}}  all">
+                                  <td>
+                                    <div class="form-check">
+                                    <label class="form-check-label">
+                                        <input class="row-check form-check-input" name="rowSelect" type="checkbox" value="{{order.id}}" data-id="{{order.id}}">
+                                        <span class="form-check-sign">
+                                        <span class="check"></span>
+                                        </span>
+                                    </label>                                                                                               
+                                    </div>
+                                </td>
                                   <td class="text-center">{{order.id}}</td>                                              
                                   <td class="text-center text-capitalize">{{order.chk_num}}</td>
                                   <td class="name text-center text-capitalize">{{order.date_created.strftime('%b-%d-%y')}} {{order.date_created.strftime('%I:%M')}}  {{order.date_created.strftime('%p')}}</td>
@@ -82,7 +98,7 @@
                                         {% set taxtotal.tvalue =  taxtotal.tvalue + (currenttotal.bvalue|float * (currenttax.ctvalue|round(5, 'floor')/100) ) %}   
                                         {% set subtotal.value = subtotal.value + currenttotal.bvalue %}
                                     {% endfor %}                        
-                                  <td class="is_active text-center text-capitalize">{{'%.2f'|format(subtotal.value|float + taxtotal.tvalue)}}</td>
+                                  <td class="is_active text-center text-capitalize">${{'%.2f'|format(subtotal.value|float + taxtotal.tvalue)}}</td>
                                     
                                 </tr>
                                     {% endfor %}
@@ -92,25 +108,28 @@
                             </div>
                             <div class="row categoryActions">
                                 <span>
-                                    <div class="btn icon-link-size green lighten-3" data-toggle="modal" data-target="#catModal"><a data-href="{{url_for('addCat')}}" class="cat-task" title="Add" data-toggle="tooltip" data-func="add" data-title="Add Menu Category"><i class="material-icons">add</i></a></div>
-                                    <div class="btn icon-link-size green lighten-3"><a class="cat-task" title= "Edit" data-toggle="tooltip" data-func="edit" data-title="Edit Menu Category"><i class="material-icons">edit</i></a></div>                                                        
-                                    <div class="btn icon-link-size green lighten-3"><a class="cat-task" title="Set inactive" data-toggle="tooltip" data-func="archive"><i class="material-icons">close</i></a></div>
+                                    <button class="btn btn-lg green lighten-3 reopen"><i class="fas fa-edit"></i>Change</button>
+                                    <button class="btn btn-lg green lighten-3 o-actions" data-action="refund"><i class="icon-refund"></i>refund</button>
+                                    <button class="btn btn-lg green lighten-3 o-actions" data-action="void"><i class="fas fa-ban"></i> void</button>
+                                    <button class="btn btn-lg green lighten-3 o-actions" data-action="settle"><i class="material-icons">payments</i> settle</button>
+                                    <button id="orderinfobtn" class="btn btn-round green lighten-3" title= "Order Info" data-func="info" data-toggle="tooltip"><i class="icon-info" ></i></button>
                                     
                                 </span>
                             </div>
                         </div>
-                        <!--Category Modal-->
-                        {% include 'admin/dash/componets/catModal.html' %}
-                        <script src="{{ url_for('static', filename='assets/js/dash/menu_cat.js')}}"></script>                                 
+                      
+                        <script src="{{ url_for('static', filename='assets/js/tasks/orders.js')}}"></script>                                 
                     </div> 
-                <!--End Category table-->
+                <!--End Orders Table-->
               </div>
               <!-- </div> -->
           </div>           
       </div>
   </div>
 
-
- 
+<form id="changeStaus" method="POST">
+  <input hidden type="text" name="action" id="">
+</form>
+<form id="changeOrder" method="POST"></form> 
   
   {% endblock %}

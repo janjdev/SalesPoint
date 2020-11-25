@@ -1,7 +1,7 @@
 let tableSort,  customerTable;
 window.addEventListener('DOMContentLoaded', () => {
 
-  //Get Item buttons
+   //Get Item buttons
     const items = document.querySelectorAll('a.item-btn');
     const ctasks = document.querySelectorAll('.c-task');
     const add_remove = document.querySelectorAll('.c-add-remove');
@@ -107,7 +107,7 @@ window.addEventListener('DOMContentLoaded', () => {
       $('div.dataTables_scrollBody').css({'max-height': pl+'px'});
       tableSort.draw();      
     });
-   
+
   //-------------------------------------------------------------------------
   
       //Remove item button function
@@ -580,18 +580,19 @@ jQuery(editform).on('submit', function(e){
     })
   }
 
+tickTotal.value = ticketTotal();
 
+if ($('body').hasClass('dinein')){
+  $('#tablesModal').modal('show');
+};
 
  });
 
 //=============CALLBACK FUNCTIONS======================
 
-function newCust(){
- 
+function newCust(){ 
     document.querySelector('#newCust').reset();
     $('#newCustModal').modal('hide');
-
-
     customerTable.destroy();
     $('#addCustWrapper').load(document.URL + ' #cust-content');
     setTimeout(function(){

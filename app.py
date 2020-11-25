@@ -1,4 +1,5 @@
 from operator import add
+import re
 import sys, os, io, collections, random, string, decimal, csv, tempfile, ast
 from datetime import datetime
 from sys import path
@@ -43,7 +44,9 @@ class Staff(db.Model):
     role_id = db.Column(db.Integer, db.ForeignKey('role.id'))
     is_active = db.Column(db.Boolean)
     created_orders = db.relationship("Order", foreign_keys='Order.created_by_id')
-    changed_orders = db.relationship("Order", foreign_keys='Order.last_changed_by_id')    
+    changed_orders = db.relationship("Order", foreign_keys='Order.last_changed_by_id')
+    role = db.relationship('Staff_Role', backref='role')
+    position = db.relationship('Staff_Position', backref="position")    
 
     def __init__(self, first_name, last_name, pos, role, is_active=True, id_updated=False):
         self.first_name = first_name
@@ -60,7 +63,7 @@ class Staff_Position(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column('type', db.String(50), nullable=False, unique=True)
     is_active = db.Column(db.Boolean, nullable=False)
-    staff = db.relationship('Staff', backref='position')     
+    staff = db.relationship('Staff', backref='staffposition')     
 
     def __init__(self, name, is_active=True):
         self.name = name
@@ -70,7 +73,7 @@ class Staff_Role(db.Model):
     __tablename__ = 'role'
     id = db.Column(db.Integer, primary_key=True)
     role_type = db.Column('type', db.String(50), nullable = False)
-    staff = db.relationship('Staff', backref='role')     
+    staff = db.relationship('Staff', backref='staffrole')     
 
     def __init__(self, role_type):
         self.role_type = role_type
@@ -323,7 +326,7 @@ class Printer_Type(db.Model):
 event.listen(Customer.__table__, 'after_create', DDL(""" INSERT INTO customer (id, name) VALUES (1, 'Guest')"""))
 event.listen(Staff_Role.__table__, 'after_create', DDL(""" INSERT INTO role (id, type) VALUES (1, 'administrator'),  (2, 'user') """))
 event.listen(Staff_Position.__table__, 'after_create', DDL(""" INSERT INTO position (id, type, is_active) VALUES (1, 'manager', True),  (2, 'server', True) """))
-event.listen(Order_Status.__table__, 'after_create', DDL(""" INSERT INTO order_status (id, status) VALUES (1, 'open'),  (2, 'settled'), (3, 'canceled'), (4, 'refund'), (5, 'pending') """))
+event.listen(Order_Status.__table__, 'after_create', DDL(""" INSERT INTO order_status (id, status) VALUES (1, 'open'),  (2, 'settled'), (3, 'void'), (4, 'refund'), (5, 'pending') """))
 event.listen(Order_Type.__table__, 'after_create', DDL(""" INSERT INTO order_type (id, order_type) VALUES (1, 'dine-in'),  (2, 'carry-out') """))
 event.listen(Discount_Type.__table__, 'after_create', DDL(""" INSERT INTO discount_type (id, name) VALUES (1, 'Amount'),  (2, 'Percentage') """))
 event.listen(Printer_Type.__table__, 'after_create', DDL(""" INSERT INTO printer_type (id, name) VALUES (1, 'report'),  (2, 'receipt'), (3, 'kitchen') """))
@@ -570,7 +573,24 @@ def edit_cust(user_id):
 
 @app.route('/dine-in', methods=['GET', 'POST'])
 def dine_in():
-    return render_template('',  title="SalesPoint - Version 1.0-build 1.0.1", bodyClass='tables', date=getDate())
+    if request.method == 'POST':
+        ID = request.form['staffID']
+        staff = Staff.query.filter_by(staff_id = ID).first()
+        if staff:
+            if staff.role_id < 3:              
+                session['id'] = staff.id
+                if staff.role_id == 1:
+                   session['role'] = "Administrator"                         
+                return jsonify({'status': 'success', 'alertType': 'success', 'timer': 500, 'callback': 'goTo', 'param': url_for('carry_out')})
+            else:
+                return jsonify({'status': 'error', 'message': 'No Permission', 'alertType': 'error'})
+        else:
+            return jsonify({'status': 'error', 'message': 'ID Not Found', 'alertType': 'error'})
+    if 'id' in session:
+        staff = Staff.query.filter_by(id = session.get('id')).first()
+        customers = Customer.query.filter(Customer.id > 1).all()                 
+        return render_template('tasks/pages/new_order.html', title="SalesPoint - Version 1.0-build 1.0.1", bodyClass='shared-tasks dinein', images=getImages(), date=getDate(), user=staff, ordertype="Dine-In", orderstatus="New Ticket", cat=getActiveCat(), items=getOfferedItems(), orderstatusID=1, ordertypeID=1, customers=customers, taxes=Tax.query.all(), tables=Table.query.all())
+    return redirect(url_for('logout'))
 
 
 @app.route('/carry-out', methods=['GET', 'POST'])
@@ -580,7 +600,9 @@ def carry_out():
         staff = Staff.query.filter_by(staff_id = ID).first()
         if staff:
             if staff.role_id < 3:              
-                session['id'] = staff.id                         
+                session['id'] = staff.id
+                if staff.role_id == 1:
+                   session['role'] = "Administrator"                         
                 return jsonify({'status': 'success', 'alertType': 'success', 'timer': 500, 'callback': 'goTo', 'param': url_for('carry_out')})
             else:
                 return jsonify({'status': 'error', 'message': 'No Permission', 'alertType': 'error'})
@@ -598,32 +620,62 @@ def order():
     if 'id' in session:
         if request.method == 'POST':
             i = request.form['items']
-            neworder = Order(request.form['ordertype'], session.get('id'), request.form['chknum'], request.form['notes'], request.form['customer'],  request.form['orderstatus'] )
-            db.session.add(neworder)
-            db.session.commit()
-            orderID = neworder.id           
-            items = multiRow(i)           
-            for item in items:
-                if 'itemname' in item.keys():
-                    itemname = item['itemname'].replace("%20", " ").title()                    
-                    if Menu_Item.query.filter_by(item_name = itemname).first() is not None:                        
-                        db.session.rollback()
-                        db.session.delete(neworder)
-                        db.session.commit()
-                        return jsonify({'status': 'success', 'message':  itemname + ' already exist. Please use the current item from the list.', 'alertType': 'warning', 'timer': 6000}) 
-                    else:                        
-                        newmenuitem = Menu_Item(item['itemname'].replace("%20", " "), item['price'], 0)
-                        db.session.add(newmenuitem)
-                        db.session.commit()
-                        neworderitem = Order_Items(orderID, newmenuitem.id, item['qty'])
-                        db.session.add(neworderitem)
-                else:    
-                    newitem = Order_Items(orderID, item['item'], item['qty'])
-                    db.session.add(newitem)                   
+            items = multiRow(i)
+            if request.form['orderid'] is not Null:
+                order = Order.query.filter_by(id = request.form['orderid']).first()
+                order.status_id = request.form['orderstatus']
+                order.notes = request.form['notes']
+                order.last_changed_by_id = session.get('id')
+                order.date_last_changed = datetime.utcnow
+                olditems = Order_Items.query.filter_by(order_id = order.id).all()
+                db.session.delete(olditems)
+                db.session.commit()
+                for item in items:
+                    if 'itemname' in item.keys():
+                        itemname = item['itemname'].replace("%20", " ").title()                    
+                        if Menu_Item.query.filter_by(item_name = itemname).first() is not None:                        
+                            db.session.rollback()
+                            db.session.commit()
+                            return jsonify({'status': 'success', 'message':  itemname + ' already exist. Please use the current item from the Menu.', 'alertType': 'warning', 'timer': 6000}) 
+                        else:                        
+                            newmenuitem = Menu_Item(itemname, item['price'], 0)
+                            db.session.add(newmenuitem)
+                            db.session.commit()
+                            neworderitem = Order_Items(order.id, newmenuitem.id, item['qty'])
+                            db.session.add(neworderitem)
+                    else:    
+                        newitem = Order_Items(order.id, item['item'], item['qty'])
+                        db.session.add(newitem)                
+            else:                
+                neworder = Order(request.form['ordertype'], session.get('id'), request.form['chknum'], request.form['notes'], request.form['customer'],  request.form['orderstatus'] )
+                db.session.add(neworder)
+                db.session.commit()
+                orderID = neworder.id                         
+                for item in items:
+                    if 'itemname' in item.keys():
+                        itemname = item['itemname'].replace("%20", " ").title()                    
+                        if Menu_Item.query.filter_by(item_name = itemname).first() is not None:                        
+                            db.session.rollback()
+                            db.session.delete(neworder)
+                            db.session.commit()
+                            return jsonify({'status': 'success', 'message':  itemname + ' already exist. Please use the current item from the Menu.', 'alertType': 'warning', 'timer': 6000}) 
+                        else:                        
+                            newmenuitem = Menu_Item(itemname, item['price'], 0)
+                            db.session.add(newmenuitem)
+                            db.session.commit()
+                            neworderitem = Order_Items(orderID, newmenuitem.id, item['qty'])
+                            db.session.add(neworderitem)
+                    else:    
+                        newitem = Order_Items(orderID, item['item'], item['qty'])
+                        db.session.add(newitem)
+                if request.form['ordertable'] is not Null:
+                    tables = request.form['ordertable'].split() 
+                    for table in tables:
+                       ordertable = OrderTable(int(table), orderID)
+                       db.session.add(ordertable)                
             db.session.commit()           
-            if  request.form['orderstatus'] == '1':
-                session['currentorder'] = orderID
-                return jsonify({'status': 'success', 'alertType': 'success', 'timer': 500, 'callback': 'goTo', 'param': '/settle/'+ str(orderID)})
+            if  request.form['orderstatus'] == '1':                
+                return jsonify({'status': 'success', 'alertType': 'success', 'timer': 500, 'callback': 'goTo', 'param':'url_for("orders")' })
             else:
                return jsonify({'status': 'success', 'alertType': 'success', 'timer': 500, 'callback': 'clearOrder'})         
     return redirect(url_for('logout'))
@@ -635,26 +687,64 @@ def orders():
         staff = Staff.query.filter_by(staff_id = ID).first()
         if staff: 
             if staff.role_id < 3:                       
-                session['id'] = staff.id               
+                session['id'] = staff.id
+                if staff.role_id == 1:
+                   session['role'] = "Administrator"              
                 return jsonify({'status': 'success', 'alertType': 'success', 'timer': 500, 'callback': 'goTo', 'param': '/orders'})
             else:
                 return jsonify({'status': 'error', 'message': 'No Permission', 'alertType': 'error'})
         else:
             return jsonify({'status': 'error', 'message': 'ID Not Found', 'alertType': 'error'})    
     if 'id' in session:
-        if Staff.query.filter_by(id = session.get('id')).first().role_id == 1:
+        if session.get('role') == 'Administrator':
             allorders = Order.query.all()
         else:
             allorders = Order.query.filter_by(created_by_id = session.get('id')).all()
         return render_template('tasks/pages/orders.html', title="SalesPoint - Version 1.0-build 1.0.1", bodyClass='shared-tasks orders', date=getDate(), user=getUser(), orders=allorders, cardtitle='Orders')
     return redirect(url_for('logout'))
 
-@app.route('/settle/<int:orderid>', methods=['POST', 'GET'])
+@app.route('/settle/<int:orderid>', methods=['POST'])
 def settle(orderid):
     if 'id' in session:
         if request.method == 'POST':
-            return
-        return render_template('tasks/pages/settle.html', title="SalesPoint - Version 1.0-build 1.0.1", bodyClass='shared-tasks', date=getDate(), user=getUser(), order=Order.query.filter_by(id = orderid).first())
+            return render_template('tasks/pages/settle.html', title="SalesPoint - Version 1.0-build 1.0.1", bodyClass='shared-tasks', date=getDate(), user=getUser(), order=Order.query.filter_by(id = orderid).first())
+    return redirect(url_for('logout'))
+
+@app.route('/staus/<int:orderid>', methods=['POST'])
+def ordertatus(orderid):
+    if 'id' in session:
+        if request.method == 'POST': 
+            order = Order.query.filter_by(id = orderid).first()         
+            if request.form['action'] == 'void' or request.form['action'] == 'refund':
+                if session.get('role') == "Administrator":
+                    if request.form['action'] == 'void':
+                        if order.status_id == 1 or order.status_id == 5:
+                            order.status_id = 3
+                        else:
+                            return jsonify({'status': 'error', 'message': 'Only open or pending orders can be voided', 'alertType': 'error', 'timer': 2500})
+                    if request.form['action'] == 'refund':
+                        if order.status_id == 2:
+                            order.status_id == 4
+                        else:
+                            return jsonify({'status': 'error', 'message': 'Only settled orders can be refunded', 'alertType': 'error', 'timer': 2500})
+                else:
+                    return jsonify({'status': 'error', 'message': 'Action requires Administrative Permissions', 'alertType': 'error', 'timer': 2500})
+            if request.form['action'] == 'settle':
+                if order.status_id == 1:
+                    order.status_id = 2
+                else:
+                    return jsonify({'status': 'error', 'message': 'Only Open orders can be settled.', 'alertType': 'error', 'timer': 2500})
+            db.session.commit()
+            return jsonify({'status': 'success', 'alertType': 'success', 'timer': 500, 'callback': 'updateOrders'})
+    return redirect(url_for('logout'))
+    
+@app.route('/reopen/<int:orderid>', methods=['GET'])
+def reopen(orderid):
+    if 'id' in session:
+        staff = Staff.query.filter_by(id = session.get('id')).first()
+        customers = Customer.query.filter(Customer.id > 1).all()
+        order = Order.query.filter_by(id = orderid).first()                 
+        return render_template('tasks/pages/new_order.html', title="SalesPoint - Version 1.0-build 1.0.1", bodyClass='shared-tasks', images=getImages(), date=getDate(), user=staff, ordertype=order.type.order_type, orderstatus="Edit Ticket", cat=getActiveCat(), items=getOfferedItems(), orderstatusID=order.status_id, ordertypeID=order.type_id, customers=customers, taxes=Tax.query.all(), order=order)
     return redirect(url_for('logout'))
 
 
@@ -678,9 +768,10 @@ def admin():
                 return jsonify({'status': 'error', 'message': 'Permission restricted', 'alertType': 'error'})        
         return jsonify({'status': 'error', 'message': 'ID Not Found', 'alertType': 'error'})
     if request.method == 'GET':
-        if session.get('role') == 'Administrator':
-            user = Staff.query.filter_by(id = session.get('id')).first()
-            return render_template('admin/dash/pages/dash.html', title="SalesPoint - Version 1.0-build 1", bodyClass='dashboard', time=datetime.now().strftime("%I:%M"), daynight=datetime.now().strftime("%p"), user=user, date=getDate(), role=session.get('role'))
+        if 'id' in session:
+            if session.get('role') == 'Administrator':
+                user = Staff.query.filter_by(id = session.get('id')).first()
+                return render_template('admin/dash/pages/dash.html', title="SalesPoint - Version 1.0-build 1", bodyClass='dashboard', time=datetime.now().strftime("%I:%M"), daynight=datetime.now().strftime("%p"), user=user, date=getDate(), role=session.get('role'))
         return redirect(url_for('home'))
 
 
@@ -976,7 +1067,6 @@ def tax():
     if session.get('role') == 'Administrator':
         if request.method == 'POST':
             rate = request.form['taxrate']
-            # D(request.form['taxrate']) * 10000
             newTax = Tax(request.form['taxtype'], rate)
             db.session.add(newTax)
             db.session.commit()
@@ -993,14 +1083,12 @@ def taxedit():
     if session.get('role') == 'Administrator':
         if request.method == 'POST':
             l = request.form['items']           
-            rows = multiRow(l)
-            print(rows)        
+            rows = multiRow(l)        
             for row in rows:
                 tax = Tax.query.filter_by(id = row['taxid']).first()                   
                 if tax:                        
                     tax.tax_type = row['taxtype']
                     tax.tax_rate = row['taxrate']
-                    # D(row['taxrate']) * 10000
                     db.session.add(tax)
             db.session.commit()
             return jsonify({'message': 'OK', 'alertType': 'success', 'timer': 500, 'callback': 'reload'})
@@ -1062,15 +1150,13 @@ def tablemultiAdd():
             num = int(request.form['num'])           
             count = len(Table.query.all()) +1         
             stopper = num + count
-            print(stopper) 
             try:                   
                 for n in range(count, stopper):
                     newtable = Table(n)                   
                     db.session.add(newtable)
                 db.session.commit()
                 return jsonify({'message': 'OK', 'alertType': 'success', 'timer': 500, 'callback': 'reup'})
-            except Exception as e:
-                print(e)               
+            except Exception as e:               
                 return jsonify({'message': 'Unable to create tables', 'alertType': 'warning', 'timer': 500})
         return redirect(url_for('setTable'))
     return redirect(url_for('logout'))
@@ -1091,10 +1177,6 @@ def setActive(tableid):
 
 
 
-
-
 if (__name__) == '__main__':
-    # print(sys.version)
     db.create_all()
-    #db.drop_all()
     app.run()

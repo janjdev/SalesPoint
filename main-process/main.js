@@ -115,22 +115,7 @@ files().then(function(val){
 
 
 
-//get printers
-// const getPrinters = require("printer");
-// function getAllPrinters(){
-//   let data = JSON.stringify(getPrinters());
 
-//   const fs = require('fs');
-
-//   fs.writeFile('./lists/printers.json', data, (err) =>{
-//     if(err){
-//       throw err;
-//     }
-//     console.log('printers written');
-//   });
-
-
-// }
 
 
 

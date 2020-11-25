@@ -8,12 +8,5 @@
       <img  class="logo-mini" src="{{url_for('static', filename='/assets/img/icons/salespoint-green.png')}}" />       
     <span class="simple-text logo-normal">SalesPoint</span>  
   </div>
-
-  {% set subtotal = 0 %}
-    {% set runningtax = 0 %}
-    {% for order in orders %}
-      {% for item in order.items %}
-       {{item.item.unit_price}}
-      {% endfor %}
-    {% endfor %}
+  
 </div>
