@@ -473,7 +473,7 @@ body.shared-tasks .tooltip{
 }
 
 /*=========================Positions===============================*/
-body.position #posRow.row, body.tax #taxRow{
+body.position #posRow.row, body.tax #taxRow, .tablesRow.row{
     justify-content: center;
 }
 

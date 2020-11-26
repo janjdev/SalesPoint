@@ -24,7 +24,7 @@ window.addEventListener('DOMContentLoaded', () => {
         m = window.innerHeight < 900 ? .225 : .335
         pl= (m * window.innerHeight);
         $('div.dataTables_scrollBody').css({'max-height': pl+'px'});
-        tableSort.draw();      
+        orderstable.draw();      
       });
 
 
@@ -44,6 +44,7 @@ window.addEventListener('DOMContentLoaded', () => {
 
                 if($(this).hasClass('active')){
                     const filtered = e.target.getAttribute('data-filter');
+                    console.log(filtered);
                     filter['status'] = filtered;
                 }
                 else{
@@ -211,5 +212,5 @@ function updateOrders(){
             }]
         });
         $('.dataTables_length').addClass('bs-select');
-    }, 150)
+    }, 350)
 }

@@ -67,7 +67,7 @@
                                 <tbody>
                                 {% if orders %}
                                     {% for order in orders %}                                                      
-                                <tr id="{{order.id}}" data-status="{{order.status_id}}" data-class="orders" class="{% if order.status_id == 3 or order.status_id == 4 %}stat4 {% else %} {{order.status_id}} {% endif %} type{{order.type_id}}  all">
+                                <tr id="{{order.id}}" data-status="{{order.status_id}}" data-class="orders" class="{% if order.status_id == 3 or order.status_id == 4 %}stat4 {% else %} stat{{order.status_id}} {% endif %} type{{order.type_id}}  all">
                                   <td>
                                     <div class="form-check">
                                     <label class="form-check-label">
@@ -82,7 +82,7 @@
                                   <td class="text-center text-capitalize">{{order.chk_num}}</td>
                                   <td class="name text-center text-capitalize">{{order.date_created.strftime('%b-%d-%y')}} {{order.date_created.strftime('%I:%M')}}  {{order.date_created.strftime('%p')}}</td>
                                   <td class="is_active text-center text-capitalize">{{order.type.order_type}}</td>
-                                  <td class="is_active text-center text-capitalize">{{order.table}}</td>
+                                  <td class="is_active text-center text-capitalize"> {% for table in order.tables %} {{table.tables.table_no}}, {% endfor %} </td>
                                   <td class="is_active text-center text-capitalize">{{order.createdby.first_name}}</td>  
                                   <td class="is_active text-center text-capitalize">{{order.status.status}}</td>
                                   <td class="is_active text-center text-capitalize">{{order.customer.name}}</td>

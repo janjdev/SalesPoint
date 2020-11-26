@@ -13,7 +13,7 @@
                         <select id="taxselection" class="itemAction selectpicker" data-style="select-with-transition" multiple id="item_tax" name="tax" >                              
                         {% if taxes %}
                             {% for tax in taxes %}
-                            <option value="{{'%.4f'|format(tax.tax_rate)}}">{{tax.tax_type}}</option>
+                            <option data-value="{{'%.4f'|format(tax.tax_rate)}}" value="{{tax.id}}">{{tax.tax_type}}</option>
                             {% endfor %}
                             {% else %}
                             <option disabled selected value="">Tax Type</option> 

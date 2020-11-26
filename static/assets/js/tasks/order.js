@@ -5,6 +5,9 @@ window.addEventListener('DOMContentLoaded', () => {
     //get the generated list of items
     const orderlist = document.querySelector('#orderlist');
 
+    // get the button to send the order
+    const send = document.querySelector('button#send');
+
     //get the button for hold order
     const hold = document.querySelector('button#hold');
 
@@ -16,17 +19,36 @@ window.addEventListener('DOMContentLoaded', () => {
     //Flag to validate inputs
     let isValid = true;
 
-  //=================Order Hold Function=================
+  //=================Order Status Function=================
     hold.addEventListener('click', function(e){
       // e.preventDefault();
       document.querySelector('input[name="orderstatus"]').value = 5;
     });
 
+    send.addEventListener('click', function(e){
+      // e.preventDefault();
+      document.querySelector('input[name="orderstatus"]').value = 1;
+      // $(orderform).submit();
+    });
 
   //=============Submit Form Function======================
 
     $(orderform).on('submit', function(e){
       e.preventDefault();
+
+
+      let otype = $('input[name="ordertype"]').val();
+      let tables = $('input[name="ordertable"]').length;
+      if( otype == 1){
+        if (tables < 1){
+          Swal.fire({
+            type: 'error',
+            text: 'No tables added to Dine-In order. Please add a table or change the order type.',
+            timer: 2000,
+          });
+        return;
+        }
+      }
         //get all hidden input fields
         let items = [];
         let rows = orderlist.querySelectorAll('tr');     
@@ -39,6 +61,7 @@ window.addEventListener('DOMContentLoaded', () => {
                 item.push($(input).serialize())
             });
             items.push(item);
+            console.log(items)
             
         });
 
@@ -108,6 +131,62 @@ function noMatch(form){
      jQuery(form).parent().parent().removeClass('animated shake');
    }, 1000);
  }
+
+
+//------------------------------------------------------------------------ 
+
+    // Change Order type function
+    $(document).on('click', 'a#chngtype', function(e){
+      console.log('click');
+      let tyname, typeid, currentclass;
+      if ($(this).hasClass('dine-in')){tyname="carry-out"; typeid=2; currentclass="dine-in" }else{tyname="dine-in"; typeid=1; currentclass="carry-out"}
+      Swal.fire({
+        title: 'Change Order Type',
+        text: 'Change order to ' + tyname + '?',
+        type: 'question',
+        showCancelButton: true,
+        confirmButtonText: 'Yes!',
+        cancelButtonText: 'No, cancel!',
+        reverseButtons: true
+      }).then((result) => {
+        if (result.value) {
+          $('body').removeClass('dinein');
+          $(this).removeClass(currentclass);
+          $(this).addClass(tyname);
+          $(this).find('span.chgtyname').text(tyname);
+          $('input[name="ordertable"]').detach();
+          $('#addtablesbtn').closest('div').addClass('hide');
+          orderform.querySelector('input[name="ordertype"]').value = typeid;
+          if($(this).hasClass('dine-in')){
+            $('body').addClass('dinein');
+            $('#tablesModal').modal('show');
+            $('#addtablesbtn').closest('div').removeClass('hide');
+          }
+        } else if (            
+          result.dismiss === Swal.DismissReason.cancel
+        ) {
+        }
+      });
+    });
+
+
+//==========Add/Remove Tables to/from Order============
+$(document).on('click', 'button.table-btn', function(e){
+let tableid = $(this).attr('id');
+$(this).toggleClass('active');
+if( $(this).hasClass('active') ){            
+  let table = document.createElement('input');
+  table.setAttribute('name', 'ordertable')
+  table.setAttribute('hidden', '');
+  table.value = tableid.slice(5);
+  $(table).addClass('order-'+tableid);
+  orderform.appendChild(table);
+}
+else{
+  $('input.order-'+tableid).detach();
+}
+});
+
 
 //==============================Complex Forms==========================================//
 function ajaxforms(url, type, form, pData=true, cType='application/x-www-form-urlencoded; charset=UTF-8', dType='', convert=false){

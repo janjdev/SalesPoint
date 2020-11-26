@@ -11,9 +11,9 @@
     <div id="ticket_list" class="col-md-6 order-box ">
       <form id="new-ticket" method="POST">
         <fieldset class="form-group">        
-            <legend class="text-capitalize"><h5>{{ordertype}} [{{orderstatus}}]</h5></legend>
+            <legend class="text-capitalize"><h5> {% if orderstatus != "Edit Ticket" %} <a id="chngtype" class="{{typeclass}}" href="#" title="Change Order Type" data-toggle="tooltip"><i class="icon-chgtype"></i><span class="chgtyname">{{ordertype}}</span></a> {% else %} {{ordertype}} {% endif %} [{{orderstatus}}]</h5></legend>
             <div class="form-group pull-right order_customer">
-              <input type="text" class="col-md-2 form-control pull-right" hidden name="customer" id="assignedCust" placeholder="Notes" value="{% if order %} {{order.customer_id}} {% else %}0 {% endif %}"/>            
+              <input type="text" class="col-md-2 form-control pull-right" hidden name="customer" id="assignedCust" placeholder="Notes" value="{% if order %} {{order.customer_id}} {% else %}1{% endif %}"/>            
               <span id="custName">{% if order%} {{order.customer.name}} {% else %} Guest {% endif %} </span>               
             </div>            
               <div class="form-group new_order_notes">            
@@ -43,7 +43,11 @@
                           </tr>
                         </thead>                        
                           <tbody id="orderlist">
-                            <input hidden name="ordertable" value="{{ordertableID}}"/>                                            
+                            {% if order %}
+                              {% for table in order.tables %}                               
+                                <input hidden name="ordertable" value="{{table.table.id}}"/>
+                              {% endfor %}
+                            {% endif %}                                            
                             <input hidden name="ordertype" value="{{ordertypeID}}"/>
                             <input hidden name="orderstatus" value="{{orderstatusID}}"/>
                             <input hidden name="orderid" value="{% if order%} {{order.id}} {% endif %}">
@@ -58,10 +62,10 @@
                                       <span class="table-remove">
                                           <button type="button" class="btn btn-danger btn-rounded btn-sm my-0">x</button>
                                       </span>
-                                  </td>
-                                  {% for tax in item.item.taxes %}
-                                    <span class="taxes">{{ tax.tax_rate}}
-                                  {% endfor %}
+                                      {% for tax in item.item.taxes %}
+                                      <input class="taxes" data-value="{{ tax.tax_rate}}" value="{{tax.id}}" />
+                                    {% endfor %}
+                                  </td>                                
                                 </tr>
                               {% endfor %}
                             {% endif %}                        
@@ -114,7 +118,7 @@
                 {% else %}
                   {% set active='' %}
                 {% endif %}
-                  <div id="{{item.id}}" class="menu-item item-page {{active}} col-md-2 {{item.item_category}} all" data-name="{{item.item_name}}" data-price="{{item.unit_price}}">{% for tax in item.taxes %}<span class="taxes">{{'%.4f'|format(tax.tax_rate)}}</span>  {%endfor%}
+                  <div id="{{item.id}}" class="menu-item item-page {{active}} col-md-2 {{item.item_category}} all" data-name="{{item.item_name}}" data-price="{{item.unit_price}}">{% for tax in item.taxes %}<span data-value="{{tax.id}}" class="taxes">{{'%.4f'|format(tax.tax_rate)}}</span>  {%endfor%}
                       <a data-href="{% for img in item.item_image %}{{img.path}}{% endfor %}" href="#" class="item-btn photography-entry img d-flex justify-content-center align-items-center" style="background-image: url({% for img in item.item_image %}{{img.path}}{% endfor %});">                        
                         <div class="overlay"></div>  
                         <div class="text text-center">
@@ -169,26 +173,37 @@
 
 <!-----------------------Bottom Buttons--------------------------------->      
       <div id="bottomfunctions" class="row">
+      {% if orderstatus != "Edit Ticket" %}
         <div class="col-md-3 col-lg-2">
           <button class="btn btn-success col-md-12" data-toggle="modal" data-target="#addCustModal">
             Customer
           </button>
         </div>
+      {% endif %}
+      {% if orderstatus != "Edit Ticket" %}
+        <div class="col-md-3 col-lg-2 hide">
+          <button id="addtablesbtn" class="btn btn-success col-md-12" data-toggle="modal" data-target="#tablesModal">
+            Table
+          </button>
+        </div>
+      {% endif %}
         <div class="col-md-3 col-lg-2">
           <button id="hold" type="submit" form="new-ticket" class="hold btn btn-success col-md-12">
             HOLD
           </button>
         </div>
         <div class=" col-md-3 col-lg-2">
-          <button type="submit" form="new-ticket" class="send btn btn-success col-md-12">
+          <button id="send" type="submit" form="new-ticket" class="send btn btn-success col-md-12">
             SEND
           </button>
         </div>
+      {% if orderstatus != "Edit Ticket" %}
         <div class="col-md-3 col-lg-2">
           <button id="cancelbtn" class="cancel btn btn-success col-md-12">
             Cancel
           </button>
         </div>
+      {% endif %}
       </div>
     </div><!--End of the Row-->   
     

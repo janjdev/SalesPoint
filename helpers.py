@@ -12,7 +12,16 @@ def multiRow(list):
         v = {}
         for e in i:
             k = e.split('=')
-            v.update({k[0]: k[1]})
+            if k[0] in v.keys():
+                if type(v[k[0]]) == list:
+                    v[k[0]].append(k[1])
+                else:
+                    x = v[k[0]]
+                    v[k[0]] = []
+                    v[k[0]].append(x)
+                    v[k[0]].append(k[1])
+            else:
+                v.update({k[0]: k[1]})
         r.append(v)
     return r
 

@@ -241,8 +241,9 @@ window.addEventListener('DOMContentLoaded', () => {
           let subtotal=0, tax=0;           
             qty = $(row).find('input[name="qty"]').val();
             price = $(row).find('input[name="price"]').val();
-            row.querySelectorAll('span.taxes').forEach(function(itax){
-              tax+= parseFloat(itax.innerText)/100
+            row.querySelectorAll('input[name="taxes"]').forEach(function(itax){
+              let t = itax.getAttribute('data-value');
+              tax+= parseFloat(t)/100
             });
              if(qty && price)
              {
@@ -253,7 +254,7 @@ window.addEventListener('DOMContentLoaded', () => {
         });
         return total.toFixed(2);
     }
-    
+    tickTotal.value = ticketTotal();
   //-------------------------------------------------------------------------------------------  
 
   //Append custom item  
@@ -265,9 +266,11 @@ window.addEventListener('DOMContentLoaded', () => {
       let taxes = document.querySelector('#taxselection').selectedOptions;
       let custRow = createRow(custAppend());
       taxes.forEach(function(tax){
-        let sp = document.createElement('span');
-        sp.classList.add('taxes');
-        sp.innerText = tax.value;
+        let sp = document.createElement('input');
+        sp.setAttribute('name', 'taxes');
+        sp.setAttribute('hidden','')
+        sp.setAttribute('data-value', tax.getAttribute('data-value'))
+        sp.value = tax.value;
         custRow.appendChild(sp);
       });      
 
@@ -293,7 +296,12 @@ window.addEventListener('DOMContentLoaded', () => {
             newRow = createRow(menuitem);
             newRow.setAttribute('id', itemId);
             parent.querySelectorAll('span.taxes').forEach(function(tax){
-              newtax = tax.cloneNode(true)
+              newtax = document.createElement('input');
+              newtax.value = tax.getAttribute('data-value');
+              newtax.setAttribute('data-value', tax.innerText);
+              newtax.setAttribute('name','taxes');
+              newtax.setAttribute('hidden','');
+              // tax.cloneNode(true)
                 newRow.appendChild(newtax)
             });
 
@@ -408,35 +416,38 @@ window.addEventListener('DOMContentLoaded', () => {
   //---------------------------------------------------------------------------------------------
   
     //===================Cancel Form Function======================
-    canclebtn.addEventListener('click', function(e){     
-     
-      if ( table.querySelectorAll('td.dataTables_empty').length < 1  ){
-        Swal.fire({
-          title: 'Cancel the Order',
-          text: 'Cancels the entire order',
-          type: 'warning',
-          showCancelButton: true,
-          confirmButtonText: 'Yes!',
-          cancelButtonText: 'No, cancel!',
-          reverseButtons: true
-        }).then((result) => {
-          if (result.value) {
-            orderform.reset();
-            let rows = table.querySelectorAll('tr');    
-            for(i = 0; i < rows.length; i++){
-              if(rows)
-              $(rows[i]).detach();
+    if(canclebtn)
+    {      
+      canclebtn.addEventListener('click', function(e){     
+      
+        if ( table.querySelectorAll('td.dataTables_empty').length < 1  ){
+          Swal.fire({
+            title: 'Cancel the Order',
+            text: 'Cancels the entire order',
+            type: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Yes!',
+            cancelButtonText: 'No, cancel!',
+            reverseButtons: true
+          }).then((result) => {
+            if (result.value) {
+              orderform.reset();
+              let rows = table.querySelectorAll('tr');    
+              for(i = 0; i < rows.length; i++){
+                if(rows)
+                $(rows[i]).detach();
+              }
+              tableSort.clear().draw();
+              orderform.querySelector('input[name="customer"]').value = 1;
+              
+            } else if (            
+              result.dismiss === Swal.DismissReason.cancel
+            ) {
             }
-            tableSort.clear().draw();
-            orderform.querySelector('input[name="customer"]').value = 1;
-            
-          } else if (            
-            result.dismiss === Swal.DismissReason.cancel
-          ) {
-          }
-        });
-      }
-    });
+          });
+        }
+      });
+    }
   //-----------------------------------------------------------------------------
 
 
@@ -494,8 +505,7 @@ window.addEventListener('DOMContentLoaded', () => {
      else
      {
       document.querySelector('input[name="customer"]').value = $(this).attr('data-id');
-      $('span#custName').text($(this).closest('td').prev().find('span').text());
-      console.log($(this).closest('td').prev().find('span').text());                
+      $('span#custName').text($(this).closest('td').prev().find('span').text());                      
       $('#addCustModal').modal('toggle');    
       $('.c-add-remove').not($(this)).prop('disabled', true);
       $(this).next().next('button.c-delete').prop('disabled', true)
@@ -579,11 +589,11 @@ jQuery(editform).on('submit', function(e){
       
     })
   }
-
-tickTotal.value = ticketTotal();
-
+ 
 if ($('body').hasClass('dinein')){
+  $('#addtablesbtn').closest('div').removeClass('hide');
   $('#tablesModal').modal('show');
+ 
 };
 
  });
