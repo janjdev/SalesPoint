@@ -90,12 +90,16 @@
                               </a><br>  
                             </div> <!--End of Table Buttons-->                         
                         </table>                     
-                        <!--Ticket Total-->
-                      
-                      <div id="order_total" class="col-md-6">
-                        <div class="form-group">
+                      <!--Ticket Total-->                      
+                      <div id="order_total" class="row col-md-10">
+                        <div class="col-md-6 form-group">
                           <label for="ticket-total" class="total_label" >Total:</label>
                           <input class="form-control" disabled id="ticket-total" name="total" placeholder="$0.00"  />
+                        </div>
+                        <div id="discountBtn" class="col-md-4 pull-right">
+                          <div class="btn btn-round btn-sm col-md-12" data-toggle="modal" data-target="#discountsModal">
+                            Discounts
+                          </div>
                       </div>
                     </div><!--End Ticket Total-->
                   </div><!--End of table-->                 
@@ -212,6 +216,8 @@
     {% include 'tasks/components/custItemTax.html' %}
 
     {% include 'tasks/components/tables.html' %}
+
+    {% include 'tasks/components/orderdiscounts.html' %}
 
     
     <script  src="{{ url_for('static', filename='assets/js/tasks/neworder.js')}}"></script>    

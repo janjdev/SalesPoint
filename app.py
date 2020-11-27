@@ -1,9 +1,7 @@
-from operator import add
-import re
+
 import sys, os, io, collections, random, string, decimal, csv, tempfile, ast
-from datetime import datetime
-from sys import path
-from flask import Flask, request, redirect, render_template, session, escape, url_for, abort, flash, jsonify, json
+from datetime import datetime, timedelta
+from flask import Flask, request, redirect, render_template, session, url_for, abort, jsonify, json
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import event, DDL, extract, func
 from sqlalchemy.event import listen
@@ -17,6 +15,8 @@ from helpers import *
 from mimetypes import MimeTypes
 from werkzeug.utils import secure_filename
 from collections import defaultdict
+from sqlalchemy.exc import IntegrityError
+
 
 
 app = Flask(__name__)
@@ -146,6 +146,7 @@ class Order_Discount(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     order_id = db.Column(db.Integer, db.ForeignKey('order.id', ondelete='CASCADE'), nullable=False)
     discount_id = db.Column(db.Integer, db.ForeignKey('discount.id', ondelete='CASCADE'), nullable=False)
+    discount = db.relationship('Discount', backref='discount', lazy=True)
 
     def __init__(self, order, discount):
         self.order_id = order
@@ -154,45 +155,30 @@ class Order_Discount(db.Model):
 class Discount(db.Model):
     __tablename__ = "discount"
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(50), nullable = False, unique=True)
+    discount_name = db.Column(db.String(50), unique=True, nullable = False)
     type_id = db.Column(db.Integer, db.ForeignKey('discount_type.id', ondelete='CASCADE'), nullable=False)
-    value = db.Column(db.Numeric(2), nullable=False)
-    expir_date = db.Column(db.DateTime, nullable=True)
+    value = db.Column(db.Float(precision='3,2'), nullable=False)
+    expir_date = db.Column(db.DateTime)
     is_active = db.Column(db.Boolean, nullable=False)
     no_expiry = db.Column(db.Boolean, nullable =True)
-    order_discounts = db.relationship('Order_Discount', backref='order_discount', lazy=True)
+    discounttype = db.relationship('Discount_Type', backref='discounttype', lazy=True)    
 
-    def __init__(self, name, dtype, value,  is_active=True, no_expiry=True):
+    def __init__(self, name, dtype, value, exp, act=True, noexp=True):
         self.discount_name = name
-        self.discount_type = dtype
+        self.type_id = dtype
         self.value = value
-        self.is_active = is_active
-        self.no_expiry = no_expiry                    
+        self.expir_date = exp
+        self.is_active = act
+        self.no_expiry = noexp                   
 
 class Discount_Type(db.Model):
     __tablename__ = "discount_type"
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(20), nullable=False, unique=True)
-    type_of_discount = db.relationship('Discount', backref='discount', lazy=True) 
-
+    
     def __init__(self, name):
         self.name = name
 
-
-class Sale(db.Model):
-    __tablename__ = "sale"
-    id = db.Column(db.Integer, primary_key=True)
-    order_id = db.Column(db.Integer, db.ForeignKey('order.id', ondelete='CASCADE'), nullable=True)
-    final_tax = db.Column(db.Numeric(2), nullable=False)
-    final_price = db.Column(db.Numeric(2), nullable=False)
-    final_date = db.Column(db.DateTime, nullable=False)
-
-    def __init__(self, id, price, tax, date):
-        self.order_id = id
-        self.final_tax = tax
-        self.final_price = price
-        self.final_date = date
- 
 class Tax(db.Model):
     __tablename__ = "tax"
     id = db.Column(db.Integer, primary_key=True)
@@ -322,7 +308,30 @@ class Printer_Type(db.Model):
 
     def __init__(self, name):
         self.name = name
-    
+
+class Order_Ticket(db.Model):
+    __tablename__ = 'order_ticket'
+    id = db.Column(db.Integer, primary_key=True)
+    order_id = db.Column(db.Integer, db.ForeignKey('order.id', ondelete='CASCADE'), nullable=False)
+    created_on = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    status_id = db.Column(db.Integer, db.ForeignKey('ticket_status.id', ondelete='CASCADE'), nullable=False)
+    closed_on = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    closed_by = db.Column(db.Integer, db.ForeignKey('staff.id', ondelete='CASCADE'), nullable=True)
+    status = db.relationship('Ticket_Status', backref="ticketstatus")
+    order = db.relationship('Order', backref="ticketorder")
+
+    def __init__(self, orderid, statusid):
+        self.order_id = orderid
+        self.status_id = statusid     
+
+class Ticket_Status(db.Model):
+    __tablename__ ='ticket_status'
+    id = db.Column(db.Integer, primary_key=True)
+    status_type = db.Column(db.String(10), unique=True, nullable = False)
+
+    def __init__(self, status):
+        self.status_type = status
+       
 
 event.listen(Customer.__table__, 'after_create', DDL(""" INSERT INTO customer (id, name) VALUES (1, 'Guest')"""))
 event.listen(Staff_Role.__table__, 'after_create', DDL(""" INSERT INTO role (id, type) VALUES (1, 'administrator'),  (2, 'user') """))
@@ -330,6 +339,7 @@ event.listen(Staff_Position.__table__, 'after_create', DDL(""" INSERT INTO posit
 event.listen(Order_Status.__table__, 'after_create', DDL(""" INSERT INTO order_status (id, status) VALUES (1, 'open'),  (2, 'settled'), (3, 'void'), (4, 'refund'), (5, 'pending') """))
 event.listen(Order_Type.__table__, 'after_create', DDL(""" INSERT INTO order_type (id, order_type) VALUES (1, 'dine-in'),  (2, 'carry-out') """))
 event.listen(Discount_Type.__table__, 'after_create', DDL(""" INSERT INTO discount_type (id, name) VALUES (1, 'Amount'),  (2, 'Percentage') """))
+event.listen(Ticket_Status.__table__, 'after_create', DDL(""" INSERT INTO ticket_status (id, status_type) VALUES (1, 'Open'),  (2, 'Closed') """))
 event.listen(Printer_Type.__table__, 'after_create', DDL(""" INSERT INTO printer_type (id, name) VALUES (1, 'report'),  (2, 'receipt'), (3, 'kitchen') """))
 
 #==================Methods=================================================
@@ -380,6 +390,11 @@ def paginatedItems():
      
 def getUser():
     return Staff.query.filter_by(id = session.get('id')).first()
+
+#Get valid discounts
+def getDiscounts():
+    discounts = Discount.query.filter(Discount.no_expiry == True).all()
+    return discounts
 
 def exportTable(table, filename="table"):
     #create a csv file with the given filename
@@ -590,7 +605,7 @@ def dine_in():
     if 'id' in session:
         staff = Staff.query.filter_by(id = session.get('id')).first()
         customers = Customer.query.filter(Customer.id > 1).all()                 
-        return render_template('tasks/pages/new_order.html', title="SalesPoint - Version 1.0-build 1.0.1", bodyClass='shared-tasks dinein', images=getImages(), date=getDate(), user=staff, ordertype="Dine-In", orderstatus="New Ticket", cat=getActiveCat(), items=getOfferedItems(), orderstatusID=1, ordertypeID=1, customers=customers, taxes=Tax.query.all(), tables=Table.query.all(), typeclass="dine-in")
+        return render_template('tasks/pages/new_order.html', title="SalesPoint - Version 1.0-build 1.0.1", bodyClass='shared-tasks dinein', images=getImages(), date=getDate(), user=staff, ordertype="Dine-In", orderstatus="New Ticket", cat=getActiveCat(), items=getOfferedItems(), orderstatusID=1, ordertypeID=1, customers=customers, taxes=Tax.query.all(), tables=Table.query.all(), typeclass="dine-in", discounts=getDiscounts())
     return redirect(url_for('logout'))
 
 
@@ -612,7 +627,7 @@ def carry_out():
     if 'id' in session:
         staff = Staff.query.filter_by(id = session.get('id')).first()
         customers = Customer.query.filter(Customer.id > 1).all()                 
-        return render_template('tasks/pages/new_order.html', title="SalesPoint - Version 1.0-build 1.0.1", bodyClass='shared-tasks', images=getImages(), date=getDate(), user=staff, ordertype="Carry-Out", orderstatus="New Ticket", cat=getActiveCat(), items=getOfferedItems(), orderstatusID=1, ordertypeID=2, customers=customers, taxes=Tax.query.all(), typeclass="carry-out")
+        return render_template('tasks/pages/new_order.html', title="SalesPoint - Version 1.0-build 1.0.1", bodyClass='shared-tasks', images=getImages(), date=getDate(), user=staff, ordertype="Carry-Out", orderstatus="New Ticket", cat=getActiveCat(), items=getOfferedItems(), orderstatusID=1, ordertypeID=2, customers=customers, taxes=Tax.query.all(), typeclass="carry-out", tables=Table.query.all(), discounts=getDiscounts())
     return redirect(url_for('logout'))
 
 
@@ -1042,7 +1057,6 @@ def add_item():
             print(request.form)         
             item_name = request.form['item_name']
             unit_price= request.form['price']
-            # D(request.form['price']) * 100
             item_category = request.form['category']
             item_description = request.form['desc']
             is_offered = False           
@@ -1121,6 +1135,77 @@ def taxedit():
             db.session.commit()
             return jsonify({'message': 'OK', 'alertType': 'success', 'timer': 500, 'callback': 'reload'})
         return redirect(url_for('tax'))
+    return redirect(url_for('logout'))
+
+#===================================Discounts==========================================
+
+@app.route('/discounts', methods=['GET', 'POST'])
+def discounts():
+    if session.get('role') == "Administrator":
+        if request.method == 'POST':
+            try:
+                if 'active' in request.form:
+                    active = True
+                else:
+                    active=False
+                if 'neverexp' in request.form:
+                    noexp = True
+                else:
+                    noexp = False
+                if request.form['expdate'] != '':
+                    exp = datetime.strptime(request.form['expdate'], '%m/%d/%Y').date()                    
+                else:
+                    now =  datetime.utcnow().date()
+                    exp = now + timedelta(days=30)           
+                newdiscount = Discount(request.form['discountname'].upper(), request.form['discounttype'], request.form['discountvalue'], exp, active, noexp)
+                db.session.add(newdiscount)
+                db.session.commit()
+                return jsonify({'message': 'OK', 'alertType': 'success', 'timer': 500, 'callback': 'reload'})
+            except IntegrityError:
+                db.session.rollback()
+                return jsonify({'status': 'error', 'message': 'A discount with that name already exist.', 'alertType': 'error', 'timer': 2500})
+            except Exception as e:
+                db.session.rollback()
+                error = str(e)
+                return jsonify({'status': 'error', 'message': 'datetime error ' + error, 'alertType': 'error'})
+        return render_template('/admin/dash/pages/discounts.html', title="SalesPoint - Version 1.0-build 1", bodyClass="discounts", dis_active='active', ops_post='active', ops_expand='true', mng_expand='true', mng_show='show', menu_show='show', date=getDate(), role=session.get('role'), user=getUser(), tablename='Discounts', itemtable='Menu Items', discounts=Discount.query.all(), discounttype=Discount_Type.query.all())
+    return redirect(url_for('logout'))     
+
+@app.route('/discount_edit/', methods=['POST'])
+def disedit():
+    if session.get('role') == 'Administrator':
+        if request.method == 'POST':           
+            l = request.form['items']           
+            rows = multiRow(l)
+            print(rows)        
+            for row in rows:
+                try:
+                    discount = Discount.query.filter_by(id = row['discountid']).first()                   
+                    if discount:                        
+                        discount.name = row['discountname'].upper()
+                        discount.type_id = row['discounttypeid']
+                        discount.value = row['discountvalue']
+                        n = row['expdate'] == ''
+                        if n is False:
+                            discount.expir_date = datetime.strptime(row['expdate'], '%m/%d/%Y').date()                        
+                        if 'active' in row:
+                            discount.is_active = True
+                        else:
+                            discount.is_active = False
+                        if 'neverexp' in row:
+                            discount.no_expiry = True
+                        else:
+                            discount.no_expiry = False
+                        db.session.commit()
+                except IntegrityError:
+                    db.session.rollback()
+                    return jsonify({'status': 'error', 'message': 'A discount with that name already exist.', 'alertType': 'error', 'timer': 2500})
+                except Exception as e:
+                    db.session.rollback()
+                    error = str(e)
+                    return jsonify({'status': 'error', 'message': 'datetime error ' + error, 'alertType': 'error'})              
+            return jsonify({'message': 'OK', 'alertType': 'success', 'timer': 500, 'callback': 'reload'})
+        return redirect(url_for('discounts'))
     return redirect(url_for('logout'))
 
 #==========================================Tables===================================================

@@ -179,7 +179,7 @@ body.config ul.dropdown-menu.inner.show {
 }
 
 /*====================Staff Table==================*/
-body.staff .card-body .table-responsive ~ .row, body.position .card-body .table-responsive ~ .row, body.tax .card-body .table-responsive ~ .row {
+body.staff .card-body .table-responsive ~ .row, body.position .card-body .table-responsive ~ .row, body.tax .card-body .table-responsive ~ .row, body.discounts .card-body .table-responsive ~ .row {
     justify-content: center;
 }
 
@@ -210,11 +210,11 @@ th.theID {
 
 /*============================-Tax Table-===============================*/
 
-#taxlist input[name="taxtype"]:disabled, #taxlist input[name="taxrate"]:disabled, #tableList input:disabled{
+#taxlist input[name="taxtype"]:disabled, #taxlist input[name="taxrate"]:disabled, #tableList input:disabled, #discountlist input:disabled{
     background: transparent;
 }
 
-#taxlist input[name="taxtype"], #taxlist input[name="taxrate"], #tableList input{
+#taxlist input[name="taxtype"], #taxlist input[name="taxrate"], #tableList input, #discountlist input{
     background: #e1f5fe;
     border: none;
 }
@@ -344,7 +344,9 @@ label.total_label {
     text-align: right;
 }
 
-
+div#order_total {
+    justify-content: space-between;
+}
 
 /*----------Menu Items---------*/
 #menu_items.order-box .menu-item{
@@ -473,7 +475,7 @@ body.shared-tasks .tooltip{
 }
 
 /*=========================Positions===============================*/
-body.position #posRow.row, body.tax #taxRow, .tablesRow.row{
+body.position #posRow.row, body.tax #taxRow, .tablesRow.row, body.discounts #discountsRow{
     justify-content: center;
 }
 

@@ -219,7 +219,6 @@ function validate(args){
         
       })
     }
-
 }); //End of doc ready function
     
 //---------------Callbacks----------------------------------

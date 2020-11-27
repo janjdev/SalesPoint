@@ -28,6 +28,15 @@
                 <div class="ripple-container"></div>
               </li>
               <li class="nav-item">
+                <a class="nav-link btn btn-white btn-round" href="{{url_for('kitchen')}}" data-toggle="tooltip" data-placement="bottom" title="kitchen">
+                  <i class="icon-chef_hat"></i>
+                  <p class="d-lg-none d-md-block">
+                    Admin
+                  </p>
+                </a>
+                <div class="ripple-container"></div>
+              </li>
+              <li class="nav-item">
                 <a class="nav-link btn btn-white btn-round" href="{{url_for('orders')}}" data-toggle="tooltip" data-placement="bottom" title="Orders and Activity">
                   <i class="material-icons">add_task</i>
                   <p class="d-lg-none d-md-block">
@@ -35,7 +44,7 @@
                   </p>
                 </a>
                 <div class="ripple-container"></div>
-              </li>
+              </li>              
               <li class="nav-item">
                   <a href="{{url_for('logout')}}" class="nav-link btn btn-white btn-round">
                     <i class="material-icons">exit_to_app</i> LogOff

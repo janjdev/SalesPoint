@@ -3,8 +3,6 @@ window.addEventListener('DOMContentLoaded', () => {
 
    //Get Item buttons
     const items = document.querySelectorAll('a.item-btn');
-    const ctasks = document.querySelectorAll('.c-task');
-    const add_remove = document.querySelectorAll('.c-add-remove');
     const ncb = document.getElementById('newCustbtn');
     const ncform = document.querySelector('form#newCust');
     const editform = document.querySelector('form#updateCust');
@@ -37,7 +35,7 @@ window.addEventListener('DOMContentLoaded', () => {
       const prevCat = document.querySelector('#menu_categories a#prevcat')
 
     //Needed variables
-    let itemId, itemname, itemprice, newRow, tax, func, cID ,isValid=true, page, currentitems=$('.menu-item'), itemsend = false, catend=false, itemstart=true, catstart=false,  inputs, m = window.innerHeight < 900 ? .225 : .335, pl= (m * window.innerHeight);
+    let itemId, itemname, itemprice, newRow, tax, discount, func, cID ,isValid=true, page, currentitems=$('.menu-item'), itemsend = false, catend=false, itemstart=true, catstart=false,  inputs, m = window.innerHeight < 900 ? .225 : .335, pl= (m * window.innerHeight);
 
     //Element to append to orderlist when menu item is clicked
     function elAppend(id, name, price)
@@ -515,7 +513,22 @@ window.addEventListener('DOMContentLoaded', () => {
      }
    });
 
- 
+ //==========Add/Remove Discounts to/from Order============
+$(document).on('click', 'button.discount-btn', function(e){
+  let discountid = $(this).attr('id');
+  $(this).toggleClass('active');
+  if( $(this).hasClass('active') ){            
+    let discount = document.createElement('input');
+    discount.setAttribute('name', 'orderdiscount')
+    discount.setAttribute('hidden', '');
+    discount.value = discountid.slice(8);
+    $(discount).addClass('discount-'+discountid);
+    orderform.appendChild(discount);
+  }
+  else{
+    $('input.order-'+discountid).detach();
+  }
+  });
 
 ncb.addEventListener('click', function(e){
     e.preventDefault();

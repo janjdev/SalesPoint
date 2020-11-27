@@ -1,0 +1,194 @@
+{% extends 'admin/dash/componets/base.html' %}
+{% block content %}
+{% include 'shared/logs.html' %}
+<div id=discountsRow class="row">
+    <div id="discount_table" class="col-md-10">
+      <form id="discountEditForm" method="POST">    
+        <div class="card">
+        <div class="card-header card-header-success card-header-icon">
+            <div class="card-icon">
+            <i class="material-icons">money</i>
+            </div>                  
+            <h4 class="card-title">{{tablename}}</h4>
+            
+            
+        </div>
+        <div id="taxTable" class="card-body">
+            <div class="table-responsive">
+            
+            <table id="table" class="table table-striped">
+              
+                <thead>
+                <tr> 
+                    <th></th>
+                    <th></th>                                                                      
+                    <th class="th-lg text-center w-auto">Name</th>
+                    <th class="th-lg text-center w-auto">Type</th>
+                    <th class="th-lg text-center w-auto">Value</th>
+                    <th class="th-lg text-center w-auto">Expiration</th>
+                    <th class="th-lg text-center w-auto">Is_Active</th>
+                    <th class="th-lg text-center w-auto">Never Expire</th>
+                    <!-- <th class="text-center">Actions</th> -->
+                </tr>
+                </thead>
+               
+                  <tbody id="discountlist">
+             
+
+                {% if discounts %}
+                {% for discount  in discounts %}                
+                <tr id="{{discount.id}}">            
+                    <td class="text-center">{{ loop.index }}</td>
+                    <td>
+                    <div class="form-check">
+                        <label class="form-check-label">
+                        <input class="post-action taxRow form-check-input" type="checkbox" value="" data-id="{{discount.id}}">   
+                        <span class="form-check-sign">
+                            <span class="check"></span>
+                        </span>
+                        </label>
+                    </div>
+                    </td>                
+                    <td class="text-center text-capitalize" data-id="{{discount.id}}" class="text-center text-uppercase"><input class="dbAction" name="discountid" value="{{discount.id}}" hidden><input class="dbAction dedits text-center text-uppercase" disabled name="discountname" type="text" value="{{discount.discount_name}}" required/></td>
+                    <td class="text-center text-capitalize" data-id="{{discount.id}}" class="text-center text-uppercase">                        
+                        <select class="typechg dbAction hide selectpicker" data-style="select-with-transition" name="discounttypeid" data-discounttype="{{discount.type_id}}" data-type="date" value="{{discount.type_id}}" hidden>
+                            {% if discounttype %}
+                                {% for type in discounttype %}  
+                                    <option value="{{type.id}}">{{type.name}}</option>
+                                {% endfor %}                   
+                                <option disabled selected value="">Discount Type</option> 
+                            {% endif %}                    
+                        </select>
+                        <input data-type="text" class="dedits text-center text-uppercase" disabled name="discountype" type="text" value="{{discount.discounttype.name}}" required/>
+                    </td>
+                    <td class="text-center text-capitalize" data-id="{{discount.id}}" class="text-center text-uppercase"><input class="dbAction dedits text-center text-uppercase" disabled data-type="rate" name="discountvalue" type="text" pattern="[+-]?[0-9]{1,3}(?:,?[0-9]{3})*(?:\.[0-9]{1,2})?"  value="{% if discount.type_id == 1 %}${% endif %}{{'%.2f'|format(discount.value)}}{% if discount.type_id == 2 %}%{% endif %}" required/></td>
+                    <td class="text-center text-capitalize" data-id="{{discount.id}}" class="text-center text-uppercase"><input class="dbAction datetimepicker dedits" data-type="date" autocomplete="off" name="expdate" value="{{discount.expir_date}}" type="text" placeholder="{{discount.expir_date.strftime('%b %d %Y')}}" hidden><input class="dedits text-center text-uppercase" disabled name="discountdate" type="text" value="{{discount.expir_date.strftime('%b %d %Y')}}" /></td>
+                    <td>
+                        <div class="form-check tableChecks">
+                            <label class="form-check-label">
+                             {% if discount.is_active == True%}   
+                             {% set activecheck = "checked" %}
+                             {% set update="dbAction" %}
+                             {% else %}
+                             {% set activecheck = "" %}
+                             {% set update = "" %}
+                             {% endif %}
+                            <input class="{{update}} dedits form-check-input" disabled data-type="date" type="checkbox" name="active" value="is_active" {{activecheck}} {{discount.is_active}} data-id="{{discount.id}}">   
+                            <span class="form-check-sign">
+                                <span class="check"></span>
+                            </span>
+                            </label>
+                        </div>
+                        </td>   
+                        <td>
+                            <div class="form-check">
+                                <label class="form-check-label">
+                                    {% if discount.no_expiry == True%}   
+                                    {% set expcheck = "checked" %}
+                                    {% set update="dbAction" %}
+                                    {% else %}
+                                    {% set expcheck = "" %}
+                                    {% set update = "" %}
+                                    {% endif %}
+                                <input class="{{update}} dedits form-check-input" data-type="date" disabled type="checkbox" name="neverexp" value="no_expiry" {{expcheck}} data-id="{{discount.id}}">   
+                                <span class="form-check-sign">
+                                    <span class="check"></span>
+                                </span>
+                                </label>
+                            </div>
+                            </td>   
+                    
+                </tr>
+                  {% endfor %}       
+                  {% endif %}                 
+              </tbody>
+                  
+            </table>
+         
+            </div>
+            <div class="row">
+                <span>
+                    <div class="btn icon-link-size green lighten-3" data-toggle="modal" data-target="#discountModal"><a class="" data-href="{{url_for('positions')}}" title= "Add" data-func="add" data-toggle="tooltip" data-title="Add a new tax"><i class="material-icons">add</i></a></div>
+                    <div class="btn icon-link-size green lighten-3" ><a id="edit" title="Edit" data-toggle="tooltip" data-title="Edit"><i class="material-icons">edit</i></a></div>
+                    <div id="edit_cancel" class=" btn icon-link-size green lighten-3  hide" ><a id="editCancel"  title="Cancel" data-toggle="tooltip" data-title="Cancel"><i class="material-icons">cancel</i></a></div>
+                    <div class="btn icon-link-size green lighten-3"><a id="delete"  title= "Delete" data-func="delete" data-toggle="tooltip" data-title="Delete"><i class="material-icons">close</i></a></div>
+                </span>
+            </div>
+        </div>
+        </div>
+      </form>        
+    </div>
+</div>
+
+
+<!--Editing Functions-->
+<div id="discountModal" class="modal fade" tabindex="-1" role="dialog" data-backdrop="static">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 id="modal-title" class="modal-title">Add New Discount</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+            <form id="discountForm" method="POST" action="">
+                <div class="row">
+                    <div class="form-group col-md-6">
+                    <!-- <label for="exampleFormControlInput1">Email address</label> -->
+                    <input type="text" class="dbAction form-control  text-capitalize" id="discountName" name="discountname" placeholder="Name" required/>
+                    </div>
+                    <div class="form-group col-md-6">
+                        <!-- <label for="exampleFormControlInput1">Email address</label> -->
+                        <input type="text" class="dbAction form-control" id="discountValue" name="discountvalue" value="" pattern="[+-]?[0-9]{1,3}(?:,?[0-9]{3})*(?:\.[0-9]{1,4})?" placeholder="Value: 10, 5.2, 1.3255" required/>
+                    </div>                    
+                </div>
+               <div class="row">
+                <div class="form-group">                    
+                    <input type="text" class="form-control datetimepicker" placeholder="Expiration Date" name="expdate" autocomplete="off">
+                </div>
+                <select id="taxselection" class="dbAction selectpicker col-md-6" data-style="select-with-transition" id="discount_type" name="discounttype" required >                              
+                    {% if discounttype %}
+                        {% for type in discounttype %}  
+                        <option value="{{type.id}}">{{type.name}}</option>
+                        {% endfor %}
+                   
+                        <option disabled selected value="">Discount Type</option> 
+                    {% endif %}                    
+                </select>            
+               </div>
+               <div class="row">
+                <div class="togglebutton col-md-6">
+                    Is Active
+                    <label>
+                      <input type="checkbox" name="active">
+                        <span class="toggle"></span>                        
+                    </label>
+                  </div>
+                  <div class="togglebutton col-md-6">
+                    Never Expires
+                    <label>
+                      <input type="checkbox" name="neverexp">
+                        <span class="toggle"></span>                         
+                    </label>
+                  </div>                 
+               </div>
+               
+            <div class="row col-md-12 justify-content-center">
+                <div class="">
+                    <button id="cancel" type="reset" class="btn btn-secondar pull-left" data-dismiss="modal">Cancel<div class="ripple-container"></div></button>
+                    <button type="submit" class="btn btn-success pull-right">Submit<div class="ripple-container"></div></button>
+                </div>
+            </div>
+                             
+               
+            </form>
+        </div>
+        <div class="modal-footer">
+            
+        </div>         
+      </div>
+    </div>
+  </div>
+  <script src="{{ url_for('static', filename='assets/js/dash/discounts.js')}}"></script>
+{% endblock %}
