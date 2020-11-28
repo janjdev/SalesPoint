@@ -8,7 +8,7 @@
                 </button>
             </div>
             <div class="modal-body">  
-                {{discounts}}                         
+                        
                <div class="tablesRow row">
                 {% if discounts %}
                 {% for discount in discounts%}
@@ -17,8 +17,10 @@
                 {% else %}
                   {% set hide='' %}
                 {% endif %}
-                <button id="discount{{discount.id}}" class="btn btn-primary btn-round btn-sm discount-btn discount-page {{hide}}" data-value="{{discount.value}}" data-type="{{discount.type_id}}">                   
-                    <div>{{discount.discountname}}</div>
+                <button id="discount{{discount.id}}" class="discount btn btn-primary btn-round btn-sm discount-btn discount-page {{hide}}" data-value="{{discount.value}}" data-type="{{discount.type_id}}">                   
+                    <div>{{discount.discount_name}}</div>
+                    <div>{{discount.value}}</div>
+                    <div>{{discount.discounttype.name}}</div>
                 </button>
                 {% endfor %}
               {% endif %}

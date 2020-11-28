@@ -1,15 +1,15 @@
 
 import sys, os, io, collections, random, string, decimal, csv, tempfile, ast
 from datetime import datetime, timedelta
-from flask import Flask, request, redirect, render_template, session, url_for, abort, jsonify, json
+from flask import Flask, request, redirect, render_template, session, url_for, abort, jsonify, flash, json
+from flask.helpers import flash
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import event, DDL, extract, func
 from sqlalchemy.event import listen
 from jinja2 import TemplateNotFound
-from sqlalchemy.orm import backref
-from sqlalchemy.orm import exc
 from sqlalchemy.sql.elements import Null
-from sqlalchemy.sql.schema import Column, ForeignKey
+from sqlalchemy.sql.schema import ForeignKey
+from werkzeug import datastructures
 from hashutil import make_pw_hash, check_pw_hash
 from helpers import *
 from mimetypes import MimeTypes
@@ -85,15 +85,15 @@ class Order(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     type_id = db.Column(db.Integer, db.ForeignKey('order_type.id'), nullable=False)
     status_id = db.Column(db.Integer, db.ForeignKey('order_status.id'), nullable=False)
-    date_created = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
-    date_last_changed = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    date_created = db.Column(db.DateTime, nullable=False, default=datetime.now())
+    date_last_changed = db.Column(db.DateTime, nullable=False, default=datetime.now())
     notes = db.Column(db.Text, nullable=True, default="")
     created_by_id = db.Column(db.Integer, db.ForeignKey('staff.id', ondelete='CASCADE'), nullable=False)
     last_changed_by_id = db.Column(db.Integer, db.ForeignKey('staff.id', ondelete='CASCADE'), nullable=True)
     chk_num = db.Column(db.Integer, nullable=True)
     customer_id = db.Column(db.Integer, db.ForeignKey('customer.id'), nullable=False)
     items = db.relationship('Order_Items', backref='items')
-    applied_discounts = db.relationship('Order_Discount', backref="discounts") 
+    discounts = db.relationship('Order_Discount', backref="discounts") 
     type = db.relationship('Order_Type', backref="type")          
     status = db.relationship('Order_Status', backref='order_status')
     tables = db.relationship('OrderTable', backref='ordertable')
@@ -124,12 +124,14 @@ class Order_Items(db.Model):
     order_id = db.Column(db.Integer, db.ForeignKey('order.id', ondelete='CASCADE'), nullable=False)
     menu_item_id = db.Column(db.Integer, db.ForeignKey('menu_item.id', ondelete='CASCADE'), nullable=False)
     quantity = db.Column(db.Integer, nullable=False)
+    notes = db.Column(db.Text, nullable=True, default="")
     item = db.relationship('Menu_Item', backref="item")
 
-    def __init__(self, orID, itID, qty):
+    def __init__(self, orID, itID, qty, notes=""):
         self.order_id = orID 
         self.menu_item_id = itID
         self.quantity = qty
+        self.notes = notes
 
 
 class Order_Status(db.Model):
@@ -211,8 +213,7 @@ class Menu_Item(db.Model):
     special_item = db.relationship('Menu_Special', backref='special', lazy=True)
     item_image = db.relationship('Item_Image', backref='image', lazy=True)
     taxes = db.relationship('Tax', secondary='item_tax', backref='taxes', lazy=True)
-    category = db.relationship('Menu_Category', backref="category", lazy=True)
-    
+    category = db.relationship('Menu_Category', backref="category", lazy=True)    
     
 
     def __init__(self, name, price, cat, descr="", is_offered=True, is_special=False):
@@ -223,18 +224,6 @@ class Menu_Item(db.Model):
         self.is_offered = is_offered
         self.is_special = is_special
 
-
-class Menu_Category(db.Model):
-    __tablename__ = 'menu_category'
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column('category_name', db.String(50), nullable=False, unique=True)
-    is_active = db.Column(db.Boolean, nullable=False)
-    items = db.relationship('Menu_Item', backref='menu_item', lazy=True)     
-
-    def __init__(self, name, is_active=True):
-        self.name = name
-        self.is_active = is_active        
-   
 class Menu_Special(db.Model):
     __tablename__ = "special"
     id = db.Column(db.Integer, primary_key=True)
@@ -249,6 +238,18 @@ class Menu_Special(db.Model):
         self.has_appetizer = app
         self.has_soup = soup
 
+
+class Menu_Category(db.Model):
+    __tablename__ = 'menu_category'
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column('category_name', db.String(50), nullable=False, unique=True)
+    is_active = db.Column(db.Boolean, nullable=False)
+    items = db.relationship('Menu_Item', backref='menu_item', lazy=True)     
+
+    def __init__(self, name, is_active=True):
+        self.name = name
+        self.is_active = is_active        
+   
 class Item_Image(db.Model):
     __tablename__ = "image"
     id = db.Column(db.Integer, primary_key=True)
@@ -313,9 +314,9 @@ class Order_Ticket(db.Model):
     __tablename__ = 'order_ticket'
     id = db.Column(db.Integer, primary_key=True)
     order_id = db.Column(db.Integer, db.ForeignKey('order.id', ondelete='CASCADE'), nullable=False)
-    created_on = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    created_on = db.Column(db.DateTime, nullable=False, default=datetime.now())
     status_id = db.Column(db.Integer, db.ForeignKey('ticket_status.id', ondelete='CASCADE'), nullable=False)
-    closed_on = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    closed_on = db.Column(db.DateTime, nullable=False, default=datetime.now())
     closed_by = db.Column(db.Integer, db.ForeignKey('staff.id', ondelete='CASCADE'), nullable=True)
     status = db.relationship('Ticket_Status', backref="ticketstatus")
     order = db.relationship('Order', backref="ticketorder")
@@ -393,7 +394,7 @@ def getUser():
 
 #Get valid discounts
 def getDiscounts():
-    discounts = Discount.query.filter(Discount.no_expiry == True).all()
+    discounts = Discount.query.filter(Discount.is_active == True and Discount.expir_date > datetime.now() and Discount.no_expiry == True).all()
     return discounts
 
 def exportTable(table, filename="table"):
@@ -540,11 +541,11 @@ def importTable():
         filename = secure_filename(file.filename)        
         file.save(os.path.join(app.config['IMPORTS'], filename))
         filepath = os.path.join(app.config['IMPORTS'], filename)
-        try:     
-            importToSQL(filepath)
-            return jsonify({'status': 'success', 'alertType': 'success', 'timer': 500,})
-        except:
-            return jsonify({'status': 'Could not import all items. Check that the form is in the correct format. See "help" for more information', 'alertType': 'error', 'timer': 2500,})
+        # try:     
+        importToSQL(filepath)
+        #     return jsonify({'status': 'success', 'alertType': 'success', 'timer': 500,})
+        # except:
+        #     return jsonify({'status': 'Could not import all items. Check that the form is in the correct format. See "help" for more information', 'alertType': 'error', 'timer': 2500,})
 
         
 
@@ -635,24 +636,29 @@ def carry_out():
 def order():
     if 'id' in session:
         if request.method == 'POST':
-            # try:
+            print(request.form)
+            try:
                 status = request.form['orderstatus']
                 i = request.form['items']
                 items = multiRow(i)
                 # for item in items:
                 #     print(item['taxes'])
-                if request.form['orderid'] != "":
+                q = request.form['orderid'] == ''
+                if q is False:
                     order = Order.query.filter_by(id = request.form['orderid']).first()
                     order.status_id = request.form['orderstatus']
                     order.notes = request.form['notes']
                     order.last_changed_by_id = session.get('id')
-                    order.date_last_changed = datetime.utcnow
+                    order.date_last_changed = datetime.now()                    
+                    # create new order ticket
+                    ot = Order_Ticket(order.id, 1)
+                    db.session.add(ot)
                     olditems = Order_Items.query.filter_by(order_id = order.id).all()
                     db.session.delete(olditems)
                     db.session.commit()
                     for item in items:
                         if 'itemname' in item.keys():
-                            itemname = item['itemname'].replace("%20", " ").title()                    
+                            itemname = item['itemname'].title()                    
                             if Menu_Item.query.filter_by(item_name = itemname).first() is not None:                        
                                 db.session.rollback()
                                 db.session.commit()
@@ -666,29 +672,44 @@ def order():
                                     newit = ItemTax(int(tax), newmenuitem.id)
                                     db.seession.add(newit)
                                     db.session.commit()
-                                neworderitem = Order_Items(order.id, newmenuitem.id, item['qty'])
+                                neworderitem = Order_Items(order.id, newmenuitem.id, item['qty'], item['itemnote'])
                                 db.session.add(neworderitem)
                         else:    
-                            newitem = Order_Items(order.id, item['item'], item['qty'])
-                            db.session.add(newitem)                
+                            newitem = Order_Items(order.id, item['item'], item['qty'], item['itemnote'])
+                            db.session.add(newitem)                        
+                    if 'ordertable' in request.form.keys():
+                        tables = request.form.getlist('ordertable')            
+                        for table in tables:
+                            if status == '1':
+                                t = Table.query.filter_by(id = table).first()
+                                t.available = False;                               
+                            ordertable = OrderTable(table, order.id)
+                            db.session.add(ordertable)
+                    if 'orderdiscount' in request.form.keys():
+                        discounts = request.form.getlist('orderdiscount')
+                        for discount in discounts:
+                            od = Order_Discount(order.id, discount)
+                            db.session.add(od)                                        
                 else:                             
                     neworder = Order(request.form['ordertype'], session.get('id'), request.form['chknum'], request.form['notes'], request.form['customer'],  request.form['orderstatus'] )
                     db.session.add(neworder)
                     db.session.commit()
-                    orderID = neworder.id                         
+                    orderID = neworder.id
+                    ot=Order_Ticket(orderID, 1) 
+                    db.session.add(ot)
                     for item in items:
                         if 'itemname' in item.keys():
-                            itemname = item['itemname'].replace("%20", " ").title()                    
+                            itemname = item['itemname'].title()                    
                             if Menu_Item.query.filter_by(item_name = itemname).first() is not None:                        
                                 db.session.rollback()
                                 db.session.delete(neworder)
                                 db.session.commit()
                                 return jsonify({'status': 'success', 'message':  itemname + ' already exist. Please use the current item from the Menu.', 'alertType': 'warning', 'timer': 6000}) 
                             else:                        
-                                newmenuitem = Menu_Item(itemname, item['price'], 0)
+                                newmenuitem = Menu_Item(itemname.title(), item['price'], 0)
                                 db.session.add(newmenuitem)
                                 db.session.commit()
-                                neworderitem = Order_Items(orderID, newmenuitem.id, item['qty'])
+                                neworderitem = Order_Items(orderID, newmenuitem.id, item['qty'], item['itemnote'])
                                 db.session.add(neworderitem)  
                                 taxes = item['taxes']
                                 for tax in taxes:
@@ -696,7 +717,7 @@ def order():
                                     db.session.add(newit)
                                     db.session.commit()                 
                         else:    
-                            newitem = Order_Items(orderID, item['item'], item['qty'])
+                            newitem = Order_Items(orderID, item['item'], item['qty'], item['itemnote'])
                             db.session.add(newitem)
                             db.session.commit()
                     if 'ordertable' in request.form.keys():
@@ -706,16 +727,21 @@ def order():
                                 t = Table.query.filter_by(id = table).first()
                                 t.available = False;                               
                             ordertable = OrderTable(table, orderID)
-                            db.session.add(ordertable)                                            
+                            db.session.add(ordertable)
+                    if 'orderdiscount' in request.form.keys():
+                        discounts = request.form.getlist('orderdiscount')
+                        for discount in discounts:
+                            od = Order_Discount(orderID, discount)
+                            db.session.add(od)
                 db.session.commit()           
                 if  status == '1':                
                     return jsonify({'status': 'success', 'alertType': 'success', 'timer': 500, 'callback': 'goTo', 'param':'/orders' })
                 else:
                     return jsonify({'status': 'success', 'alertType': 'success', 'timer': 500, 'callback': 'clearOrder'})
-            # except Exception as e:
-            #     print(e)
-            #     db.session.rollback()
-            #     return jsonify({'status': 'error', 'message': 'Internal System Error', 'alertType': 'error'})         
+            except Exception as e:
+                print(e)
+                db.session.rollback()
+                return jsonify({'status': 'error', 'message': 'Internal System Error' + str(e), 'alertType': 'error'})         
     return redirect(url_for('logout'))
 
 @app.route('/orders', methods=['GET', 'POST'])
@@ -794,13 +820,40 @@ def reopen(orderid):
 
 @app.route('/kitchen', methods=['GET', 'POST'])
 def kitchen():
-    return render_template('screens/auth.html', title="Authorizations", bodyClass='dashboard', date=getDate())
+    if request.method == 'POST':
+        ID = request.form['staffID']
+        staff = Staff.query.filter_by(staff_id = ID).first()
+        if staff:
+            if staff.role_id < 3:              
+                session['id'] = staff.id
+                if staff.role_id == 1:
+                    session['role'] = "Administrator"                         
+                    return jsonify({'status': 'success', 'alertType': 'success', 'timer': 500, 'callback': 'goTo', 'param': url_for('dine_in')})
+            else:
+                return jsonify({'status': 'error', 'message': 'No Permission', 'alertType': 'error'})
+        else:
+            return jsonify({'status': 'error', 'message': 'ID Not Found', 'alertType': 'error'})
+    if 'id' in session:
+        return render_template('tasks/pages/ordertickets.html', title="SalesPoint - Version 1.0-build 1.0.1", bodyClass='shared-tasks tickets', images=getImages(), date=getDate(), user=getUser(), tickets=Order_Ticket.query.filter_by(status_id = 1).all())
+    return redirect(url_for('logout'))
+
+@app.route('/orderticket/<int:ticketid>', methods=["POST"])
+def orderticket(ticketid):
+    if 'id' in session:
+        if request.method == 'POST':
+            ot = Order_Ticket.query.filter_by(id=ticketid).first()
+            ot.status_id = 2
+            ot.closed_on = datetime.now()
+            ot.closed_by = session.get('id')
+            db.session.commit()
+            return jsonify({'status': 'success', 'alertType': 'success', 'timer': 500, 'callback': 'reload'})
+    return redirect(url_for('logout'))
 
 #=================================================Configurations====================================================
 
 @app.route('/admin', methods=['GET', 'POST'])
 def admin():
-    if request.method == 'POST':
+    if request.method == 'POST':       
         ID = request.form['staffID']
         staff = Staff.query.filter_by(staff_id = ID).first()
         if staff:                   
@@ -814,8 +867,8 @@ def admin():
     if request.method == 'GET':
         if 'id' in session:
             if session.get('role') == 'Administrator':
-                user = Staff.query.filter_by(id = session.get('id')).first()
-                return render_template('admin/dash/pages/dash.html', title="SalesPoint - Version 1.0-build 1", bodyClass='dashboard', time=datetime.now().strftime("%I:%M"), daynight=datetime.now().strftime("%p"), user=user, date=getDate(), role=session.get('role'))
+                user = Staff.query.filter_by(id = session.get('id')).first()               
+                return render_template('admin/dash/pages/dash.html', title="SalesPoint - Version 1.0-build 1", bodyClass='dashboard', time=datetime.now().strftime("%I:%M"), daynight=datetime.now().strftime("%p"), user=user, date=getDate(), role=session.get('role'), orders=Order.query.all(), cats=getActiveCat(), taxes=Tax.query.all(), printers=Printer_Type.query.all())
         return redirect(url_for('home'))
 
 
@@ -935,13 +988,26 @@ def positions():
 
 @app.route('/pos/edit/<int:pos_id>', methods=['POST'])
 def edit_pos(pos_id):
+    print(pos_id)
+    print(request.form)
     if session.get('role') == 'Administrator':
-        if request.method == 'POST':        
+        if request.method == 'POST':
             pos = Staff_Position.query.filter_by(id = pos_id).first()
-            pos.name = request.form['name']
-            pos.is_active = 0           
-            db.session.commit()
-            return jsonify({'message': 'OK', 'alertType': 'success', 'timer': 500, 'callback': 'goTo', 'param' : url_for('positions')})
+            print(pos)
+            n = request.form['action'] != 'delete'
+            if n is True:               
+                pos.name = request.form['name']
+                pos.is_active = 0           
+                db.session.commit()
+                return jsonify({'message': 'OK', 'alertType': 'success', 'timer': 500, 'callback': 'goTo', 'param' : url_for('positions')})
+            else:
+                staff = Staff.query.filter_by(position_id = pos_id).count()
+                if staff > 0:
+                    return jsonify({'status': 'error', 'message': 'This position has active staff and cannot be removed.', 'alertType': 'error'})
+                else:
+                    db.session.delete(pos)
+                    db.session.commit() 
+                    return jsonify({'message': 'OK', 'alertType': 'success', 'timer': 500, 'callback': 'goTo', 'param' : url_for('positions')})
         else:
             return redirect(url_for('positions'))
     else: 
@@ -1052,6 +1118,7 @@ def edit_item(id):
 
 @app.route('/add_item/', methods=['POST'])
 def add_item():
+    print(request.referrer)
     if session.get('role') == 'Administrator':
         if request.method == 'POST': 
             print(request.form)         
@@ -1086,7 +1153,10 @@ def add_item():
             for tax in taxes:
                 newitemtax = ItemTax(tax, id)
                 db.session.add(newitemtax)
-            db.session.commit()       
+            db.session.commit() 
+            if request.referrer == request.host_url + 'admin':
+               flash("New Menu Item Added", 'success') 
+               return redirect(request.referrer)    
             return jsonify({'message': 'OK', 'alertType': 'success', 'timer': 500, 'callback': 'loadElement', 'param' : 'item'})
         else:
             return redirect(url_for('menu'))
@@ -1155,7 +1225,7 @@ def discounts():
                 if request.form['expdate'] != '':
                     exp = datetime.strptime(request.form['expdate'], '%m/%d/%Y').date()                    
                 else:
-                    now =  datetime.utcnow().date()
+                    now =  datetime.now().date()
                     exp = now + timedelta(days=30)           
                 newdiscount = Discount(request.form['discountname'].upper(), request.form['discounttype'], request.form['discountvalue'], exp, active, noexp)
                 db.session.add(newdiscount)
@@ -1174,37 +1244,44 @@ def discounts():
 @app.route('/discount_edit/', methods=['POST'])
 def disedit():
     if session.get('role') == 'Administrator':
-        if request.method == 'POST':           
+        if request.method == 'POST': 
             l = request.form['items']           
-            rows = multiRow(l)
-            print(rows)        
-            for row in rows:
-                try:
-                    discount = Discount.query.filter_by(id = row['discountid']).first()                   
-                    if discount:                        
-                        discount.name = row['discountname'].upper()
-                        discount.type_id = row['discounttypeid']
-                        discount.value = row['discountvalue']
-                        n = row['expdate'] == ''
-                        if n is False:
-                            discount.expir_date = datetime.strptime(row['expdate'], '%m/%d/%Y').date()                        
-                        if 'active' in row:
-                            discount.is_active = True
-                        else:
-                            discount.is_active = False
-                        if 'neverexp' in row:
-                            discount.no_expiry = True
-                        else:
-                            discount.no_expiry = False
+            rows = multiRow(l) 
+            print(rows)                    
+            if request.form['action'] == 'delete':
+                for row in rows:
+                    ds = Discount.query.filter_by(id = row['discountid']).first()
+                    db.session.delete(ds)
+                    db.session.commit()
+                return jsonify({'message': 'OK', 'alertType': 'success', 'timer': 500, 'callback': 'reload'})
+            else:                 
+                for row in rows:
+                    try:
+                        discount = Discount.query.filter_by(id = row['discountid']).first()                   
+                        if discount:                        
+                            discount.discount_name = row['discountname'].upper()
+                            discount.type_id = row['discounttypeid']
+                            discount.value = row['discountvalue']
+                            n = row['expdate'] == ''
+                            if n is False:
+                                discount.expir_date = datetime.strptime(row['expdate'], '%m/%d/%Y').date()                        
+                            if 'active' in row:
+                                discount.is_active = True
+                            else:
+                                discount.is_active = False
+                            if 'neverexp' in row:
+                                discount.no_expiry = True
+                            else:
+                                discount.no_expiry = False
                         db.session.commit()
-                except IntegrityError:
-                    db.session.rollback()
-                    return jsonify({'status': 'error', 'message': 'A discount with that name already exist.', 'alertType': 'error', 'timer': 2500})
-                except Exception as e:
-                    db.session.rollback()
-                    error = str(e)
-                    return jsonify({'status': 'error', 'message': 'datetime error ' + error, 'alertType': 'error'})              
-            return jsonify({'message': 'OK', 'alertType': 'success', 'timer': 500, 'callback': 'reload'})
+                    except IntegrityError:
+                        db.session.rollback()
+                        return jsonify({'status': 'error', 'message': 'A discount with that name already exist.', 'alertType': 'error', 'timer': 2500})
+                    except Exception as e:
+                        db.session.rollback()
+                        error = str(e)
+                        return jsonify({'status': 'error', 'message': 'datetime error ' + error, 'alertType': 'error'})              
+                    return jsonify({'message': 'OK', 'alertType': 'success', 'timer': 500, 'callback': 'reload'})
         return redirect(url_for('discounts'))
     return redirect(url_for('logout'))
 
@@ -1288,6 +1365,18 @@ def setActive(tableid):
         return redirect(url_for('setTable'))
     return redirect(url_for('logout'))
 
+
+# ======================REPORTS========================
+@app.route('/reports', methods=['GET', 'POST'])
+def reports():
+    if 'id' in session:
+        return render_template('/admin/dash/pages/reports.html', title="SalesPoint - Version 1.0-build 1", bodyClass="reports",  report_active='active',  date=getDate(), role=session.get('role'), user=getUser() )
+    return redirect(url_for('logout'))
+
+@app.route('/return_orders/<int:id>', methods=['POST'])
+def getorders(id):
+    order = Order.query.filter_by(id = id).first()
+    return jsonify({'data': render_template('/reports/orderticket.html', order=order, term=getTerminal())})
 
 
 if (__name__) == '__main__':

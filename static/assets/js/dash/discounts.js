@@ -44,6 +44,64 @@ window.addEventListener('DOMContentLoaded', () => {
         location.reload();
     });
 
+
+
+$('body').on('click', '#delete', function(){
+
+  let checked = taxlist.querySelectorAll('input.taxRow:checked');
+        
+      if(checked.length < 1)
+      {
+          Swal.fire({
+              type: 'error',
+              text: 'Select a row to edit',
+              timer: 2000,
+            });
+          return;
+      }
+      else
+      {
+        Swal.fire({
+          title: 'Are you sure?',
+          text: 'Delete Discounts ' ,
+          type: 'warning',
+          showCancelButton: true,
+          confirmButtonText: 'Yes!',
+          cancelButtonText: 'No, cancel!',
+          reverseButtons: true
+        }).then((result) => {
+          if (result.value) {
+            editForm.querySelector('input[name="action"]').value = 'delete';
+
+            let items = [];
+            let rows = $(checked).closest('tr').find('input[name="discountid"]').toArray()          
+            let item = [];
+            rows.forEach(function(input){  
+            let i = $(input).serialize()
+            item.push( decodeURIComponent(i));                  
+            });
+                items.push(item);
+                console.log(items);
+            let data = JSON.stringify(items)
+            
+            //convert form as needed
+            let formData = new FormData(editForm);
+            formData.append('items', data); 
+            ajaxforms('/discount_edit/', 'POST', formData, false, false)    
+                         
+          } else if (
+            /* Read more about handling dismissals below */
+            result.dismiss === Swal.DismissReason.cancel
+          ) {
+          
+          }
+      });
+    }  
+
+})
+
+
+
     //==================On date/type change======================
 
         //Date change
@@ -59,7 +117,9 @@ window.addEventListener('DOMContentLoaded', () => {
             });
         });
 
-      
+      $('body').on('keyup', 'input', function(e){
+        $(this).change();
+      });
 
         //Type change
         $('body').on('change', 'select.typechg', function(e){             
@@ -115,7 +175,7 @@ window.addEventListener('DOMContentLoaded', () => {
             let formData = new FormData(editForm);
             formData.append('items', data);            
             
-            validate(editForm.querySelectorAll('.dbAction'));
+            // validate(editForm.querySelectorAll('.dbAction'));
             if(isValid)
             {             
                 ajaxforms('/discount_edit/', 'POST', formData, false, false)

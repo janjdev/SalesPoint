@@ -57,7 +57,7 @@
                                   <td class="qty pt-3-half"><input class="dbAction text-center" name="qty" type="number" value="{{item.quantity}}" required/><span></span></td>
                                   <td class="name pt-3-half"><input class="dbAction text-center text-capitalize"  name="itemname" type="text" value="{{item.item.item_name}}" required /></td>
                                   <td class="price pt-3-half"><input class="dbAction text-center" name="price" type="number" min=".01" step=".01" pattern="[+-]?[0-9]{1,3}(?:,?[0-9]{3})*(?:\.[0-9]{1,2})?" value="{{item.item.unit_price}}" required/></td>
-                                  <td class="pt-3-half" ><input class="itemNote" name="itemnote" type="text" value="" /></td>                              
+                                  <td class="pt-3-half" ><input class="itemNote text-capitalize" name="itemnote" type="text" value="" /></td>                              
                                   <td>
                                       <span class="table-remove">
                                           <button type="button" class="btn btn-danger btn-rounded btn-sm my-0">x</button>
@@ -95,6 +95,12 @@
                         <div class="col-md-6 form-group">
                           <label for="ticket-total" class="total_label" >Total:</label>
                           <input class="form-control" disabled id="ticket-total" name="total" placeholder="$0.00"  />
+
+                          <label for="discount-total" class="total_label" >Discount:</label>
+                          <input class="form-control" disabled id="discount-total" name="total" placeholder="$0.00"  />
+
+                          <label for="tax-total" class="total_label" >Tax:</label>
+                          <input class="form-control" disabled id="tax-total" name="total" placeholder="$0.00"  />
                         </div>
                         <div id="discountBtn" class="col-md-4 pull-right">
                           <div class="btn btn-round btn-sm col-md-12" data-toggle="modal" data-target="#discountsModal">

@@ -1,6 +1,18 @@
 {% extends 'admin/dash/componets/base.html' %}
   {% block content %}
   {% include 'shared/logs.html' %}
+            {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+              {% for category, message in messages %}
+              <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                <strong>Success!</strong> {{ message|capitalize }}
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+                </button>
+              </div>
+              {% endfor %}
+            {% endif %}
+          {% endwith %}
           <div class="row latest-posts-view">                       
             <div class="col-md-10">
               <div class="card">
@@ -12,9 +24,7 @@
                     <small> - Rounded</small>
                   </h4>
                 </div>
-                <div class="card-body">
-                  <div id="colouredBarsChart" class="ct-chart"></div>
-                </div>
+                {% include 'admin/dash/componets/dash-salesChart.html' %}
               </div>
             </div>                
           </div>
@@ -28,7 +38,7 @@
                         </div>
                         <hr class="seperator">
                         <div class="card-title">
-                          <h4>TOTAL ORDERS</h4>
+                          <h4>TOTAL ORDERS: {{orders|length}}</h4>
                           <h6>As of Today At: {{time}} {{daynight}} </h6>
                         </div>
                         
@@ -36,25 +46,49 @@
                       <div id=currentStatusBody class="card-body">
                           <div class="table-responsive">
                             <table class="table">
-                              
+                              {% set dinein = namespace(dinein=0) %}
+                              {% set carryout = namespace(carryout=0) %}
+                              {% set open = namespace(open=0) %}
+                              {% set closed = namespace(closed=0) %}
+                              {% set pending = namespace(pending=0) %}
+                              {% for order in orders %}
+                                {% if order.type_id == 1  %}
+                                  {% set dinein.dinein = dinein.dinein + 1 %}
+                                {% endif %}
+                                {% if order.type_id == 2  %}
+                                  {% set carryout.carryout = carryout.carryout + 1 %}
+                                {% endif %}                                
+                                {% if order.status_id == 1  %}
+                                  {% set open.open = open.open + 1 %}
+                                {% endif %}
+                                {% if 1 < order.status_id < 5 %}
+                                  {% set closed.closed = closed.closed + 1 %}
+                                {% endif %}
+                                {% if order.status_id == 5 %}
+                                  {% set pending.pending = pending.pending + 1 %}
+                                {% endif %}
+                              {% endfor %}
                               <tbody>
                                 <tr>
                                   <td><span><b>DINE IN</b></span> </td>
-                                  <td><span><b>1</b></span></td>
+                                  <td><span><b>{{dinein.dinein}}</b></span></td>
                                 </tr>
                                 <tr>
                                     <td><span><b>CARRY OUT</b></span> </td>
-                                    <td><span><b>17</b></span></td>
+                                    <td><span><b>{{carryout.carryout}}</b></span></td>
                                 </tr>
                                 <tr>
                                     <td><span><b>OPEN</b></span> </td>     
-                                    <td><span><b>2</b></span> </td>
+                                    <td><span><b>{{open.open}}</b></span> </td>
                                 </tr>
                                 <tr>
-                                    <td><span><b>CLOSED</b><span> </td>
-                                        
-                                    <td></span><b>15</b></span></td>
+                                    <td><span><b>CLOSED</b><span> </td>                                        
+                                    <td></span><b>{{closed.closed}}</b></span></td>
                                 </tr>
+                                <tr>
+                                  <td><span><b>Pending</b><span> </td>                                        
+                                  <td></span><b>{{pending.pending}}</b></span></td>
+                              </tr>
                               </tbody>
                             </table>
 
@@ -75,17 +109,20 @@
                      
                     </div>
                     <div class="card-body ">
-                      <form id="quickPost" class="form" action="" method="POST">
+                      <form id="quickPost" class="form" action="/add_item/" method="POST" enctype="multipart/form-data">
                         <div class="input-group">
                           <div class="input-group-prepend">
                             <span class="input-group-text">
                               <i class="material-icons">filter_1</i>
                             </span>
                           </div>
-                          <label for="postType">Choose category</label>   
-                          <select id="postType" name="postType" class="form-control selectpicker" data-style="btn btn-link" required>
-                            <option>category</option>
-                            <option>category</option>
+                          <label for="category">Choose category</label>   
+                          <select id="category" name="category" class="form-control selectpicker" data-style="btn btn-link" required>
+                            {% if cats %}
+                            {% for cat in cats %}
+                            <option value="{{cat.id}}">{{cat.name}}</option>
+                            {% endfor %}
+                          {% endif %}
                           </select>
                         </div>
                         <div class="input-group">
@@ -94,7 +131,7 @@
                               <i class="material-icons">filter_2</i>
                             </span>
                           </div>
-                          <input type="text" name='name' class="form-control" placeholder="Enter item name" required>
+                          <input type="text" name='item_name' class="form-control text-capitalize" placeholder="Enter item name" required>
                         </div>
                         <div class="input-group">
                           <div class="input-group-prepend">
@@ -102,7 +139,7 @@
                               <i class="material-icons">filter_3</i>
                             </span>
                           </div>
-                          <textarea class="form-control" name="desc" id="quickPostText" placeholder="Enter item description"></textarea>
+                          <textarea class="form-control text-capitalize" name="desc" id="quickPostText" placeholder="Enter item description"></textarea>
                         </div>
                         <div class="input-group">
                           <div class="input-group-prepend">
@@ -110,19 +147,52 @@
                               <i class="material-icons">filter_4</i>
                             </span>
                           </div>
-                          <input type="number" name="price" class="form-control" placeholder="Enter item price" min="0" step=".01" required>
-                        </div>  
+                          <input type="number" name="price" class="form-control" placeholder="Enter item price" min=".01" step=".01" required>
+                        </div>
+                        <div class="input-group">
+                          <div class="input-group-prepend">
+                            <span class="input-group-text">
+                              <i class="material-icons">filter_5</i>
+                            </span>
+                          </div>
+                          <label for="category">Select Item Tax</label>   
+                          <select id="tax" name="tax" class="form-control selectpicker" multiple data-style="btn btn-link" required>
+                            {% if taxes %}
+                            {% for tax in taxes %}
+                            <option value="{{tax.id}}">{{tax.tax_type}}</option>
+                            {% endfor %}
+                            {% else %}
+                          {% endif %}     
+                          </select>
+                        </div>
+                        <div class="form-check">
+                          <label class="form-check-label"> Is Offered
+                            <input class="form-check-input" name="offered" type="checkbox" value="1">
+                            <span class="form-check-sign">
+                              <span class="check"></span>
+                            </span>
+                          </label>
+                        </div>
+                        <div class="form-check">
+                          <label class="form-check-label"> Is Special
+                            <input class="form-check-input" name="special" type="checkbox" value="0">
+                            <span class="form-check-sign">
+                              <span class="check"></span>
+                            </span>
+                          </label>
+                        </div>                       
                         <div id="quickPostAttachment" class="fileinput fileinput-new text-center " data-provides="fileinput">
-                          <p>Add item image</p>              
+                          <p>Add item image</p>
+                          <div class="fileinput-preview fileinput-exists thumbnail"></div>               
                           <div class="item-image">
                             <a id="imgbtn" href="#" class="btn btn-raised btn-round btn-default btn-file success">
                                 <span class="fileinput-new"><i class="material-icons-outlined">insert_photo</i></span>
                                 <span class="fileinput-exists"><i class="material-icons-outlined">swap_vertical_circle</i></span>
-                                <input type="text" name="featureImg"  value="" hidden />
+                                <input type="file" name="image"  value=""/>
                             </a>
                             <a href="#" class="btn btn-danger btn-round fileinput-exists" data-dismiss="fileinput"><i class="material-icons-outlined">remove_circle_outline</i></a>
                           </div>                          
-                        </div>                                 
+                        </div>                       
                       </form>  
                     </div>
                   </div>
@@ -148,8 +218,14 @@
                             </div>
                             <label for="printerType">Select printer type</label>   
                             <select id="printerType" name="printerType" class="form-control selectpicker" data-style="btn btn-link" required>
-                              <option>category</option>
-                              <option>category</option>
+                              {% if printers %}
+                            {% for printer in printers %}
+                            <option value="{{printer.id}}">{{printer.name}}</option>
+                            {% endfor %}
+                            {% else %}
+                            <option disabled selected value="">Printer Type</option> 
+                          {% endif %}     
+                             
                             </select>
                           </div>
                           <div class="input-group">
@@ -160,8 +236,8 @@
                             </div>
                             <label for="printer">Select printer</label>   
                             <select id="printer" name="printer" class="form-control selectpicker" data-style="btn btn-link" required>
-                              <option>category</option>
-                              <option>category</option>
+                              <option>Printer</option>
+                              <option>Printer</option>
                             </select>
                           </div>
                           <div class="input-group">
@@ -178,7 +254,26 @@
                   </div>
           </div>
         </div>
-        <script src="{{ url_for('static', filename='assets/js/dash/dash.js')}}"></script>          
+        <script src="{{ url_for('static', filename='assets/js/dash/dash.js')}}"></script>
+        <script src="{{ url_for('static', filename='assets/js/plugins/chartist.min.js')}}"></script>
+        <script src="{{ url_for('static', filename='assets/js/core/jquery.min.js')}}"></script>
+        <script src="{{ url_for('static', filename='assets/js/plugins/bootstrap-notify.js')}}"></script>
+        <script>
+          var data = {
+            // A labels array that can contain any sort of values
+            labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'],
+            // Our series array that contains series objects or in this case series data arrays
+            series: [
+              [5, 2, 4, 2, 0]
+            ]
+          };
+          
+          // Create a new line chart object where as first parameter we pass in a selector
+          // that is resolving to our chart container element. The Second parameter
+          // is the actual data object.
+      let  salesChart =   new Chartist.Line('.ct-chart', data);
+     
+        </script>          
        {% endblock %}
              
               

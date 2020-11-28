@@ -127,7 +127,7 @@ form#importForm {
 }
 
 body.dashboard .dashboard-cards{
-    align-items: flex-end;
+    align-items: flex-start;
     justify-content: center;
 }
 .sidebar{
@@ -226,7 +226,7 @@ height: 64px;
 }
 
 /*==========================Carry Out====================*/
-.row.order-row, .row.orders {
+.row.order-row, .row.orders, .shared-tasks .task-row {
     position: fixed;
     width: 100%;
     right: -15px;
@@ -282,7 +282,7 @@ span.table-remove button.btn {
     top: 10px !important;
 }
 
-#orderlist td.pt-3-half input, #add-edit td.pt-3-half input, #taxlist input[name="taxtype"]:disabled, #taxlist input[name="taxrate"]:disabled {
+#orderlist td.pt-3-half input, #add-edit td.pt-3-half input, #taxlist input[name="taxtype"]:disabled, #taxlist input[name="taxrate"]:disabled, article.ticket input {
     max-width: 100px;
     border: none;
     background: transparent;
@@ -328,17 +328,17 @@ label.total_label {
     position: absolute;
 }
 
-#ticket-total::placeholder, input#ticket-total {
+#ticket-total::placeholder, input#ticket-total, #discount-total::placeholder, input#discount-total, #tax-total::placeholder, input#tax-total {
     font-weight: 900;
     color: black;
     text-align: right;
 }
-#ticket-total {
+#ticket-total, #tax-total, #discount-total {
     text-align: right;
     height: 20px;
 }
 
-#ticket-total::placeholder, input#ticket-total {
+#ticket-total::placeholder, input#ticket-total, #discount-total::placeholder, input#discount-total, #tax-total::placeholder, input#tax-total {
     font-weight: 900;
     color: black;
     text-align: right;
@@ -463,6 +463,10 @@ body.shared-tasks .tooltip{
     z-index: 5000;
 }
 
+.btn.btn-sm {
+    padding: .5rem 1.4rem;
+    font-size: .64rem;
+}
 
 /* ---------------------Add Customer Modal---------------------- */
 
@@ -530,6 +534,83 @@ ul#orderFilterBtns {
 #orderinfobtn i {
     font-size: 2em;
     color: #999999;
+}
+
+/* ====================Kitchen Tickets======================== */
+.itemname p {
+    margin: 0;
+}
+
+.row.items .notes{
+    width: 100%;
+}
+
+.row.items {
+    justify-content: space-between;
+    border-bottom: solid 1px lightgray;
+}
+
+body.tickets .card-body.kitchen-ticket span {
+    display: table-cell;
+}
+
+p.instructions {
+    margin: 0;
+}
+
+.row.ticket-header {
+    justify-content: space-between;
+    padding: 15px;
+    border-bottom: solid;
+}
+
+.row.items {
+    justify-content: space-between;
+    border-bottom: solid 1px lightgray;
+    padding: 0 15px;
+    margin: 0;
+}
+
+.tickets .task-row .container {
+    display: flex;
+    overflow-x: hidden;
+    overflow-y: scroll;
+    align-items: flex-end;
+}
+
+
+/*===========REPORTS======================= */
+/* -------------Ticket Info Report */
+.header {   
+    border-bottom: dashed;
+}
+
+.theads {
+    justify-content: space-between;
+    border-bottom: thin dashed;
+    margin: 0;
+}
+
+.busdeets{
+    border-bottom: dashed;
+}
+
+.halo {
+    justify-content: space-between;
+}
+
+.totals .halo div, .final .halo div{
+    margin: 0;
+    padding: 0;
+}
+
+.totals.items{
+    border-bottom: dashed;
+}
+
+.final.items{
+    border: none;
+    padding-top: 10px;
 }
 
 .navbar .collapse .navbar-nav .nav-item .nav-link{
@@ -775,6 +856,10 @@ button.btn.dropdown-toggle.bs-placeholder.btn-light, button.btn.dropdown-toggle.
 }
 
 span.text{
+    margin: auto;
+}
+
+body.dashboard .bootstrap-select.show-tick .dropdown-menu li a span.text {
     margin: auto;
 }
 

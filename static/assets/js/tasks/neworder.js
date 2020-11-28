@@ -17,8 +17,10 @@ window.addEventListener('DOMContentLoaded', () => {
     //Table to append item rows
     const table = document.getElementById('orderlist');
 
-    //Total ticket element
+    //Total ticket elements
     const tickTotal = document.getElementById('ticket-total');
+    const taxTotal = document.getElementById('tax-total');
+    const discountTotal = document.getElementById('discount-total');
 
     //get the cancel trigger
     const canclebtn = document.querySelector('#cancelbtn');
@@ -45,7 +47,7 @@ window.addEventListener('DOMContentLoaded', () => {
         <td id="qty${id}" class="qty pt-3-half" ><input class="dbAction text-center" name="qty" type="number" value="${1}" /><span></span></td>
         <td class="pt-3-half" ><input class="dbAction" hidden name="item" type="text" value="${id}" />${name}</td>
         <td class="pt-3-half" ><input class="dbAction" hidden name="price" type="text" pattern="[+-]?[0-9]{1,3}(?:,?[0-9]{3})*(?:\.[0-9]{1,2})?" value="${price}" />${price}</td>
-        <td class="pt-3-half" ><input class="itemNote" name="itemnote" type="text" value="" /></td>                              
+        <td class="pt-3-half" ><input class="itemNote text-capitalize" name="itemnote" type="text" value="" /></td>                              
         <td>
         <span class="table-remove"><button type="button"
             class="btn btn-danger btn-rounded btn-sm my-0">x</button></span>
@@ -62,7 +64,7 @@ window.addEventListener('DOMContentLoaded', () => {
         <td class="qty pt-3-half"><input class="dbAction text-center" name="qty" type="number" value="1" required/><span></span></td>
         <td class="name pt-3-half"><input class="dbAction text-center text-capitalize"  name="itemname" type="text" value="" required /></td>
         <td class="price pt-3-half"><input class="dbAction text-center" name="price" type="number" min=".01" step=".01" pattern="[+-]?[0-9]{1,3}(?:,?[0-9]{3})*(?:\.[0-9]{1,2})?" value="" required/></td>
-        <td class="pt-3-half" ><input class="itemNote" name="itemnote" type="text" value="" /></td>                              
+        <td class="pt-3-half" ><input class="itemNote text-capitalize" name="itemnote" type="text" value="" /></td>                              
         <td>
             <span class="table-remove">
                 <button type="button" class="btn btn-danger btn-rounded btn-sm my-0">x</button>
@@ -234,7 +236,7 @@ window.addEventListener('DOMContentLoaded', () => {
   //-----------------------------------------------------------------------------------    
     //calculate the total
     function ticketTotal(){
-        let total = 0.0, qty, price, totalTax=0, rows = table.querySelectorAll('tr');
+        let total = 0.0, qty, price, totalPercent=0, totalAmount=0, discount=0, totalTax=0, rows = table.querySelectorAll('tr');
         rows.forEach(function(row){ 
           let subtotal=0, tax=0;           
             qty = $(row).find('input[name="qty"]').val();
@@ -250,6 +252,27 @@ window.addEventListener('DOMContentLoaded', () => {
                 total+= (subtotal*tax)+subtotal;
              }
         });
+
+        let orderdiscounts = orderform.querySelectorAll('input[name="orderdiscount"]');
+        let  subtotal = total - totalTax;
+
+        orderdiscounts.forEach(function(discount){
+          console.log(typeof discount.getAttribute('data-type'));
+            if (discount.getAttribute('data-type') == 1){
+                totalAmount += parseInt(discount.getAttribute('data-value'));
+            }else{
+              totalPercent += discount.getAttribute('data-value');
+            }
+        });
+
+        discount += subtotal*(parseFloat(totalPercent)/100)
+
+        total = (subtotal - discount - totalAmount) + totalTax;
+
+        taxTotal.value = totalTax.toFixed(2);
+       
+        discountTotal.value = (discount + totalAmount).toFixed(2)
+
         return total.toFixed(2);
     }
     tickTotal.value = ticketTotal();
@@ -520,14 +543,17 @@ $(document).on('click', 'button.discount-btn', function(e){
   if( $(this).hasClass('active') ){            
     let discount = document.createElement('input');
     discount.setAttribute('name', 'orderdiscount')
+    discount.setAttribute('data-value', $(this).attr('data-value'))
+    discount.setAttribute('data-type', $(this).attr('data-type'))
     discount.setAttribute('hidden', '');
     discount.value = discountid.slice(8);
     $(discount).addClass('discount-'+discountid);
     orderform.appendChild(discount);
   }
   else{
-    $('input.order-'+discountid).detach();
+    $('input.discount-'+discountid).detach();
   }
+  tickTotal.value = ticketTotal();
   });
 
 ncb.addEventListener('click', function(e){

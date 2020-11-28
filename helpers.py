@@ -1,7 +1,6 @@
 import ast, csv, os
 from datetime import datetime
-from flask import Flask, request, json
-from flask_sqlalchemy import SQLAlchemy
+from flask import request, json
 import config
 
 #Get list of rows from table form

@@ -17,3 +17,4 @@ id,item_name,unit_price,item_category,item_description,is_offered,is_special
 17,Greens,5.00,0,,True,False
 18,Beans,2.95,0,,True,False
 19,Steak,50.00,0,,True,False
+20,Pineapple Pizza,10.99,0,,True,False

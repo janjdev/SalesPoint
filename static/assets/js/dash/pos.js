@@ -1,4 +1,4 @@
-window.addEventListener('DOMContentLoaded', () => {
+window.addEventListener('DOMContentLoaded', () => { 
 
     //Actions buttons or links
     let tasks = document.querySelectorAll('.staff-tasks'), actions = document.querySelectorAll('.row_action');
@@ -53,6 +53,7 @@ window.addEventListener('DOMContentLoaded', () => {
   //tasks function for add, edit, copy
     tasks.forEach(function(task) {
           task.addEventListener('click', function(e){
+            console.log('click');
             //get the route      
             page = task.getAttribute('data-href');
             //get the title of the action
@@ -63,7 +64,7 @@ window.addEventListener('DOMContentLoaded', () => {
             modalTitle.innerText = title         
   
             //if the task is edit or copy get the selected row information
-            if (func == 'edit' || func == 'copy')
+            if (func == 'edit' || func == 'copy' || func == 'terminate' )
             {
               if (checked.length < 1){
                 Swal.fire({
@@ -74,6 +75,7 @@ window.addEventListener('DOMContentLoaded', () => {
                 })
               }
               else
+              if(func == 'edit' || func == 'copy')
               {
                 id = checked[0].closest('tr').getAttribute('id');
                 document.querySelector('input[name="name"]').value = $('tr#' + id + ' td.pos')[0].innerText;                
@@ -99,7 +101,7 @@ window.addEventListener('DOMContentLoaded', () => {
           func = action.getAttribute('data-func');
           modalTitle.innerText = action.getAttribute('data-title');
           
-          if (func == 'edit')
+          if (func == 'edit' || func == 'terminate')
           {
             page = '/pos/edit/' + id;
           }
@@ -123,26 +125,16 @@ window.addEventListener('DOMContentLoaded', () => {
               reverseButtons: true
             }).then((result) => {
               if (result.value) {
-               Swal.fire({
-                title: 'Deleted!',
-                text: 'Your file has been deleted.',
-                 type: 'success'
-               })
+                form.querySelector('input[name="action"]').value = 'delete';
+                ajaxforms(page, 'POST', form);              
               } else if (
                 /* Read more about handling dismissals below */
                 result.dismiss === Swal.DismissReason.cancel
               ) {
-                Swal.fire({
-                title:  'Cancelled',
-                text:  'Your imaginary file is safe :)',
-                type:  'error'
-                })
+               
               }
-              
-              
             });
             
-  
           }
           
         })

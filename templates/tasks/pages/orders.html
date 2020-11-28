@@ -80,7 +80,7 @@
                                 </td>
                                   <td class="text-center">{{order.id}}</td>                                              
                                   <td class="text-center text-capitalize">{{order.chk_num}}</td>
-                                  <td class="name text-center text-capitalize">{{order.date_created.strftime('%b-%d-%y')}} {{order.date_created.strftime('%I:%M')}}  {{order.date_created.strftime('%p')}}</td>
+                                  <td class="name text-center text-capitalize">{{order.date_created.strftime('%m-%d-%Y %I:%M %p')}}</td>
                                   <td class="is_active text-center text-capitalize">{{order.type.order_type}}</td>
                                   <td class="is_active text-center text-capitalize"> {% for table in order.tables %} {{table.tables.table_no}}, {% endfor %} </td>
                                   <td class="is_active text-center text-capitalize">{{order.createdby.first_name}}</td>  
@@ -97,8 +97,23 @@
                                         {% endfor %}
                                         {% set taxtotal.tvalue =  taxtotal.tvalue + (currenttotal.bvalue|float * (currenttax.ctvalue|round(5, 'floor')/100) ) %}   
                                         {% set subtotal.value = subtotal.value + currenttotal.bvalue %}
-                                    {% endfor %}                        
-                                  <td class="is_active text-center text-capitalize">${{'%.2f'|format(subtotal.value|float + taxtotal.tvalue)}}</td>
+                                    {% endfor %}
+                                    {% set totaldiscount = namespace(dvalue=0) %}
+                                    {% set ttdis = namespace(ttdis=0) %}
+                                    {% set amount = namespace(amount=0) %}
+                                    {% set percent = namespace(percent=0) %}
+                                    {% for discount in order.discounts %}                                   
+                                    {% if discount.discount.type_id == 1 %}
+                                    {% set amount.amount = amount.amount + discount.discount.value %}
+                                    {% else %}
+                                    {% set percent.percent = percent.percent + discount.discount.value|float %}  
+                                    {% endif %}
+                                    {% endfor %}
+
+                                    {% set ttdis.ttdis = subtotal.value|float * (percent.percent|round(5, 'floor')/100)  %}
+                                    {% set totaldiscount.dvalue = ttdis.ttdis + amount.amount|float %}
+                                    
+                                  <td class="is_active text-center text-capitalize">${{'%.2f'|format(subtotal.value|float - totaldiscount.dvalue + taxtotal.tvalue)}}  </td>
                                     
                                 </tr>
                                     {% endfor %}
@@ -116,9 +131,7 @@
                                     
                                 </span>
                             </div>
-                        </div>
-                      
-                        <script src="{{ url_for('static', filename='assets/js/tasks/orders.js')}}"></script>                                 
+                        </div>                                
                     </div> 
                 <!--End Orders Table-->
               </div>
@@ -131,5 +144,30 @@
   <input hidden type="text" name="action" id="">
 </form>
 <form id="changeOrder" method="POST"></form> 
+
+<div id="infoModal" class="modal fade" tabindex="-1" role="dialog" data-backdrop="static">
+  <div class="modal-dialog" role="document">
+      <div class="modal-content">
+          <div class="modal-header">
+              <h5 id="modal-title" class="modal-title">Order Info</h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+              </button>
+          </div>
+          <div id="orderinfoAppend" class="modal-body">
+          </div>
+          <div class="modal-footer">
+              <div class="row col-md-12 justify-content-center">
+                  <div class="">
+                    <button id="closeTicketInfo" type="reset" class="cancel btn" data-dismiss="modal">DONE<div class="ripple-container"></div></button>                      
+                  </div>
+              </div>
+          </div>         
+      </div>
+  </div>
+</div> 
+
+
+<script src="{{ url_for('static', filename='assets/js/tasks/orders.js')}}"></script> 
   
-  {% endblock %}
+{% endblock %}

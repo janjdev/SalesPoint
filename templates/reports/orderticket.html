@@ -1,0 +1,104 @@
+
+                       
+            {% set subtotal = namespace(value=0) %}
+            {% set taxtotal = namespace(tvalue=0) %}           
+              {% for item in order.items %}
+                {% set currenttotal = namespace(bvalue=0) %}                                      
+                {% set currenttotal.bvalue = currenttotal.bvalue + (item.item.unit_price * item.quantity) %}
+                  {% set currenttax = namespace(ctvalue=0) %}
+                  {% for tax in item.item.taxes %}
+                    {% set currenttax.ctvalue = currenttax.ctvalue + tax.tax_rate|float %}
+                  {% endfor %}
+                  {% set taxtotal.tvalue =  taxtotal.tvalue + (currenttotal.bvalue|float * (currenttax.ctvalue|round(5, 'floor')/100) ) %}   
+                  {% set subtotal.value = subtotal.value + currenttotal.bvalue %}
+              {% endfor %}  
+              {% set totaldiscount = namespace(dvalue=0) %}
+              {% set ttdis = namespace(ttdis=0) %}
+              {% set amount = namespace(amount=0) %}
+              {% set percent = namespace(percent=0) %}
+              {% for discount in order.discounts %}                                   
+              {% if discount.discount.type_id == 1 %}
+              {% set amount.amount = amount.amount + discount.discount.value %}
+              {% else %}
+              {% set percent.percent = percent.percent + discount.discount.value|float %}  
+              {% endif %}
+              {% endfor %}
+
+              {% set ttdis.ttdis = subtotal.value|float * (percent.percent|round(5, 'floor')/100)  %}
+              {% set totaldiscount.dvalue = ttdis.ttdis + amount.amount|float %}
+                          
+                <div id="Ticket_Information" class="row">
+                    <div class="header text-center col-md-12">
+                        *** ORDER {{order.id}} ***
+                    </div>
+                    <div class="busdeets col-md-12">
+                        <div class="text-uppercase">
+                            *{{order.type.order_type}}*
+                        </div>                          
+                            <div>
+                                Terminal#: {{term.id}}
+                            </div>                          
+                        <div>
+                            CHK#: {{order.chk_num }}
+                        </div>
+                        <div>
+                            Server: {{order.createdby.first_name}}
+                            </div>
+                            <div>
+                            Printed: {{order.date_created.strftime('%m-%d-%Y %I:%M %p')}}
+                            </div>
+                    </div>                        
+                    <div class="row theads col-md-12">
+                        <div>
+                            ITEM
+                        </div>
+                        <div class="halo col-md-6 row">                           
+                            <div>QTY</div> 
+                            <div>SUB</div>
+                        </div> 
+                    </div>
+                <!--Order Items -->
+                    {% for item in order.items%}                       
+                    <div class="items col-md-12 row">                 
+                        <div>{{item.item.item_name}}</div> 
+                        <div class="halo col-md-6 row" >
+                            <div>{{item.quantity}}</div>
+                            <div>{{'%.2f'|format(item.item.unit_price * item.quantity)}}</div>
+                        </div>                       
+                    </div>                        
+                    {% endfor %}
+                    <div class="totals items row col-md-12">   
+                            <div class="halo col-md-6 row ml-auto">
+                                <div class="subtotal halo col-md-12 row">
+                                    <div> Subtotal $</div>
+                                    <div>{{subtotal.value}}</div>
+                                </div>
+                                <div class="discounts halo col-md-12 row">
+                                    <div >
+                                        Discount $
+                                    </div>
+                                    <div>
+                                        {{totaldiscount.dvalue}}
+                                    </div>
+                                </div>
+                                <div class="totaltax halo col-md-12 row">
+                                    <div>Tax $ </div>                   
+                                    <div>{{'%.2f'|format(taxtotal.tvalue)}} </div>  
+                                </div>
+                            </div>                                                  
+                        </div>
+                        <div class="final items row col-md-12">
+                            <div class="halo col-md-6 row ml-auto">
+                                <div> Total $</div>
+                                <div>{{'%.2f'|format(subtotal.value|float - totaldiscount.dvalue + taxtotal.tvalue)}}</div>
+                            </div>
+                        </div> 
+                    </div>
+               
+                
+                
+                    
+                            
+                        
+                
+        

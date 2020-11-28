@@ -166,6 +166,47 @@ window.addEventListener('DOMContentLoaded', () => {
 
     });
 
+    // ==============Get order info ==========================
+        $(document).on('click', 'button#orderinfobtn', function(e){
+
+            if (document.querySelectorAll('input.row-check:checked').length == 1){
+                checked = $('input.row-check:checked').closest('tr[data-class="orders"]');
+                let id = $(checked).attr('id');
+                let url =  "/return_orders/" + id;
+               
+                $.ajax({
+                    url: url,
+                    type: "POST",
+                    success: function(resp){
+                        $('#orderinfoAppend').append(resp.data)
+                        $('#infoModal').modal('show');
+                    }
+                })
+            }
+            else{
+                Swal.fire({
+                    type: 'error',
+                    text: 'Select an order to view its details',
+                    timer: 2500,
+                });
+                    return;
+            }
+
+        });
+
+    $(document).on('click', '#closeTicketInfo', function(e){
+       clearTicketData();
+    });
+
+    $(document).on('click', '.modal-header button.close', function(e){
+        clearTicketData();
+     });
+    
+
+    function clearTicketData(){
+        $('#Ticket_Information').detach();
+    }
+
     // ====================Ajax==========================
     function ajaxforms(url, type, form){
         $.ajax({
@@ -194,6 +235,11 @@ window.addEventListener('DOMContentLoaded', () => {
       }
     
 });
+
+
+
+
+
 // =========================Callabck========================
 function updateOrders(){
     document.querySelector('#changeStaus').reset();

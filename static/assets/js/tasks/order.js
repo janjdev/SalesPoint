@@ -58,7 +58,8 @@ window.addEventListener('DOMContentLoaded', () => {
             let item = [];
             let inputs = row.querySelectorAll('input');
             inputs.forEach(function(input){
-                item.push($(input).serialize())
+              let i = $(input).serialize()
+              item.push( decodeURIComponent(i));
             });
             items.push(item);
             console.log(items)
