@@ -8,7 +8,7 @@
             </div>
             <div class="phone col-md-12 text-center">{{info.phone}}</div>
         </div>
-        <h3 class="title text-uppercase">sales summary report</h3>
+        <h3 class="title text-uppercase">{% if report %} {{report.alias}}{% else %}sales summary report{% endif %}</h3>
     </div>
 
     

@@ -1,5 +1,5 @@
 
-import sys, os, io, collections, random, string, decimal, csv, tempfile, ast
+import sys, os, io, collections, random, string, csv, tempfile, ast
 from datetime import datetime, timedelta
 from flask import Flask, request, redirect, render_template, session, url_for, abort, jsonify, flash, json
 from flask.helpers import flash
@@ -7,6 +7,7 @@ from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import event, DDL, extract, func
 from sqlalchemy.event import listen
 from jinja2 import TemplateNotFound
+from sqlalchemy.orm import backref
 from sqlalchemy.sql.elements import Null
 from sqlalchemy.sql.schema import ForeignKey
 from werkzeug import datastructures
@@ -23,7 +24,6 @@ from dateutil.tz import *
 app = Flask(__name__)
 app.config.from_pyfile(os.path.join(".", "config.py"), silent=False)
 db = SQLAlchemy(app)
-D = decimal.Decimal
 local = tzlocal()
 
 class Customer(db.Model):
@@ -188,7 +188,7 @@ class Tax(db.Model):
     __tablename__ = "tax"
     id = db.Column(db.Integer, primary_key=True)
     tax_type = db.Column(db.String(20), nullable = False, unique=True)
-    tax_rate = db.Column(db.Numeric(2), nullable=False)
+    tax_rate = db.Column(db.Float(precision='3,2'), nullable=False)
 
     def __init__(self, tax, rate):
         self.tax_type = tax
@@ -208,7 +208,7 @@ class Menu_Item(db.Model):
     __tablename__ = "menu_item"
     id = db.Column(db.Integer, primary_key=True)
     item_name = db.Column(db.String(50), unique=True, nullable = False)
-    unit_price = db.Column(db.Numeric(12, 2), nullable=False) 
+    unit_price = db.Column(db.Float(precision='3,2'), nullable=False) 
     item_category = db.Column(db.Integer, ForeignKey('menu_category.id', ondelete='CASCADE'), nullable=False)  
     item_description = db.Column(db.Text, nullable=True, default="")   
     is_offered = db.Column(db.Boolean, nullable=False)
@@ -283,8 +283,8 @@ class Table(db.Model):
 class OrderTable(db.Model):
     __tablename__ = "order_table"
     id = db.Column(db.Integer, primary_key=True)
-    table = db.Column(db.Integer, ForeignKey("table.id"), nullable=False)
-    order = db.Column(db.Integer, ForeignKey("order.id"), nullable=False)
+    table = db.Column(db.Integer, ForeignKey("table.id", ondelete='CASCADE'), nullable=False)
+    order = db.Column(db.Integer, ForeignKey("order.id",  ondelete='CASCADE'), nullable=False)
     tables = db.relationship('Table', backref='ordertables')
 
     def __init__(self, table, order):
@@ -329,7 +329,7 @@ class Order_Ticket(db.Model):
         self.status_id = statusid     
 
 class Ticket_Status(db.Model):
-    __tablename__ ='ticket_status'
+    __tablename__ ="ticket_status"
     id = db.Column(db.Integer, primary_key=True)
     status_type = db.Column(db.String(10), unique=True, nullable = False)
 
@@ -337,19 +337,31 @@ class Ticket_Status(db.Model):
         self.status_type = status
 
 
+class Report_Type(db.Model):
+    __tablename__ = 'report_type'
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(255), unique=True, nullable = False)
+
+    def __init__(self, name):
+        self.name = name
+
+
 class Report(db.Model):
     __tablename__ = 'report'
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(255), unique=True, nullable = False)
     path = db.Column(db.Text, unique=True, nullable = False)
-    report_type = order_id = db.Column(db.Integer, db.ForeignKey('report_type.id', ondelete='CASCADE'), nullable=False)
+    type_id =  db.Column(db.Integer, db.ForeignKey('report_type.id', ondelete='CASCADE'), nullable=False)
+    alias = db.Column(db.String(255), nullable = True)
+    _type = db.relationship('Report_Type', backref='type')
 
-class Report_Type(db.Model):
-    _tablename__ = 'report_type'
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(255), unique=True, nullable = False)
-
-       
+    def __init__(self, name, path, type, alias):
+        self.name = name
+        self.path = path
+        self.type_id = type
+        self.alias = alias
+   
+      
 
 event.listen(Customer.__table__, 'after_create', DDL(""" INSERT INTO customer (id, name) VALUES (1, 'Guest')"""))
 event.listen(Staff_Role.__table__, 'after_create', DDL(""" INSERT INTO role (id, type) VALUES (1, 'administrator'),  (2, 'user') """))
@@ -360,6 +372,9 @@ event.listen(Discount_Type.__table__, 'after_create', DDL(""" INSERT INTO discou
 event.listen(Ticket_Status.__table__, 'after_create', DDL(""" INSERT INTO ticket_status (id, status_type) VALUES (1, 'Open'),  (2, 'Closed') """))
 event.listen(Printer_Type.__table__, 'after_create', DDL(""" INSERT INTO printer_type (id, name) VALUES (1, 'report'),  (2, 'receipt'), (3, 'kitchen') """))
 event.listen(Report_Type.__table__, 'after_create', DDL(""" INSERT INTO report_type (id, name) VALUES (1, 'report'),  (2, 'chart') """))
+
+
+
 
 #==================Methods=================================================
 def getItemImage(item_id):
@@ -1440,14 +1455,13 @@ def reports():
                     max = datetime.strptime(request.form['todate'], "%m/%d/%Y %I:%M %p").date()
                     orders = Order.query.filter(Order.date_created.between(min, max)).all()
                     numdays = max - min
-                    print(len(orders))
                     iterateData(orders)
-                    
-                    return jsonify({'data': render_template('/reports/keystat.html', data=iterateData(orders), orders=orders, info=getBusInfo(), currenttime=datetime.now(), fromdate=min, todate=max, numdays=numdays)})
+                    report = Report.query.filter_by(id = request.form['report']).first()                    
+                    return jsonify({'data': render_template(report.path, data=iterateData(orders), orders=orders, info=getBusInfo(), currenttime=datetime.now(), fromdate=min, todate=max, numdays=numdays,  report=report)})
                 else:
                     return jsonify({'message': 'Query not found', 'alertType': 'success', 'timer': 500}) 
             else:
-                return render_template('/admin/dash/pages/reports.html', title="SalesPoint - Version 1.0-build 1", bodyClass="reports",  report_active='active',  date=getDate(), role=session.get('role'), user=getUser() )
+                return render_template('/admin/dash/pages/reports.html', title="SalesPoint - Version 1.0-build 1", bodyClass="reports",  report_active='active',  date=getDate(), role=session.get('role'), user=getUser(), reports=Report.query.all() )
     return redirect(url_for('logout'))
 
 @app.route('/return_orders/<int:id>', methods=['POST'])

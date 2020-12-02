@@ -600,7 +600,7 @@ p.instructions {
     justify-content: space-between;
 }
 
-.totals .halo div, .final .halo div{
+.totals .halo div, .final .halo div, .halo{
     margin: 0;
     padding: 0;
 }
@@ -710,6 +710,10 @@ button#send {
       margin-top: 50px;
   }
 
+  /* Balance Report */
+  .gross{
+      border-bottom:dashed;
+  }
 .navbar .collapse .navbar-nav .nav-item .nav-link{
     color: #9c27b0;
 }

@@ -135,12 +135,14 @@ window.addEventListener('DOMContentLoaded', () => {
     e.preventDefault();
     let command = $(this).data('command');
     if(command == 'bold' || command == 'underline' || command == 'strikeThrough' || command == 'superscript'){
+        document.execCommand($(this).data('command'), false, null);
     }
     if(command == 'backColor' || command == 'foreColor'){
       $(this).next().children('input').trigger('click');
         let input = $(this).next().children();      
         input.on('change', function(e){
         let val = $(input).val();
+        console.log(val);
         document.execCommand(command, false, val);
       })
     }

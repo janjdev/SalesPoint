@@ -1,0 +1,44 @@
+<div class="container" contenteditable="true">
+    {% include 'reports/header.html' %}
+    <div class="row col-md-12">
+        <h3 class="text-center col-md-12 border-top border-bottom" >{{report.name}}</h3>
+        <div class="col-md-4">
+            <h4 class="text-uppercase">RECEIPTS SUMMARY:</h4>
+        </div>
+    </div>
+    <div class="row col-md-12 justify-content-center">
+        <div class="col-md-7">
+            <div class="gross">
+                <h4 class="text-uppercase">GRosS SALES:</h4>
+                <div class="row h4 halo justify-content-between">
+                    <div  class="text-uppercase">+GRS TAXABLE SALES</div>
+                    <div>${{'%.2f'|format(data.gross)}}</div>
+                </div>
+                <div class="row h4 halo justify-content-between">
+                    <div  class="text-uppercase">- DISCOUNTS</div>
+                    <div>${{'%.2f'|format(data.discount)}}</div>
+                </div>
+                <div class="row h4 halo justify-content-between">
+                    <div  class="text-uppercase">=NET SALES</div>
+                    <div>${{'%.2f'|format(data.gross-data.discount)}}</div>
+                </div>
+            </div>
+            <div class="gross">
+                <div class="row h4 halo justify-content-between">
+                    <div class="text-uppercase">NET SALES</div>
+                    <div>${{'%.2f'|format(data.gross-data.discount)}}</div>
+                </div>
+                <div class="row h4 halo justify-content-between">
+                    <div class="text-uppercase">+SALES TAXES</div>
+                    <div>${{'%.2f'|format(data.tax)}}</div>
+                </div>
+            </div>
+            <div class="row h4 halo justify-content-between">
+                <div class="row h4 halo justify-content-between">=TOTAL REVENUES</div>
+                <div>${{'%.2f'|format((data.gross-data.discount)+(data.tax))}}</div>
+            </div>
+        </div>
+    </div>
+
+
+</div>

@@ -17,7 +17,11 @@
                     </div>                    
                     <select  class="dbAction selectpicker col-md-3" data-style="select-with-transition" id="report" name="report" >                     
                             <option selected value="">Choose A Report</option>
-                            <option value="1">Key Statistics</option>
+                            {% if reports %}
+                            {% for report in reports %}
+                            <option class="text-uppercase" value="{{report.id}}">{{report.name}}</option>
+                            {% endfor %}
+                            {% endif %}
                     </select>
                     
                         <button id="send" type="submit" form="reportForm" class="send btn btn-sm btn-round">
@@ -97,7 +101,7 @@
           <div class="card-body">
             <div>
                 <h4 class="card-title">{% if report %} {{report.name}}{% else %}Generated Data{% endif %}</h4>
-                <p class="card-category">{% if report %} {{report.type}}{% else %}Reports and Charts{% endif %}</p>
+                <p class="card-category">{% if report %} {{report._type.name}}{% else %}Reports and Charts{% endif %}</p>
             </div>
             <div class="row animated" id="data">
                 <div id="holder" class="row col-md-12 justify-content-center animated zoomIn">
