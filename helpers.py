@@ -150,3 +150,168 @@ def Load_Data(file_name):
         data = list(reader)
         print(data)
     return data 
+
+def iterateData(data, opennum=0, paidnum=0, refundnum=0, voidnum=0, pendnum=0,open=0,paid=0,refund=0,void=0,pend=0,inamount=0,outamount=0,innum=0,outnum=0,gross=0,totaldiscount=0,totaltax=0):
+    for i in data:
+        if i.type_id == 1:   
+            innum+=1
+            subtotal=0
+            tax= 0
+            od= 0
+            for item in i.items:
+                qty = item.quantity
+                price = item.item.unit_price
+                subtotal = float(qty * price)
+                for t in item.item.taxes:
+                    tax+= float(t.tax_rate)
+            taxdis =0
+            for dis in i.discounts:                
+                if dis.discount.type_id == 1:
+                    od += float(dis.discount.value)
+                else:
+                    taxdis += float(dis.discount.value)
+            od+=(taxdis*subtotal)
+            inamount+= ((subtotal- od)+tax)
+        if i.type_id == 2:
+                outnum+=1
+                subtotal=0
+                tax = 0
+                od =0
+                for item in i.items:
+                    qty = item.quantity
+                    price = item.item.unit_price
+                    subtotal = float(qty * price)
+                    for t in item.item.taxes:
+                        tax+= float(t.tax_rate)
+                taxdis =0
+                for dis in i.discounts:                
+                    if dis.discount.type_id == 1:
+                        od += float(dis.discount.value)
+                    else:
+                        taxdis += float(dis.discount.value)
+                od+=(taxdis*subtotal)
+                outamount+= ((subtotal- od)+tax)
+           
+    # Calculate by status
+    for i in data:
+        # open orders
+        if i.status_id == 1:
+            opennum+=1
+            subtotal=0
+            tax=0
+            od=0
+            for item in i.items:
+                qty = item.quantity
+                price = item.item.unit_price
+                subtotal = float(qty * price)
+                gross+=subtotal
+                for t in item.item.taxes:
+                    tax+= float(t.tax_rate)
+                totaltax+= (tax*subtotal)
+            taxdis =0
+            for dis in i.discounts:                
+                if dis.discount.type_id == 1:
+                    od += float(dis.discount.value)
+                else:
+                    taxdis += float(dis.discount.value)
+            od+=(taxdis*subtotal)
+            totaldiscount+=od
+            open+= ((subtotal- od)+tax)
+        # paid/settled order
+        if i.status_id == 2:
+            paidnum+=1
+            subtotal=0
+            tax=0
+            od=0
+            for item in i.items:
+                qty = item.quantity
+                price = item.item.unit_price
+                subtotal = float(qty * price)
+                gross+=subtotal
+                for t in item.item.taxes:
+                    tax+= float(t.tax_rate)
+                totaltax+= (tax*subtotal)
+            taxdis =0
+            for dis in i.discounts:                
+                if dis.discount.type_id == 1:
+                    od += float(dis.discount.value)
+                else:
+                    taxdis += float(dis.discount.value)
+            od+=(taxdis*subtotal)
+            totaldiscount+=od
+            paid+= ((subtotal-od)+tax)
+
+        # void orders
+        if i.status_id == 3:
+            voidnum+=1
+            subtotal=0
+            tax=0
+            od=0
+            for item in i.items:
+                qty = item.quantity
+                price = item.item.unit_price
+                subtotal = float(qty * price)
+                gross+=subtotal
+                for t in item.item.taxes:
+                    tax+= float(t.tax_rate)
+                totaltax+= (tax*subtotal)
+            taxdis =0
+            for dis in i.discounts:                
+                if dis.discount.type_id == 1:
+                    od += float(dis.discount.value)
+                else:
+                    taxdis += float(dis.discount.value)
+            od+=(taxdis*subtotal)
+            totaldiscount+=od
+            void+= ((subtotal-od)+tax)
+        
+        # refund
+        if i.status_id == 4:
+            refundnum+=1
+            subtotal=0
+            tax = 0
+            od =0
+            for item in i.items:
+                qty = item.quantity
+                price = item.item.unit_price
+                subtotal = float(qty * price)
+                gross+=subtotal
+                for t in item.item.taxes:
+                    tax+= float(t.tax_rate)
+                totaltax+= (tax*subtotal)
+            taxdis =0
+            for dis in i.discounts:                
+                if dis.discount.type_id == 1:
+                    od += float(dis.discount.value)
+                else:
+                    taxdis += float(dis.discount.value)
+            od+=(taxdis*subtotal)
+            totaldiscount+=od
+            refund+= ((subtotal-od)+tax)
+        
+        # pending
+        if i.status_id == 5:
+            pendnum +=1
+            subtotal=0
+            tax = 0
+            od =0
+            for item in i.items:
+                qty = item.quantity
+                price = item.item.unit_price
+                subtotal = float(qty * price)
+                gross+=subtotal
+                for t in item.item.taxes:
+                    tax+= float(t.tax_rate)
+                    totaltax+= (tax*subtotal)
+            taxdis=0
+            for dis in i.discounts:                
+                if dis.discount.type_id == 1:
+                    od += float(dis.discount.value)
+                else:
+                    taxdis += float(dis.discount.value)
+            od+=(taxdis*subtotal)
+            totaldiscount+=od
+            pend+= ((subtotal-od)+tax) 
+
+    return {'openorders': opennum, 'open': open, 'voidorders': voidnum, 'void': void, 'paidorders': paidnum, 'paid': paid, 'refundorders': refundnum, 'refund': refund, 'pendingorders': pendnum, 'pend': pend, 'in': innum, 'inamount': inamount, 'out': outnum, 'outamount': outamount, 'gross': gross, 'discount': totaldiscount, 'tax': totaltax}
+    

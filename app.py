@@ -16,6 +16,7 @@ from mimetypes import MimeTypes
 from werkzeug.utils import secure_filename
 from collections import defaultdict
 from sqlalchemy.exc import IntegrityError
+from dateutil.tz import *
 
 
 
@@ -23,6 +24,7 @@ app = Flask(__name__)
 app.config.from_pyfile(os.path.join(".", "config.py"), silent=False)
 db = SQLAlchemy(app)
 D = decimal.Decimal
+local = tzlocal()
 
 class Customer(db.Model):
     __tablename__ = "customer"
@@ -40,6 +42,7 @@ class Staff(db.Model):
     last_name = db.Column(db.String(255), nullable = False)
     staff_id = db.Column(db.NCHAR(6), nullable=False)
     id_updated = db.Column(db.Boolean)
+    inactive_date = db.Column(db.Date, nullable=True)
     position_id = db.Column(db.Integer, db.ForeignKey('position.id'))
     role_id = db.Column(db.Integer, db.ForeignKey('role.id'))
     is_active = db.Column(db.Boolean)
@@ -316,7 +319,7 @@ class Order_Ticket(db.Model):
     order_id = db.Column(db.Integer, db.ForeignKey('order.id', ondelete='CASCADE'), nullable=False)
     created_on = db.Column(db.DateTime, nullable=False, default=datetime.now())
     status_id = db.Column(db.Integer, db.ForeignKey('ticket_status.id', ondelete='CASCADE'), nullable=False)
-    closed_on = db.Column(db.DateTime, nullable=False, default=datetime.now())
+    closed_on = db.Column(db.DateTime, nullable=True)
     closed_by = db.Column(db.Integer, db.ForeignKey('staff.id', ondelete='CASCADE'), nullable=True)
     status = db.relationship('Ticket_Status', backref="ticketstatus")
     order = db.relationship('Order', backref="ticketorder")
@@ -332,6 +335,20 @@ class Ticket_Status(db.Model):
 
     def __init__(self, status):
         self.status_type = status
+
+
+class Report(db.Model):
+    __tablename__ = 'report'
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(255), unique=True, nullable = False)
+    path = db.Column(db.Text, unique=True, nullable = False)
+    report_type = order_id = db.Column(db.Integer, db.ForeignKey('report_type.id', ondelete='CASCADE'), nullable=False)
+
+class Report_Type(db.Model):
+    _tablename__ = 'report_type'
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(255), unique=True, nullable = False)
+
        
 
 event.listen(Customer.__table__, 'after_create', DDL(""" INSERT INTO customer (id, name) VALUES (1, 'Guest')"""))
@@ -342,6 +359,7 @@ event.listen(Order_Type.__table__, 'after_create', DDL(""" INSERT INTO order_typ
 event.listen(Discount_Type.__table__, 'after_create', DDL(""" INSERT INTO discount_type (id, name) VALUES (1, 'Amount'),  (2, 'Percentage') """))
 event.listen(Ticket_Status.__table__, 'after_create', DDL(""" INSERT INTO ticket_status (id, status_type) VALUES (1, 'Open'),  (2, 'Closed') """))
 event.listen(Printer_Type.__table__, 'after_create', DDL(""" INSERT INTO printer_type (id, name) VALUES (1, 'report'),  (2, 'receipt'), (3, 'kitchen') """))
+event.listen(Report_Type.__table__, 'after_create', DDL(""" INSERT INTO report_type (id, name) VALUES (1, 'report'),  (2, 'chart') """))
 
 #==================Methods=================================================
 def getItemImage(item_id):
@@ -650,11 +668,20 @@ def order():
                     order.notes = request.form['notes']
                     order.last_changed_by_id = session.get('id')
                     order.date_last_changed = datetime.now()                    
-                    # create new order ticket
-                    ot = Order_Ticket(order.id, 1)
-                    db.session.add(ot)
-                    olditems = Order_Items.query.filter_by(order_id = order.id).all()
-                    db.session.delete(olditems)
+                    # update order ticket or create new ticket
+                    if Order_Ticket.query.filter_by(order_id = order.id).first() is not None:
+                        ot =  Order_Ticket.query.filter_by(order_id = order.id).first()
+                        ot.status = Ticket_Status.query.filter_by(id = 1).first()
+                        ot.closed_on = None
+                        # Order_Ticket.query.filter_by(order_id = order.id).update({Order_Ticket.created_on: datetime.now(), Order_Ticket.status: 1, Order_Ticket.closed_on: None})
+                    else:
+                        ot = Order_Ticket(order.id, 1)                
+                    # remove all previous items
+                    Order_Items.query.filter_by(order_id = order.id).delete()
+                    # remove all previous discounts
+                    Order_Discount.query.filter_by(order_id = order.id).delete()
+                    # remove all previous tables assigned
+                    OrderTable.query.filter_by(order = order.id).delete()
                     db.session.commit()
                     for item in items:
                         if 'itemname' in item.keys():
@@ -670,11 +697,11 @@ def order():
                                 taxes = item['taxes']
                                 for tax in taxes:
                                     newit = ItemTax(int(tax), newmenuitem.id)
-                                    db.seession.add(newit)
+                                    db.session.add(newit)
                                     db.session.commit()
                                 neworderitem = Order_Items(order.id, newmenuitem.id, item['qty'], item['itemnote'])
-                                db.session.add(neworderitem)
-                        else:    
+                                db.session.add(neworderitem)                    
+                        else:
                             newitem = Order_Items(order.id, item['item'], item['qty'], item['itemnote'])
                             db.session.add(newitem)                        
                     if 'ordertable' in request.form.keys():
@@ -756,7 +783,7 @@ def orders():
                    session['role'] = "Administrator"              
                 return jsonify({'status': 'success', 'alertType': 'success', 'timer': 500, 'callback': 'goTo', 'param': '/orders'})
             else:
-                return jsonify({'status': 'error', 'message': 'No Permission', 'alertType': 'error'})
+                return jsonify({'status': 'error', 'message': 'Permission Restricted', 'alertType': 'error'})
         else:
             return jsonify({'status': 'error', 'message': 'ID Not Found', 'alertType': 'error'})    
     if 'id' in session:
@@ -814,7 +841,7 @@ def reopen(orderid):
         staff = Staff.query.filter_by(id = session.get('id')).first()
         customers = Customer.query.filter(Customer.id > 1).all()
         order = Order.query.filter_by(id = orderid).first()                 
-        return render_template('tasks/pages/new_order.html', title="SalesPoint - Version 1.0-build 1.0.1", bodyClass='shared-tasks', images=getImages(), date=getDate(), user=staff, ordertype=order.type.order_type, orderstatus="Edit Ticket", cat=getActiveCat(), items=getOfferedItems(), orderstatusID=order.status_id, ordertypeID=order.type_id, customers=customers, taxes=Tax.query.all(), order=order, typeclass=order.type.order_type)
+        return render_template('tasks/pages/new_order.html', title="SalesPoint - Version 1.0-build 1.0.1", bodyClass='shared-tasks', images=getImages(), date=getDate(), user=staff, ordertype=order.type.order_type, orderstatus="Edit Ticket", cat=getActiveCat(), items=getOfferedItems(), orderstatusID=order.status_id, ordertypeID=order.type_id, customers=customers, taxes=Tax.query.all(), order=order, typeclass=order.type.order_type, discounts=getDiscounts())
     return redirect(url_for('logout'))
 
 
@@ -830,7 +857,7 @@ def kitchen():
                     session['role'] = "Administrator"                         
                     return jsonify({'status': 'success', 'alertType': 'success', 'timer': 500, 'callback': 'goTo', 'param': url_for('dine_in')})
             else:
-                return jsonify({'status': 'error', 'message': 'No Permission', 'alertType': 'error'})
+                return jsonify({'status': 'error', 'message': 'Permission Restricted', 'alertType': 'error'})
         else:
             return jsonify({'status': 'error', 'message': 'ID Not Found', 'alertType': 'error'})
     if 'id' in session:
@@ -868,7 +895,7 @@ def admin():
         if 'id' in session:
             if session.get('role') == 'Administrator':
                 user = Staff.query.filter_by(id = session.get('id')).first()               
-                return render_template('admin/dash/pages/dash.html', title="SalesPoint - Version 1.0-build 1", bodyClass='dashboard', time=datetime.now().strftime("%I:%M"), daynight=datetime.now().strftime("%p"), user=user, date=getDate(), role=session.get('role'), orders=Order.query.all(), cats=getActiveCat(), taxes=Tax.query.all(), printers=Printer_Type.query.all())
+                return render_template('admin/dash/pages/dash.html', title="SalesPoint - Version 1.0-build 1", bodyClass='dashboard', time=datetime.now().strftime("%I:%M%Z"), daynight=datetime.now().strftime("%p"), user=user, date=getDate(), role=session.get('role'), orders=Order.query.all(), cats=getActiveCat(), taxes=Tax.query.all(), printers=Printer_Type.query.all())
         return redirect(url_for('home'))
 
 
@@ -949,18 +976,51 @@ def add_staff():
 @app.route('/staff/edit/<int:user_id>', methods=['POST'])
 def edit_staff(user_id):
     if session.get('role') == 'Administrator':
-        if request.method == 'POST':        
-            user = Staff.query.filter_by(id = user_id).first()
-            user.first_name = request.form['fname']
-            user.last_name = request.form['lname']
-            user.position_id = request.form['position']
-            user.role_id = request.form['role']
-            if 'status' in request.form:
-                user.is_active = True
+        if request.method == 'POST':
+            if 'delete' in request.form:
+                y = str(session.get('id')) == request.form['delete']              
+                if y == True:                   
+                    return jsonify({'status': 'error', 'message': 'User Logged In', 'alertType': 'error', 'timer': 3500})
+                else:
+                    st = Staff.query.filter_by(id = request.form['delete']).first()
+                    stod = Order.query.filter(Order.created_by_id == st.id).first() is not None
+                    if stod:
+                        od =  Order.query.filter(Order.created_by_id == st.id).order_by(Order.date_created.desc()).first()
+                        now =  datetime.now()
+                        exp = now - timedelta(days=30)                  
+                        if od.date_created > exp:
+                            return jsonify({'status': 'error', 'message': 'User has activity in the last 30 days', 'alertType': 'error', 'timer': 3500})
+                    else:
+                        db.session.delete(st)
+                        db.session.commit()
+                        return jsonify({'message': 'OK', 'alertType': 'success', 'timer': 500, 'callback': 'goTo', 'param' : url_for('staff')})
+            elif 'inactive' in request.form:
+                y = str(session.get('id')) == request.form['inactive']              
+                if y == True:                   
+                    return jsonify({'status': 'error', 'message': 'User Logged In', 'alertType': 'error', 'timer': 500})
+                else:
+                    Staff.query.filter_by(id = request.form['inactive']).first().is_active = False
+                    Staff.query.filter_by(id = request.form['inactive']).first().inactive_date = datetime.now().date()
+                    db.session.commit()
+                    return jsonify({'message': 'OK', 'alertType': 'success', 'timer': 500, 'callback': 'goTo', 'param' : url_for('staff')})                    
+            elif 'active' in request.form:
+                print(type(request.form['active']))    
+                Staff.query.filter_by(id = request.form['active']).first().is_active = True
+                Staff.query.filter_by(id = request.form['active']).first().inactive_date =None
+                db.session.commit()
+                return jsonify({'message': 'OK', 'alertType': 'success', 'timer': 500, 'callback': 'goTo', 'param' : url_for('staff')})           
             else:
-                user.is_active = False   
-            db.session.commit()
-            return jsonify({'message': 'OK', 'alertType': 'success', 'timer': 500, 'callback': 'goTo', 'param' : url_for('staff')})
+                user = Staff.query.filter_by(id = user_id).first()
+                user.first_name = request.form['fname']
+                user.last_name = request.form['lname']
+                user.position_id = request.form['position']
+                user.role_id = request.form['role']
+                if 'status' in request.form:
+                    user.is_active = True
+                else:
+                    user.is_active = False   
+                db.session.commit()
+                return jsonify({'message': 'OK', 'alertType': 'success', 'timer': 5000, 'callback': 'goTo', 'param' : url_for('staff')})
         else:
             return redirect(url_for('staff'))
     return redirect(url_for('logout'))
@@ -1367,10 +1427,27 @@ def setActive(tableid):
 
 
 # ======================REPORTS========================
-@app.route('/reports', methods=['GET', 'POST'])
+@app.route('/reports',   methods=['GET', 'POST'])
 def reports():
     if 'id' in session:
-        return render_template('/admin/dash/pages/reports.html', title="SalesPoint - Version 1.0-build 1", bodyClass="reports",  report_active='active',  date=getDate(), role=session.get('role'), user=getUser() )
+        if session.get('role') == 'Administrator':
+            if request.method == 'POST':
+                min = datetime
+                max = datetime
+                if 'fromdate' in request.form:
+                    min = datetime.strptime(request.form['fromdate'], "%m/%d/%Y %I:%M %p").date()
+                if 'todate' in request.form:
+                    max = datetime.strptime(request.form['todate'], "%m/%d/%Y %I:%M %p").date()
+                    orders = Order.query.filter(Order.date_created.between(min, max)).all()
+                    numdays = max - min
+                    print(len(orders))
+                    iterateData(orders)
+                    
+                    return jsonify({'data': render_template('/reports/keystat.html', data=iterateData(orders), orders=orders, info=getBusInfo(), currenttime=datetime.now(), fromdate=min, todate=max, numdays=numdays)})
+                else:
+                    return jsonify({'message': 'Query not found', 'alertType': 'success', 'timer': 500}) 
+            else:
+                return render_template('/admin/dash/pages/reports.html', title="SalesPoint - Version 1.0-build 1", bodyClass="reports",  report_active='active',  date=getDate(), role=session.get('role'), user=getUser() )
     return redirect(url_for('logout'))
 
 @app.route('/return_orders/<int:id>', methods=['POST'])

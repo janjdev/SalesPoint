@@ -78,12 +78,12 @@
                                         Discount $
                                     </div>
                                     <div>
-                                        {{totaldiscount.dvalue}}
+                                        {{'%.2f'|format(totaldiscount.dvalue|float)}}
                                     </div>
                                 </div>
                                 <div class="totaltax halo col-md-12 row">
                                     <div>Tax $ </div>                   
-                                    <div>{{'%.2f'|format(taxtotal.tvalue)}} </div>  
+                                    <div>{{'%.2f'|format(taxtotal.tvalue|float)}} </div>  
                                 </div>
                             </div>                                                  
                         </div>

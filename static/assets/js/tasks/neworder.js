@@ -241,6 +241,7 @@ window.addEventListener('DOMContentLoaded', () => {
           let subtotal=0, tax=0;           
             qty = $(row).find('input[name="qty"]').val();
             price = $(row).find('input[name="price"]').val();
+            console.log( row.querySelectorAll('input[name="taxes"]'));
             row.querySelectorAll('input[name="taxes"]').forEach(function(itax){
               let t = itax.getAttribute('data-value');
               tax+= parseFloat(t)/100
@@ -258,10 +259,10 @@ window.addEventListener('DOMContentLoaded', () => {
 
         orderdiscounts.forEach(function(discount){
           console.log(typeof discount.getAttribute('data-type'));
-            if (discount.getAttribute('data-type') == 1){
+            if (discount.getAttribute('data-type') == 1){              
                 totalAmount += parseInt(discount.getAttribute('data-value'));
             }else{
-              totalPercent += discount.getAttribute('data-value');
+              totalPercent += parseFloat(discount.getAttribute('data-value'));
             }
         });
 

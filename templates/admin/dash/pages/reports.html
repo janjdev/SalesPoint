@@ -1,4 +1,114 @@
 {% extends 'admin/dash/componets/base.html' %}
 {% block content %}
 {% include 'shared/logs.html' %}
+<div class="row justify-content-center">
+    <div class="col-md-10">
+        <div class="card card-chart">
+          <div class="card-header card-header-success" >
+            <form id="reportForm" method="POST">           
+                <div class="row justify-content-between ml-auto mr-auto">               
+                    <div class="form-group col-md-3">
+                        <label for="fromdate">From:</label>                    
+                        <input type="text" class="form-control datetimepicker1" placeholder="" name="fromdate" autocomplete="off" required>
+                    </div> 
+                    <div class="form-group col-md-3"> 
+                        <label for="todate">To:</label>                   
+                        <input type="text" class="form-control datetimepicker2" placeholder="" name="todate" autocomplete="off" required>
+                    </div>                    
+                    <select  class="dbAction selectpicker col-md-3" data-style="select-with-transition" id="report" name="report" >                     
+                            <option selected value="">Choose A Report</option>
+                            <option value="1">Key Statistics</option>
+                    </select>
+                    
+                        <button id="send" type="submit" form="reportForm" class="send btn btn-sm btn-round">
+                            <div class="sendbtnword text-center text-uppercase">go</div>
+                        </button>
+                     
+                </div>
+            </form> 
+            <div class="toolbar justify-content-center">
+                <div class="toolsholder">
+                    <div class="col-md-1 tools">
+                        <a href="#" data-command='fontName' class="mdb-color-text" title="Fonts"><i class='fas fa-font'></i></a>
+                        <div class="js-example-basic-single editorInputs">
+                            <select class="selectpicker" data-size="5" title="Font Type">
+                                <option value="Raleway">Raleway</option>
+                                <option value="Roboto">Roboto</option>
+                                <option value="Open Sans">Open Sans</option>
+                                <option value="ZCOOL KuaiLe">ZCOOL KuaiLe</option>
+                                <option value="Arial">Arial</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-1 tools">
+                        <a class="mdb-color-text" href="#" data-command='fontSize'  title="Font Size"><i class='material-icons'>format_size</i></a>
+                        <div class="js-example-basic-single editorInputs">
+                            <select class="selectpicker" data-size="7" title="Font Size">
+                                <option value="1">10px</option>
+                                <option value="2">13px</option>
+                                <option value="3">16x</option>
+                                <option value="4">18px</option>
+                                <option value="5">24px</option>
+                                <option value="6">32px</option>
+                                <option value="7">48px</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-1 tools"><a class="mdb-color-text" href="#" data-command='foreColor'  title="Font Color"><i class='material-icons'>text_format</i></a>
+                        <div class="font-color">
+                            <input type="color" name="color" id="fontColor"/>
+                        </div>
+                    </div>
+                    <div class="col-md-1 tools"><a class="mdb-color-text" href="#" data-command='heading' title="Headings"><i class='fas fa-heading'></i></a>
+                        <div class="js-example-basic-single editorInputs">
+                            <select class="selectpicker"  data-size="6" title="Heading">
+                                <option value="H1">H1</option>
+                                <option value="H2">H2</option>
+                                <option value="H3">H3</option>
+                                <option value="H4">H4</option>
+                                <option value="H5">H5</option>
+                                <option value="H6">H6</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-1 tools"><a class="mdb-color-text" href="#" data-command='insertParagraph'  title="New Paragraph"><i class='fas fa-paragraph'></i></a></div>
+                    <div class="col-md-1 tools"><a class="mdb-color-text" href="#" data-command='justifyLeft'  title="Align Left"><i class='fas fa-align-left'></i></a></div>
+                    <div class="col-md-1 tools"><a class="mdb-color-text" href="#" data-command='justifyCenter'  title="Align Center"><i class='fas fa-align-center'></i></a></div>
+                    <div class="col-md-1 tools"><a class="mdb-color-text" href="#" data-command='justifyFull' title="Justify"><i class='fas fa-align-justify'></i></a></div>
+                    <div class="col-md-1 tools"><a class="mdb-color-text" href="#" data-command='justifyRight'  title="Align Right"><i class='fas fa-align-right'></i></a></div>
+                    <div class="col-md-1 tools"><a class="mdb-color-text" href="#" data-command='superscript' title="Superscript"><i class='fa fa-superscript'></i></a></div>
+                </div>
+                <div class="toolsholder">
+                    <div class="col-md-1 tools"><a class="mdb-color-text" href="#" data-command='undo'  title="Undo"><i class='fas fa-undo'></i></a></div>
+                    <div class="col-md-1 tools"><a class="mdb-color-text" href="#" data-command='redo'  title="Redo"><i class='fas fa-redo'></i></a></div>
+                    <div class="col-md-1 tools"><a class="mdb-color-text" href="#" data-command='backColor'  title="Background Color"><i class='fas fa-fill-drip'></i></a>
+                        <div class="font-color">
+                            <input type="color" name="color" id="fontColor"/>
+                        </div>
+                    </div>
+                    <div class="col-md-1 tools"><a class="mdb-color-text" href="#" data-command='cut'  title="Cut"><i class='fa fa-cut'></i></a></div>
+                    <div class="col-md-1 tools"><a class="mdb-color-text" href="#" data-command='copy'  title="Copy"><i class="far fa-copy"></i></a></div> 
+                    <div class="col-md-1 tools"><a class="mdb-color-text" href="#" data-command='underline' title="Underline"><i class='material-icons'>format_underlined</i></a></div>
+                    <div class="col-md-1 tools"><a class="mdb-color-text" href="#" data-command='strikeThrough'  title="Strikethrough"><i class='material-icons'>strikethrough_s</i></a></div>
+                    <div class="col-md-1 tools"><a class="mdb-color-text" href="#" data-command='bold'   title="Bold"><i class='material-icons'>format_bold</i></a></div>
+                </div>   
+            </div> 
+          </div>        
+          <div class="card-body">
+            <div>
+                <h4 class="card-title">{% if report %} {{report.name}}{% else %}Generated Data{% endif %}</h4>
+                <p class="card-category">{% if report %} {{report.type}}{% else %}Reports and Charts{% endif %}</p>
+            </div>
+            <div class="row animated" id="data">
+                <div id="holder" class="row col-md-12 justify-content-center animated zoomIn">
+                    <div id="holderText" class="col-md-12 text-center"><h2>Awaiting Data</h2></div>
+                    <div id="spinner" class="lds-grid"><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div></div>
+                </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+</div>
+<script src="{{ url_for('static', filename='assets/js/dash/dash-reports.js')}}"></script>
 {% endblock %}

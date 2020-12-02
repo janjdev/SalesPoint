@@ -30,8 +30,8 @@ window.addEventListener('DOMContentLoaded', () => {
   
   
   //Toggle Actions Enabled
-  $('tr.True button[data-func="active"]').attr('disabled', true);
-  $('tr.False button[data-func="terminate"]').attr('disabled', true);
+  // $('tr.True button[data-func="active"]').attr('disabled', true);
+  // $('tr.False button[data-func="terminate"]').attr('disabled', true);
 
   //Function to disable multi row select in staff table
   staffChecks.forEach(function(check){
@@ -71,10 +71,11 @@ window.addEventListener('DOMContentLoaded', () => {
             if (checked.length < 1){
               Swal.fire({
                 type: 'error',
-                text: 'Select a staff row to ' + func,
+                title: 'No Staff Selected',
+                text: 'Click the checkbox next to the user to' + func,
                 timer: 2000,
-
               })
+              return;
             }
             else
             {
@@ -93,17 +94,16 @@ window.addEventListener('DOMContentLoaded', () => {
               else
               {
                 document.querySelector('input[name="status"]').removeAttribute('checked');
-              }
-              $('#staffModal').modal('show');             
+              }          
+            }
 
-            }            
+              $('#staffModal').modal('show');             
           }
 
         if (func == 'edit')
         {
           page = '/staff/edit/' + id;
         }
-      
         //set the action of the form
         form.setAttribute('action', page);
         });
@@ -114,6 +114,7 @@ window.addEventListener('DOMContentLoaded', () => {
         e.preventDefault();
         id = action.getAttribute('data-id');
         func = action.getAttribute('data-func');
+        console.log(func);
         if (func == 'edit')
         {
           page = '/staff/edit/' + id;
@@ -122,7 +123,7 @@ window.addEventListener('DOMContentLoaded', () => {
         {
           page = action.getAttribute('data-href');
         }
-        if (func != 'terminate')
+        if (func == 'copy' || func == 'edit')
         {
           //Is offered         
           if ($('tr#' + id + ' td.status').attr('data-status') == 'True')
@@ -143,35 +144,14 @@ window.addEventListener('DOMContentLoaded', () => {
           $('#staffModal').modal('show');  
         }
         else{
-          Swal.fire({
-            title: 'Are you sure?',
-            text: 'Terminate: ' + $('tr#' + id + ' td.first_name')[0].innerText + ' ' + $('tr#' + id + ' td.last_name')[0].innerText,
-            type: 'warning',
-            showCancelButton: true,
-            confirmButtonText: 'Yes!',
-            cancelButtonText: 'No, cancel!',
-            reverseButtons: true
-          }).then((result) => {
-            if (result.value) {
-             Swal.fire({
-              title: 'Deleted!',
-              text: 'Your file has been deleted.',
-               type: 'success'
-             })
-            } else if (
-              /* Read more about handling dismissals below */
-              result.dismiss === Swal.DismissReason.cancel
-            ) {
-              Swal.fire({
-              title:  'Cancelled',
-              text:  'Your imaginary file is safe :)',
-              type:  'error'
-              })
-            }
-            
-            
-          });
-          
+          let aform = document.createElement('form'), bput = document.createElement('input');
+          bput.value = id;
+          bput.setAttribute('name', func)
+          aform.appendChild(bput);
+          url = '/staff/edit/' + id;
+          type = 'POST';
+          form = aform;
+          ajaxforms(url, type, form);
 
         }
         
@@ -182,7 +162,46 @@ window.addEventListener('DOMContentLoaded', () => {
       form.reset();
   });
 
-
+  // Delete a User
+    $(document).on('click', '#delete', function(e){    
+      if (checked.length < 1){
+        Swal.fire({
+          type: 'error',
+          title: 'No Staff Selected',
+          text: 'Click the checkbox next to the user to terminate',
+          timer: 2000,
+        })
+      }else{  
+        id = checked[0].closest('tr').getAttribute('id');
+        Swal.fire({
+          title: 'Are you sure?',
+          text: 'Terminate: ' + $('tr#' + id + ' td.first_name')[0].innerText + ' ' + $('tr#' + id + ' td.last_name')[0].innerText,
+          type: 'warning',
+          showCancelButton: true,
+          confirmButtonText: 'Yes!',
+          cancelButtonText: 'No, cancel!',
+          reverseButtons: true
+        }).then((result) => {
+          if (result.value) {
+            let bform = document.createElement('form'), cput = document.createElement('input');
+            cput.value = id; 
+            console.log(cput.value); 
+            cput.setAttribute('name', 'delete')
+            bform.appendChild(cput);
+            url = '/staff/edit/' + id;
+            type = 'POST';
+            form = bform;
+            ajaxforms(url, type, form);
+         
+          } else if (
+            /* Read more about handling dismissals below */
+            result.dismiss === Swal.DismissReason.cancel
+          ) {
+            
+          }
+        });
+      }    
+    })
 
   jQuery(form).on('submit', function(e){
     e.preventDefault();    

@@ -53,10 +53,21 @@
                   <button data-id="{{ staff.staff.id }}" type="button" class="row_action btn btn-link lime-accent-4-text" rel="tooltip" data-placement="bottom" title="Edit" data-func="edit">
                     <i class="material-icons">edit</i>
                   </button>
-                  <button data-id="{{ staff.staff.id }}" type="button" class="row_action btn btn-link red-accent-3-text" rel="tooltip" data-placement="bottom" title="Set Inactive" data-func="terminate">
+                  {% if staff.staff.is_active == False%}   
+                  {% set inactive = "disabled" %}              
+                  {% else %}
+                  {% set inactive = "" %}
+                  {% endif %}
+                  <button data-id="{{ staff.staff.id }}" type="button" class="row_action btn btn-link red-accent-3-text" rel="tooltip" data-placement="bottom" title="Set Inactive" data-func="inactive" {{inactive}}>
                     <i class="material-icons">close</i>
                   </button>
-                  <button data-id="{{staff.staff.id}}" type="button" class="row_action btn btn-link lime-accent-4-text" rel="tooltip" data-placement="bottom" title="Set Active" data-func="active">
+                 
+                  {% if staff.staff.is_active == True%}   
+                  {% set active = "disabled" %}              
+                  {% else %}
+                  {% set active = "" %}
+                  {% endif %}
+                  <button data-id="{{staff.staff.id}}" type="button" class="row_action btn btn-link lime-accent-4-text" rel="tooltip" data-placement="bottom" title="Set Active" data-func="active" {{active}}>
                     <i class="material-icons">check</i>
                   </button>
                 </td>
@@ -71,7 +82,7 @@
                 <div class="btn icon-link-size green lighten-3" data-toggle="modal" data-target="#staffModal"><a class="staff-tasks" data-href="{{url_for('add_staff')}}" title= "Add" data-func="add" data-toggle="tooltip" data-title="Add a new user"><i class="material-icons">add</i></a></div>
                 <div class="btn icon-link-size green lighten-3" ><a class="staff-tasks" title= "Edit" data-func="edit" data-toggle="tooltip" data-title="Edit a user"><i class="material-icons">edit</i></a></div>
                 <div class="btn icon-link-size green lighten-3"><a class="staff-tasks" data-href="{{url_for('staff')}}" title= "Copy" data-func="copy" data-toggle="tooltip" data-title="Add a new user"><i class="material-icons">content_copy</i></a></div>
-                <!-- <div class="btn icon-link-size green lighten-3"data-toggle="modal" data-target="#staffModal"><a class="staff-tasks" data-href="{{url_for('staff')}}" title= "Delete" data-func="delete" data-toggle="tooltip" data-title="Delete"><i class="material-icons">close</i></a></div> -->
+                <div class="btn icon-link-size green lighten-3"><a id="delete" title= "Delete" data-func="delete" data-toggle="tooltip" data-title="Delete"><i class="material-icons">close</i></a></div>
             </span>
         </div>
       </div>

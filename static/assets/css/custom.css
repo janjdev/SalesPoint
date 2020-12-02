@@ -138,6 +138,7 @@ body.dashboard .dropdown-menu.show, .inner.show a.dropdown-item{
     min-width: 80%;
 }
 
+
 /*===================Configuration===================*/
 body.config .config-container .bmd-label-floating{
     text-align: left;
@@ -613,6 +614,102 @@ p.instructions {
     padding-top: 10px;
 }
 
+/* -----------------Dash Report Route------------- */
+.reports label.bmd-label-static, .reports label {
+    font-size: 1.3em;
+    bottom: auto;
+    top: -14px !important;
+    color: #FFFFFF;
+}
+
+.reports .filter-option {
+    font-size: 14px;
+    color: #fff;
+}
+
+button#send {
+    height: 58px;
+}
+
+/* Report Loading Spinner */
+.lds-grid {
+    display: inline-block;
+    position: relative;
+    width: 80px;
+    height: 80px;
+  }
+  .lds-grid div {
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: #000;
+    animation: lds-grid 1.2s linear infinite;
+  }
+  .lds-grid div:nth-child(1) {
+    top: 8px;
+    left: 8px;
+    animation-delay: 0s;
+  }
+  .lds-grid div:nth-child(2) {
+    top: 8px;
+    left: 32px;
+    animation-delay: -0.4s;
+  }
+  .lds-grid div:nth-child(3) {
+    top: 8px;
+    left: 56px;
+    animation-delay: -0.8s;
+  }
+  .lds-grid div:nth-child(4) {
+    top: 32px;
+    left: 8px;
+    animation-delay: -0.4s;
+  }
+  .lds-grid div:nth-child(5) {
+    top: 32px;
+    left: 32px;
+    animation-delay: -0.8s;
+  }
+  .lds-grid div:nth-child(6) {
+    top: 32px;
+    left: 56px;
+    animation-delay: -1.2s;
+  }
+  .lds-grid div:nth-child(7) {
+    top: 56px;
+    left: 8px;
+    animation-delay: -0.8s;
+  }
+  .lds-grid div:nth-child(8) {
+    top: 56px;
+    left: 32px;
+    animation-delay: -1.2s;
+  }
+  .lds-grid div:nth-child(9) {
+    top: 56px;
+    left: 56px;
+    animation-delay: -1.6s;
+  }
+  @keyframes lds-grid {
+    0%, 100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.5;
+    }
+  }
+  /*End Spinner  */
+
+  /* Key Statistics Report */
+  .reportname{
+    border-bottom: solid 1px gray;  
+  }
+
+  .statsTable{
+      margin-top: 50px;
+  }
+
 .navbar .collapse .navbar-nav .nav-item .nav-link{
     color: #9c27b0;
 }
@@ -785,9 +882,11 @@ div.icon-link-size{
     min-height: 40vh;
     font-size: 14px;
 }
-.toolbar{
-    background-color: #fff;
-    width: 100%;
+/* [data-color=green]{
+    background-color:#4caf50;box-shadow:0 4px 20px 0 rgba(0,0,0,.14),0 7px 10px -5px rgba(76,175,80,.4)
+} */
+.toolbar {
+    display: flex;
 }
 
 .toolbar .toolsholder {
@@ -797,7 +896,7 @@ div.icon-link-size{
 
 .toolbar .tools{
     display: inline-block;
-    border: #e1bee7 solid thin;
+    border: none;
     padding: 5px;
     position: relative;
     margin-top: 5px;
@@ -808,8 +907,8 @@ div.icon-link-size{
     vertical-align: middle;
 }
 
-.toolbar .tools.active{
-    background: #e1bee7;
+.toolbar .tools{
+    background: transparent;
 }
 
 .toolbar .tools i.fa{
@@ -835,8 +934,8 @@ div.icon-link-size{
      z-index: 50000000000000;
 }
 
-.tools.active, .tools:hover, .tools:active{
-    background-color: #e1bee7;
+.tools a.active, .tools a:hover, .tools a:active{
+    color: #fff !important;
 }
 
 .dropdown-menu.show{
