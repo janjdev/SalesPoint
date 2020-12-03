@@ -8,7 +8,14 @@
 
 //load helper functions
 const helper = require('../main-process/helpers')
-// const {remote} = require('electron');
+const {remote} = require('electron');
+
+
+
+const childWindow = new BrowserWindow({
+    width: 800,
+    height: 600
+ });
 
 
 
@@ -22,5 +29,7 @@ window.addEventListener('DOMContentLoaded', () => {
       console.log('can see');
       //currentWindow.close();
     })
+
+   
   
 });

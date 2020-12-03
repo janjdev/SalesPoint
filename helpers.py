@@ -3,6 +3,7 @@ from datetime import datetime
 from flask import request, json
 import config
 
+
 #Get list of rows from table form
 def multiRow(list):
     q = ast.literal_eval(list)            

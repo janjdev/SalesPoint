@@ -142,7 +142,6 @@ window.addEventListener('DOMContentLoaded', () => {
         let input = $(this).next().children();      
         input.on('change', function(e){
         let val = $(input).val();
-        console.log(val);
         document.execCommand(command, false, val);
       })
     }

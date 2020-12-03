@@ -1,7 +1,7 @@
 
 import sys, os, io, collections, random, string, csv, tempfile, ast
 from datetime import datetime, timedelta
-from flask import Flask, request, redirect, render_template, session, url_for, abort, jsonify, flash, json
+from flask import Flask, request, redirect, render_template, session, url_for, abort, jsonify, flash
 from flask.helpers import flash
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import event, DDL, extract, func
@@ -11,6 +11,7 @@ from sqlalchemy.orm import backref
 from sqlalchemy.sql.elements import Null
 from sqlalchemy.sql.schema import ForeignKey
 from werkzeug import datastructures
+import werkzeug
 from hashutil import make_pw_hash, check_pw_hash
 from helpers import *
 from mimetypes import MimeTypes
@@ -25,6 +26,7 @@ app = Flask(__name__)
 app.config.from_pyfile(os.path.join(".", "config.py"), silent=False)
 db = SQLAlchemy(app)
 local = tzlocal()
+
 
 class Customer(db.Model):
     __tablename__ = "customer"
@@ -554,7 +556,32 @@ def auth():
 
 @app.route('/shut-down', methods=['GET', 'POST'])
 def shut_down():
-    return render_template('screens/auth.html', title="Authorizations", bodyClass='dashboard')
+    shutdown = request.environ.get('werkzeug.server.shutdown')
+    if request.method == 'POST':
+        if 'admin' in request.form: 
+            if shutdown is None:
+                raise RuntimeError('The function is not available')
+            else:
+                shutdown()   
+                return jsonify({'status': 'success', 'message': 'Shutting Down...', 'alertType': 'success', 'timer': 500, 'callback': 'shutdown'})
+        elif 'id' in request.form:
+            staff = Staff.query.filter_by(staff_id = request.form['id']).first()
+            if staff.role_id == 1:
+                return jsonify({'status': 'success', 'message': 'Shutting Down...', 'alertType': 'success', 'timer': 500, 'callback': 'shutdown'})
+            else:
+                return jsonify({'status': 'error', 'message': 'Permission Restricted', 'alertType': 'error', 'timer': 2500})
+        else:
+             return jsonify({'status': 'error', 'message': 'Permission Restricted', 'alertType': 'error', 'timer': 2500})
+    if request.method == 'GET':
+        if session.get('role') == 'Administrator':
+            if shutdown is None:
+                raise RuntimeError('The function is not available')
+            else:
+                shutdown()
+                return redirect(url_for('logout'))  
+        return redirect(url_for('logout'))
+    
+
 
 @app.route('/logout')
 def logout():   
@@ -870,7 +897,7 @@ def kitchen():
                 session['id'] = staff.id
                 if staff.role_id == 1:
                     session['role'] = "Administrator"                         
-                    return jsonify({'status': 'success', 'alertType': 'success', 'timer': 500, 'callback': 'goTo', 'param': url_for('dine_in')})
+                    return jsonify({'status': 'success', 'alertType': 'success', 'timer': 500, 'callback': 'goTo', 'param': url_for('kitchen')})
             else:
                 return jsonify({'status': 'error', 'message': 'Permission Restricted', 'alertType': 'error'})
         else:

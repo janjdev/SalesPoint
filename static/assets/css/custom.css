@@ -23,6 +23,10 @@ b{
 .swal2-container.swal2-center.swal2-fade.swal2-shown {
     z-index: 10000;
 }
+
+a#logoff {
+    width: 100px;
+}
 /*==========HEADER=============*/
 header{
     height: 20vh ;

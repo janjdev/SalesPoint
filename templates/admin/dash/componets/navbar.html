@@ -46,13 +46,13 @@
                 <div class="ripple-container"></div>
               </li>              
               <li class="nav-item">
-                  <a href="{{url_for('logout')}}" class="nav-link btn btn-white btn-round">
+                  <a id="logoff" href="{{url_for('logout')}}" class="nav-link btn btn-white btn-round">
                     <i class="material-icons">exit_to_app</i> LogOff
                   </a>
                   <div class="ripple-container"></div>
                 </li>
               <li class="nav-item dropdown">
-                <a class="nav-link btn btn-white btn-round" href="" data-toggle="tooltip" data-placement="bottom" title="SHUTDOWN">
+                <a id="shutdown" class="nav-link btn btn-white btn-round" href="{{url_for('shut_down')}}" data-toggle="tooltip" data-placement="bottom" title="SHUTDOWN">
                   <i class="material-icons">settings_power</i>
                   <p >
                     Shut Down

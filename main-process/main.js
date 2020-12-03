@@ -4,16 +4,21 @@ const path = require('path');
 const { PythonShell } = require('python-shell');
 
 
+
+
+
 //Function to start the backend server
 function startFlask() {
   PythonShell.run('app.py', null, function  (err, results)  {
     if  (err){
-      throw err;
+      console.log(err);;
     }  
     console.log('server initiated');
     console.log('results', results);
     });
 }
+
+python_process = PythonShell.childProcess;
 
 //create main application window
 let mainWindow;
@@ -27,6 +32,7 @@ function createWindow () {
     webPreferences: {
       nodeIntegration: false,
       webSecurity: false,
+      enableRemoteModule: true,
       preload: path.join(__dirname, 'preload.js')
     },
     icon: path.join(__dirname, '../static/assets/img/icons/salespoint-green.png')
@@ -80,7 +86,7 @@ app.on('window-all-closed', function () {
   if (process.platform !== 'darwin') 
   {    
     app.quit();
-    PythonShell.kill('app.py');
+    python_process.kill('SIGINT');
   }
 });
 
