@@ -64,7 +64,10 @@
                         <div class="halo col-md-6 row" >
                             <div>{{item.quantity}}</div>
                             <div>{{'%.2f'|format(item.item.unit_price * item.quantity)}}</div>
-                        </div>                       
+                        </div>
+                        {% if item.notes != None%}
+                        <div class="col-md-12">Notes: {{item.notes}}</div>
+                        {%endif%}                       
                     </div>                        
                     {% endfor %}
                     <div class="totals items row col-md-12">   

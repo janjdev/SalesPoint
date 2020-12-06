@@ -34,6 +34,7 @@
     "electron": "^10.1.5",
     "get-system-fonts": "^2.0.2",
     "jsprintmanager": "^3.0.5",
-    "python-shell": "^2.0.2"
+    "python-shell": "^2.0.2",
+    "xbs-enjoyhint": "^4.0.6"
   }
 }

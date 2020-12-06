@@ -1,12 +1,12 @@
 {% extends '/modules/base.html' %}
     {% block content %}
-    <div class="row mw_cards">
-        <a class="tasks" data-toggle="modal" data-target="#myModal" data-href="{{url_for('dine_in')}}"><button  class="btn btn-primary btn-lg taskbtn">DINE IN</button></a>
-        <a class="tasks"  data-toggle="modal" data-target="#myModal" data-href="{{url_for('carry_out')}}"><button class="btn btn-primary btn-lg taskbtn">CARRY OUT</button></a>
-        <a  class="tasks" data-toggle="modal" data-target="#myModal" data-href="{{url_for('orders')}}"><button class="btn btn-primary btn-lg taskbtn">ORDERS</button></a>
-        <a  class="tasks" data-toggle="modal" data-target="#myModal" data-href="{{url_for('admin')}}"><button class="btn btn-primary btn-lg taskbtn">BACK OFFICE</button></a>
-        <a class="tasks" data-toggle="modal" data-target="#myModal" data-href="{{url_for('kitchen')}}"><button class="btn btn-primary btn-lg taskbtn">KITCHEN</button></a>
-        <a class="tasks" data-toggle="modal" data-target="#myModal" data-href="{{url_for('shut_down')}}"><button class="btn btn-primary btn-lg taskbtn">SHUT DOWN</button></a>
+    <div id="routes" class="row mw_cards">
+        <a id="dinein" class="tasks" data-toggle="modal" data-target="#myModal" data-href="{{url_for('dine_in')}}"><button  class="btn btn-primary btn-lg taskbtn">DINE IN</button></a>
+        <a id="carryout" class="tasks"  data-toggle="modal" data-target="#myModal" data-href="{{url_for('carry_out')}}"><button class="btn btn-primary btn-lg taskbtn">CARRY OUT</button></a>
+        <a id="orders" class="tasks" data-toggle="modal" data-target="#myModal" data-href="{{url_for('orders')}}"><button class="btn btn-primary btn-lg taskbtn">ORDERS</button></a>
+        <a id="admin" class="tasks" data-toggle="modal" data-target="#myModal" data-href="{{url_for('admin')}}"><button class="btn btn-primary btn-lg taskbtn">BACK OFFICE</button></a>
+        <a id="kitchen" class="tasks" data-toggle="modal" data-target="#myModal" data-href="{{url_for('kitchen')}}"><button class="btn btn-primary btn-lg taskbtn">KITCHEN</button></a>
+        <a id="shutdown" class="tasks" data-toggle="modal" data-target="#myModal" data-href="{{url_for('shut_down')}}"><button class="btn btn-primary btn-lg taskbtn">SHUT DOWN</button></a>
     </div>
     <div id="myModal" class="modal fade" tabindex="-1" role="dialog" data-backdrop="static">
         <div class="modal-dialog" role="document">
@@ -39,6 +39,6 @@
           </div>
         </div>
       </div>
-
+   
     {% endblock %}
     

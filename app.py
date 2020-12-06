@@ -1,10 +1,11 @@
 
 import sys, os, io, collections, random, string, csv, tempfile, ast
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, time
 from flask import Flask, request, redirect, render_template, session, url_for, abort, jsonify, flash
 from flask.helpers import flash
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import event, DDL, extract, func
+import sqlalchemy
 from sqlalchemy.event import listen
 from jinja2 import TemplateNotFound
 from sqlalchemy.orm import backref
@@ -19,7 +20,6 @@ from werkzeug.utils import secure_filename
 from collections import defaultdict
 from sqlalchemy.exc import IntegrityError
 from dateutil.tz import *
-
 
 
 app = Flask(__name__)
@@ -299,6 +299,7 @@ class Printer(db.Model):
     name = db.Column(db.String(100), unique=True, nullable = False)
     printer =  db.Column(db.String(255), unique=True, nullable = False)
     type_id = db.Column(db.Integer, db.ForeignKey('printer_type.id', ondelete='CASCADE'), nullable=False)
+    ptype = db.relationship('Printer_Type', backref="ptype")
 
     def __init__(self, pname, printer, ptype):
         self.name = pname
@@ -541,6 +542,18 @@ def importToSQL(file):
     finally:
         print('final')
         db.session.close() #Close the connection
+
+# =======================PRINTING FUNCTIONS=================================
+def sendToPrint(template, id, printerid=None):
+    if printerid is None:
+        printerid = 3 
+    order = Order.query.filter_by(id=id).first()
+    html = render_template(template, order=order, term=getTerminal())
+    printer = Printer.query.filter_by(type_id = printerid).first().printer
+    try:
+        printTicket(html, ['static/assets/css/tickets/ticket.css'], printer)            
+    except Exception as e:
+        print(str(e))
 #======================ROUTES==============================================
 @app.route('/', methods=['GET', 'POST'] )
 def home():
@@ -629,8 +642,6 @@ def edit_cust(user_id):
     if 'id' in session:
         if request.method == 'POST':
             customer = Customer.query.filter_by(id = user_id).first()
-            print(request.form)
-            print(customer) 
             if 'delete' in request.form:
                 corders = Order.query.filter(Order.customer_id == user_id and Order.status_id == 1).all()
                 if len(corders) > 0:
@@ -639,7 +650,6 @@ def edit_cust(user_id):
                     db.session.delete(customer)             
             else:         
                 cname = request.form['cname']
-                print(cname)
                 customer.name = cname
             db.session.commit()
             return jsonify({'status': 'success', 'alertType': 'success', 'timer': 500, 'callback': 'newCust'})
@@ -695,17 +705,19 @@ def carry_out():
 @app.route('/order/', methods=['POST'])
 def order():
     if 'id' in session:
+        
         if request.method == 'POST':
-            print(request.form)
-            try:
+            # try:
+               
                 status = request.form['orderstatus']
                 i = request.form['items']
                 items = multiRow(i)
-                # for item in items:
-                #     print(item['taxes'])
+                order = Order
+                td=0
                 q = request.form['orderid'] == ''
                 if q is False:
                     order = Order.query.filter_by(id = request.form['orderid']).first()
+                    td = order.id
                     order.status_id = request.form['orderstatus']
                     order.notes = request.form['notes']
                     order.last_changed_by_id = session.get('id')
@@ -715,7 +727,6 @@ def order():
                         ot =  Order_Ticket.query.filter_by(order_id = order.id).first()
                         ot.status = Ticket_Status.query.filter_by(id = 1).first()
                         ot.closed_on = None
-                        # Order_Ticket.query.filter_by(order_id = order.id).update({Order_Ticket.created_on: datetime.now(), Order_Ticket.status: 1, Order_Ticket.closed_on: None})
                     else:
                         ot = Order_Ticket(order.id, 1)                
                     # remove all previous items
@@ -745,7 +756,8 @@ def order():
                                 db.session.add(neworderitem)                    
                         else:
                             newitem = Order_Items(order.id, item['item'], item['qty'], item['itemnote'])
-                            db.session.add(newitem)                        
+                            db.session.add(newitem)
+                                           
                     if 'ordertable' in request.form.keys():
                         tables = request.form.getlist('ordertable')            
                         for table in tables:
@@ -758,12 +770,13 @@ def order():
                         discounts = request.form.getlist('orderdiscount')
                         for discount in discounts:
                             od = Order_Discount(order.id, discount)
-                            db.session.add(od)                                        
+                            db.session.add(od)
                 else:                             
                     neworder = Order(request.form['ordertype'], session.get('id'), request.form['chknum'], request.form['notes'], request.form['customer'],  request.form['orderstatus'] )
                     db.session.add(neworder)
                     db.session.commit()
                     orderID = neworder.id
+                    td = neworder.id
                     ot=Order_Ticket(orderID, 1) 
                     db.session.add(ot)
                     for item in items:
@@ -788,7 +801,7 @@ def order():
                         else:    
                             newitem = Order_Items(orderID, item['item'], item['qty'], item['itemnote'])
                             db.session.add(newitem)
-                            db.session.commit()
+                            db.session.commit()  
                     if 'ordertable' in request.form.keys():
                         tables = request.form.getlist('ordertable')            
                         for table in tables:
@@ -802,15 +815,16 @@ def order():
                         for discount in discounts:
                             od = Order_Discount(orderID, discount)
                             db.session.add(od)
-                db.session.commit()           
+                db.session.commit()
+                sendToPrint('/kitchenticket/ticket.html', td, 3)     
                 if  status == '1':                
-                    return jsonify({'status': 'success', 'alertType': 'success', 'timer': 500, 'callback': 'goTo', 'param':'/orders' })
+                    return jsonify({'status': 'success', 'alertType': 'success', 'timer': 500, 'callback': 'goTo', 'param': url_for('orders') })
                 else:
                     return jsonify({'status': 'success', 'alertType': 'success', 'timer': 500, 'callback': 'clearOrder'})
-            except Exception as e:
-                print(e)
-                db.session.rollback()
-                return jsonify({'status': 'error', 'message': 'Internal System Error' + str(e), 'alertType': 'error'})         
+            # except Exception as e:
+            #     print(e)
+            #     db.session.rollback()
+            #     return jsonify({'status': 'error', 'message': 'Internal System Error ' + str(e), 'alertType': 'error'})         
     return redirect(url_for('logout'))
 
 @app.route('/orders', methods=['GET', 'POST'])
@@ -918,6 +932,12 @@ def orderticket(ticketid):
             return jsonify({'status': 'success', 'alertType': 'success', 'timer': 500, 'callback': 'reload'})
     return redirect(url_for('logout'))
 
+@app.route('/orderview/<int:id>', methods=["POST"])
+def orderview(id):
+    if 'id' in session:       
+        ot = Order.query.filter_by(id=id).first()
+        return jsonify({'data': render_template('/reports/orderticket.html', order=ot, term=getTerminal(), currenttime=datetime.now()), 'callback': 'sendToPrint'})
+    return redirect(url_for('logout'))
 #=================================================Configurations====================================================
 
 @app.route('/admin', methods=['GET', 'POST'])
@@ -936,9 +956,14 @@ def admin():
     if request.method == 'GET':
         if 'id' in session:
             if session.get('role') == 'Administrator':
-                user = Staff.query.filter_by(id = session.get('id')).first()               
-                return render_template('admin/dash/pages/dash.html', title="SalesPoint - Version 1.0-build 1", bodyClass='dashboard', time=datetime.now().strftime("%I:%M%Z"), daynight=datetime.now().strftime("%p"), user=user, date=getDate(), role=session.get('role'), orders=Order.query.all(), cats=getActiveCat(), taxes=Tax.query.all(), printers=Printer_Type.query.all())
-        return redirect(url_for('home'))
+                user = Staff.query.filter_by(id = session.get('id')).first()
+                am = time(00,00,00)                
+                pm = time(23, 59, 59)
+                morning = datetime.combine(datetime.now().date(), am)
+                evening = datetime.combine(datetime.now().date(), pm)               
+                orders=Order.query.filter(Order.date_created.between(morning, evening)).all()                         
+                return render_template('admin/dash/pages/dash.html', title="SalesPoint - Version 1.0-build 1", bodyClass='dashboard', orders=orders, time=datetime.now().strftime("%I:%M%Z"), daynight=datetime.now().strftime("%p"), user=user, date=getDate(), role=session.get('role'), cats=getActiveCat(), taxes=Tax.query.all(), printertypes=Printer_Type.query.all(), chart=chartOrders(Order.query.all()), printers=getPrinters())
+    return redirect(url_for('home'))
 
 
 @app.route('/config', methods=['GET'])
@@ -946,7 +971,7 @@ def config():
     if session.get('role') == 'Administrator':
         user = Staff.query.filter_by(id = session.get('id')).first()
         printertypes = Printer_Type.query.all()
-        return render_template('admin/dash/pages/config.html', title="SalesPoint - Version 1.0-build 1", bodyClass='config', fonts=getFonts(), config_active='active', config_show='show', config_expand='true', admin_active='active', date=getDate(), role=session.get('role'), user=user, printertype = printertypes, info = getBusInfo(), term = getTerminal())
+        return render_template('admin/dash/pages/config.html', title="SalesPoint - Version 1.0-build 1", bodyClass='config', fonts=getFonts(), config_active='active', config_show='show', config_expand='true', admin_active='active', date=getDate(), role=session.get('role'), user=user, printertype = printertypes, info = getBusInfo(), term = getTerminal(), devices=getPrinters(), setprinters=Printer.query.all())
     return redirect(url_for('home'))
 
 
@@ -955,11 +980,11 @@ def get_bus():
     if session.get('role') == "Administrator":
         if (request.method=='POST'):
             setBusInfo(request.form['name'], request.form['phone'], request.form['add'], request.form['city'], request.form['st'], request.form['zip'])
-            return jsonify({'message': 'OK', 'alertType': 'success', 'timer': 500, 'callback': 'loadElement', 'param' : 'info'})
+            return jsonify({'message': 'OK', 'alertType': 'success', 'timer': 500, 'callback': 'loadElement', 'param' : 'businfo'})
         else:
             return redirect(url_for('config'))
     else:
-        return redirect(url_for('home'))
+        return redirect(url_for('logout'))
 
 
 @app.route('/term', methods=['POST'])
@@ -978,12 +1003,38 @@ def get_term():
         else:
             return redirect(url_for('config'))
     else:
-        return redirect(url_for('home'))  
- 
+        return redirect(url_for('logout'))  
 
-@app.route('/activity')
-def order_activity():
-    return render_template('', title="SalesPoint - Version 1.0-build 1")
+@app.route('/printers', defaults={'id': None}, methods=['POST'])
+@app.route('/printers/<int:id>',  methods=['POST'])
+def printer(id):
+    if session.get('role') == "Administrator":
+        if (request.method == 'POST'):
+            print(request.form)
+            if id is not None or 'action' in request.form:
+                printer = Printer.query.filter_by(id = id).first()
+                if printer:
+                    if request.form['action'] == 'delete':
+                        db.session.delete(printer)
+                        db.session.commit()
+                        return jsonify({'message': 'OK', 'alertType': 'success', 'timer': 500, 'callback': 'loadTable'})
+                    else:
+                        printer.name = request.form['printername']
+                        printer.printer = request.form['device']
+                        printer.type_id = request.form['printertype']
+                        db.session.commit()
+                        return jsonify({'message': 'OK', 'alertType': 'success', 'timer': 500, 'callback': 'loadTable'})
+                else: return jsonify({'message': 'No Printer set for action.', 'alertType': 'error', 'timer': 2500, 'callback': 'loadTable'})
+            else:
+                printer = Printer(request.form['printername'], request.form['device'], request.form['printertype'])        
+                db.session.add(printer)
+            db.session.commit()
+            return jsonify({'message': 'OK', 'alertType': 'success', 'timer': 500, 'callback': 'loadTable'})
+        else:
+            return redirect(url_for('config'))
+    else:
+        return redirect(url_for('logout'))
+
 
 
 #=======================================Staff Functions=========================================

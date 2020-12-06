@@ -1,14 +1,25 @@
 // Modules to control application life and create native browser window
-const {app, BrowserWindow, protocol} = require('electron');
+const {app, BrowserWindow, protocol, Menu} = require('electron');
 const path = require('path');
 const { PythonShell } = require('python-shell');
+const menu = app.menu
 
 
 
-
+const flask = path.join(__dirname, '../venv/Scripts/flask.exe')
 
 //Function to start the backend server
 function startFlask() {
+  PythonShell.run(flask, null, function  (err, results)  {
+    if  (err){
+      console.log(err);;
+    }  
+    console.log('server initiated');
+    console.log('results', results);
+    });
+}
+
+function startApp(){
   PythonShell.run('app.py', null, function  (err, results)  {
     if  (err){
       console.log(err);;
@@ -16,6 +27,7 @@ function startFlask() {
     console.log('server initiated');
     console.log('results', results);
     });
+
 }
 
 python_process = PythonShell.childProcess;
@@ -50,13 +62,9 @@ function createWindow () {
   mainWindow.on("closed", () => {
     mainWindow = null
   });
-
-  // Open the DevTools.
-  // mainWindow.webContents.openDevTools()
-
-
   //start backend server
   startFlask();
+  startApp();
 
 }
 
@@ -65,11 +73,11 @@ function createWindow () {
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
 app.on('ready', function ()  { 
-  protocol.registerFileProtocol('file', (request, callback) => {
+    protocol.registerFileProtocol('file', (request, callback) => {
     const pathname = decodeURI(request.url.replace('file:///', ''));
     callback(pathname);
-  }); 
-  createWindow(); 
+    }); 
+    createWindow(); 
  });  
   
 app.on('activate', function () {
@@ -85,8 +93,7 @@ app.on('activate', function () {
 app.on('window-all-closed', function () {
   if (process.platform !== 'darwin') 
   {    
-    app.quit();
-    python_process.kill('SIGINT');
+      app.quit();
   }
 });
 

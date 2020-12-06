@@ -19,7 +19,6 @@
        
     </div>
 </div>
-
  <!--   Core JS Files   -->
  <script src="{{ url_for('static', filename='assets/js/core/jquery.min.js')}}"></script>
  <script src="{{ url_for('static', filename='assets/js/core/popper.min.js')}}"></script>
@@ -43,10 +42,9 @@
  <script src="{{ url_for('static', filename='assets/js/plugins/bootstrap-tagsinput.js')}}"></script>
  <!-- Plugin for Fileupload, full documentation here: http://www.jasny.net/bootstrap/javascript/#fileinput -->
  <script src="{{ url_for('static', filename='assets/js/plugins/jasny-bootstrap.min.js')}}"></script>
- <!--  Full Calendar Plugin, full documentation here: https://github.com/fullcalendar/fullcalendar    -->
- <script src="{{ url_for('static', filename='assets/js/plugins/fullcalendar.min.js')}}"></script>
- <!-- Vector Map plugin, full documentation here: http://jvectormap.com/documentation/ -->
-  <!-- Select2 plugin for select boxes-->
+ 
+ 
+ 
   <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/css/select2.min.css" rel="stylesheet" />
 <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/js/select2.min.js"></script>
  <!--  Plugin for the Sliders, full documentation here: http://refreshless.com/nouislider/ -->
@@ -60,7 +58,10 @@
  <!--  Google Maps Plugin    -->
  <!--Magninif Popover Images-->
  <script src="{{url_for('static', filename='assets/js/plugins/jquery.magnific-popup.min.js')}}"></script>
- <!-- Place this tag in your head or just before your close body tag. -->
+
+ <script src="{{ url_for('static', filename='assets/js/plugins/kinetic.js')}}"></script>
+ <script src="{{ url_for('static', filename='assets/js/plugins/jquery.scrollTo.min.js')}}"></script>  
+ <script src="{{ url_for('static', filename='assets/js/plugins/jquery.enjoyhint.js')}}"></script>
  <!-- Chartist JS -->
  <script src="{{ url_for('static', filename='assets/js/plugins/chartist.min.js')}}"></script>
  <!--  Notifications Plugin    -->
@@ -70,9 +71,14 @@
  
  <!-- Material Bootstrap for all the cool stuff-->
  <script src="{{ url_for('static', filename='assets/js/mdb.js')}}"></script>
+ <script src="{{ url_for('static', filename='assets/js/plugins/html2pdf.bundle.min.js')}}"></script>
  <!-- Custom JS-->
  <script src="{{url_for('static', filename='assets/js/actions.js')}}"></script>
  <script src="{{url_for('static', filename='assets/js/ajax.js')}}"></script>
+ 
+ {% if bodyClass == "main_window" %}
+ <script src="{{ url_for('static', filename='assets/js/hints/main-hints.js')}}"></script>
+ {% endif %}
 </body>
 </html>
 {% endblock base %}

@@ -40,15 +40,15 @@
  <!--  Plugin for the DateTimePicker, full documentation here: https://eonasdan.github.io/bootstrap-datetimepicker/ -->
  <script src="{{ url_for('static', filename='assets/js/plugins/bootstrap-datetimepicker.min.js')}}"></script>
  <!--  DataTables.net Plugin, full documentation here: https://datatables.net/  -->
- <script src="{{ url_for('static', filename='assets/js/plugins/jquery.dataTables.min.js')}}"></script>
- <!--	Plugin for Tags, full documentation here: https://github.com/bootstrap-tagsinput/bootstrap-tagsinputs  -->
- <script src="{{ url_for('static', filename='assets/js/plugins/bootstrap-tagsinput.js')}}"></script>
+ <script src="{{ url_for('static', filename='assets/js/plugins/jquery.dataTables.min.js')}}"></script> 
  <!-- Plugin for Fileupload, full documentation here: http://www.jasny.net/bootstrap/javascript/#fileinput -->
  <script src="{{ url_for('static', filename='assets/js/plugins/jasny-bootstrap.min.js')}}"></script>
- <!--  Full Calendar Plugin, full documentation here: https://github.com/fullcalendar/fullcalendar    -->
- <script src="{{ url_for('static', filename='assets/js/plugins/fullcalendar.min.js')}}"></script>
- <!-- Vector Map plugin, full documentation here: http://jvectormap.com/documentation/ -->
-  <!-- Select2 plugin for select boxes-->
+ <script src="{{ url_for('static', filename='assets/js/plugins/kinetic.js')}}"></script>
+<script src="{{ url_for('static', filename='assets/js/plugins/jquery.scrollTo.min.js')}}"></script>  
+    <!-- Enjoyhint library -->
+    <script src="{{ url_for('static', filename='assets/js/plugins/enjoyhint.js')}}"></script>
+    <script src="{{ url_for('static', filename='assets/js/plugins/jquery.enjoyhint.js')}}"></script>
+ 
   <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/css/select2.min.css" rel="stylesheet" />
 <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/js/select2.min.js"></script>
  <!--  Plugin for the Sliders, full documentation here: http://refreshless.com/nouislider/ -->
@@ -69,11 +69,14 @@
  <script src="{{ url_for('static', filename='assets/js/material-dashboard.min.js')}}" type="text/javascript"></script>
  <script src="{{ url_for('static', filename='assets/js/material-dashboard.min2.js')}}" type="text/javascript"></script>
  <!-- Custom JS-->
+ <script src="{{ url_for('static', filename='assets/js/plugins/html2pdf.bundle.min.js')}}"></script>
  <script src="{{url_for('static', filename='assets/js/actions.js')}}"></script>
  <script src="{{url_for('static', filename='assets/js/ajax.js')}}"></script>
  <script src="{{url_for('static', filename='assets/js/shared/auth.js')}}"></script>
-
-
+ 
+{% if bodyClass == 'main_window' %}
+ <script src="{{ url_for('static', filename='assets/js/hints/main-hints.js')}}"></script>
+ {% endif %}
 </body>
 </html>
 {% endblock base %}

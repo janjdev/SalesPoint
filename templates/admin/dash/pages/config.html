@@ -27,106 +27,111 @@
             <div class="card-body ">
                 <div class="tab-content">
                     <div class="tab-pane active" id="info">
-                        <form id="businfo" method="POST" action="" enctype="multipart/form-data" data-form-user=>
-                            <div id="config-container">                                
-                                <div class="row">
-                                    <div class="col-md-6">
-                                        <div class="form-group">
-                                        <label class="bmd-label-floating text-uppercase">{% if info %} {% if info.name %}{{info.name}} {% else %} Business Name {% endif %} {% else %} Business Name  {% endif %}</label>
-                                        <input type="text" name="name" class="form-control editable">
+                        <form id="businfoform" method="POST" action="" enctype="multipart/form-data" data-form-user=>
+                            <div id="businfoSet">
+                                <div id="config-container">                                
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                            <label class="bmd-label-floating text-uppercase">{% if info %} {% if info.name %}{{info.name}} {% else %} Business Name {% endif %} {% else %} Business Name  {% endif %}</label>
+                                            <input type="text" name="name" class="form-control editable">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                            <label class="bmd-label-floating">{% if info %} {% if info.phone %}{{info.phone}} {% else %} Phone {% endif %} {% else %} Phone  {% endif %}  </label>
+                                            <input type="text" name="phone" class="form-control editable">
+                                            </div>
                                         </div>
                                     </div>
-                                    <div class="col-md-6">
-                                        <div class="form-group">
-                                        <label class="bmd-label-floating">{% if info %} {% if info.phone %}{{info.phone}} {% else %} Phone {% endif %} {% else %} Phone  {% endif %}  </label>
-                                        <input type="text" name="phone" class="form-control editable">
+                                    <div class="row">
+                                        <div class="col-md-12">
+                                            <div class="form-group">
+                                            <label class="bmd-label-floating text-capitalize">{% if info %} {% if info.address %}{{info.address}} {% else %} Address {% endif %} {% else %} Address  {% endif %}</label>
+                                            <input type="text" name="add" class="form-control">
+                                            </div>
                                         </div>
-                                    </div>
+                                    </div> 
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <div class="form-group">
+                                                <label class="bmd-label-floating text-capitalize">{% if info %} {% if info.city %}{{info.city}} {% else %} City {% endif %} {% else %} City  {% endif %}</label>
+                                                <input type="text" name="city" class="form-control">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-group">
+                                                <label class="bmd-label-floating text-capitalize">{% if info %} {% if info.state %}{{info.state}} {% else %} State {% endif %} {% else %} State  {% endif %}</label>
+                                                <input type="text" name="st" class="form-control">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-group">
+                                                <label class="bmd-label-floating">{% if info %} {% if info.zip %}{{info.zip}} {% else %} Postal Code {% endif %} {% else %} Postal Code {% endif %}</label>
+                                                <input type="text" name="zip" class="form-control">
+                                            </div>
+                                        </div>
+                                    </div>                                                            
                                 </div>
-                                <div class="row">
-                                    <div class="col-md-12">
-                                        <div class="form-group">
-                                        <label class="bmd-label-floating text-capitalize">{% if info %} {% if info.address %}{{info.address}} {% else %} Address {% endif %} {% else %} Address  {% endif %}</label>
-                                        <input type="text" name="add" class="form-control">
-                                        </div>
-                                    </div>
-                                </div> 
-                                <div class="row">
-                                    <div class="col-md-4">
-                                        <div class="form-group">
-                                            <label class="bmd-label-floating text-capitalize">{% if info %} {% if info.city %}{{info.city}} {% else %} City {% endif %} {% else %} City  {% endif %}</label>
-                                            <input type="text" name="city" class="form-control">
-                                        </div>
-                                    </div>
-                                    <div class="col-md-4">
-                                        <div class="form-group">
-                                            <label class="bmd-label-floating text-capitalize">{% if info %} {% if info.state %}{{info.state}} {% else %} State {% endif %} {% else %} State  {% endif %}</label>
-                                            <input type="text" name="st" class="form-control">
-                                        </div>
-                                    </div>
-                                    <div class="col-md-4">
-                                        <div class="form-group">
-                                            <label class="bmd-label-floating">{% if info %} {% if info.zip %}{{info.zip}} {% else %} Postal Code {% endif %} {% else %} Postal Code {% endif %}</label>
-                                            <input type="text" name="zip" class="form-control">
-                                        </div>
-                                    </div>
-                                </div>                                                            
-                            </div> 
-                            <div class="row">
-                                <div class="col-md-3 offset-4 form-btn-position">
-                                        <button type="submit" form="businfo" class="btn btn-success pull-right">Update Info</button>
-                                </div>
-                            </div>
+                            </div>                            
                             <div class="clearfix"></div>                       
-                        </form>                
-                    </div>
-                    <div class="tab-pane" id="terminal">
-                        <form id=terminalSet>
-                            <div class="form-row">
-                                <div class="form-group col-md-2">
-                                    <label for="terminal-id">Terminal ID</label>
-                                    <input type="text" class="form-control" name="id" id="terminal-id" placeholder="{% if term %} {% if term.id %}{{term.id}} {% endif %}{% endif %}">
-                                </div>
-                                <div class="form-group col-md-6" >
-                                    <label for="inputAddress">Terminal Location</label>
-                                    <input type="text" class="form-control" name="location" id="inputAddress" placeholder="{% if term %} {% if term.location %}{{term.location}} {% endif %}{% endif %}">
-                                </div>
-                            </div>                            
-                            <div class="form-row">
-                                <div class="form-group">
-                                    <div class="form-check">
-                                        <label class="form-check-label">
-                                            <input class="form-check-input success" name="autolog" type="checkbox" {% if term %} {% if term.set_timer %}{{term.set_timer}}{% endif %}{% endif %} value="">
-                                                Auto Logoff Time
-                                            <span class="form-check-sign">
-                                            <span class="check"></span>
-                                            </span>
-                                        </label>
-                                    </div>
-                                </div>
-                                <div class="form-group col-md-2">                            
-                                    <input type="number" class="form-control" min="1" name="timer" id="autologoff-time" value="{% if term %}{% if term.timer %}{{term.timer}}{% endif %}{% endif %}" placeholder="{% if term %} {% if term.timer %}{{term.timer}} {% endif %} {% endif %}">
-                                </div>                            
-                            </div>
-                            <div class="form-group col-md-5 systemfonts">
-                                <label for="fontlist">Default Font</label>
-                                <select multiple class="  custom-select" data-style="" name="defaultfont" id="fontlist" multiple>
-                                    <option value=""></option>
-                                    {% for font in fonts %}                                        
-                                    <option value="{{font[0]}}" data-value={{font[1]}}>{{font[0]}}</option>                                       
-                                    {% endfor %}
-                                </select>
-                                <input type="text" hidden name="fontpath" id="fontpath" />
-                            </div>                            
-                            <div class="row">
-                                <div class="col-md-3 offset-4 form-btn-position">
-                            <button type="submit" form="terminalSet" class="btn btn-success pull-right">Update<div class="ripple-container"></div></button>
-                                </div>
-                            </div>                                                                            
-                          </form>
-                        </div>
-                    <div class="tab-pane" id="printer">
+                        </form>
                         <div class="row">
+                            <div class="col-md-3 offset-4 form-btn-position">
+                                <button id="busbtn" class="btn btn-success pull-right">Update Info</button>
+                            </div>
+                        </div>                
+                    </div>
+                    <div class="tab-pane" id="terminal">                       
+                            <form id=terminalform method="POST">
+                                <div id="terminalSet">
+                                    <div class="form-row">
+                                        <div class="form-group col-md-2">
+                                            <label for="terminal-id">Terminal ID</label>
+                                            <input type="text" class="form-control" name="id" id="terminal-id" placeholder="{% if term %} {% if term.id %}{{term.id}} {% endif %}{% endif %}">
+                                        </div>
+                                        <div class="form-group col-md-6" >
+                                            <label for="inputAddress">Terminal Location</label>
+                                            <input type="text" class="form-control" name="location" id="inputAddress" placeholder="{% if term %} {% if term.location %}{{term.location}} {% endif %}{% endif %}">
+                                        </div>
+                                    </div>                            
+                                    <div class="form-row">
+                                        <div class="form-group">
+                                            <div class="form-check">
+                                                <label class="form-check-label">
+                                                    <input class="form-check-input success" name="autolog" type="checkbox" {% if term %} {% if term.set_timer %}{{term.set_timer}}{% endif %}{% endif %} value="">
+                                                        Auto Logoff Time
+                                                    <span class="form-check-sign">
+                                                    <span class="check"></span>
+                                                    </span>
+                                                </label>
+                                            </div>
+                                        </div>
+                                        <div class="form-group col-md-2">                            
+                                            <input type="number" class="form-control" min="1" name="timer" id="autologoff-time" value="{% if term %}{% if term.timer %}{{term.timer}}{% endif %}{% endif %}" placeholder="{% if term %} {% if term.timer %}{{term.timer}} {% endif %} {% endif %}">
+                                        </div>                            
+                                    </div>
+                                    <div class="form-group col-md-5 systemfonts">
+                                        <label for="fontlist">Default Font</label>
+                                        <select multiple class="  custom-select" data-style="" name="defaultfont" id="fontlist" multiple>
+                                            <option value=""></option>
+                                            {% for font in fonts %}                                        
+                                            <option value="{{font[0]}}" data-value={{font[1]}}>{{font[0]}}</option>                                       
+                                            {% endfor %}
+                                        </select>
+                                        <input type="text" hidden name="fontpath" id="fontpath" />
+                                    </div>                                                                
+                                </div>
+                            </form>                         
+                        <div class="row">
+                            <div class="col-md-3 offset-4 form-btn-position">
+                                <button type="submit" form="terminalform" id="termbtn" class="btn btn-success pull-right">Update<div class="ripple-container"></div></button>
+                            </div>
+                        </div>                           
+                    </div>
+                <!------PRINTERS------->
+                    <div class="tab-pane" id="printer">
+                        <div class="row" id="printerrow">
                             <div id="setPrinters" class="col-md-12">                  
                                 <div class="table-responsive">
                                     <table id="printerTable" class="table table-striped">
@@ -149,39 +154,40 @@
                                             <th class="text-center">Actions</th>                                                      
                                         </tr>
                                     </thead>
-                                    <tbody>                                                      
-                                    <tr id="printer-1">
+                                    <tbody>
+                                {% if setprinters %}
+                                    {% for printer in setprinters %}                                                      
+                                    <tr id="{{printer.id}}">
                                         <td class="text-center"></td>                                                        
                                         <td>
                                             <div class="form-check">
                                             <label class="form-check-label">
-                                                <input class="printer-action form-check-input" type="checkbox" value="" data-id="">
+                                                <input class="printer-action form-check-input" type="checkbox" value="" data-id="{{printer.id}}">
                                                 <span class="form-check-sign">
                                                 <span class="check"></span>
                                                 </span>
                                             </label>
                                             </div>
                                         </td>
-                                        <td class="name text-center text-capitalize">Name</td>
-                                        <td class="printer text-center text-capitalize">Printer</td>
-                                        <td class="type text-center text-uppercase">Type</td>                                                        
-                                        <td class="td-actions justify-content-center">                                                            
-                                            <button data-id="printer-1" type="button" id="edit_printer" data-toggle="modal" data-target="#add-edit-Printer" class="btn btn-success btn-link lime-accent-4-text printer-tasks" rel="tooltip" data-placement="bottom" title="Edit" data-func="edit" data-title="Edit Printer">
-                                                <i class="material-icons">edit</i>
-                                            </button>
-                                            <button data-id="" type="button" id="delete_printer" class="btn btn-danger btn-link red-accent-3-text" rel="tooltip" data-placement="bottom" title="Delete" data-title="delete">
-                                                <i class="material-icons">close</i>
+                                        <td class="name text-center text-capitalize">{{printer.name}}</td>
+                                        <td class="printer text-center text-capitalize">{{printer.printer}}</td>
+                                        <td class="type text-center text-uppercase">{{printer.ptype.name}}</td>                                                        
+                                        <td class="td-actions justify-content-center">
+                                            <button data-id="" type="button" class="test_printer btn btn-info btn-link" rel="tooltip" data-placement="bottom" title="Test" data-title="test">
+                                                <i class="material-icons">settings_input_antenna</i>
                                             </button>
                                         </td>
-                                    </tr>                                                    
+                                    </tr>
+                                    {% endfor %}
+                                {% endif %}
                                     </tbody>
                                     </table>
                                 </div>
                                 <div class="row printerActions">
                                     <span>
-                                        <div class="btn icon-link-size green lighten-3" data-toggle="modal" data-target="#add-edit-Printer"><a data-href="" class="printer-tasks" title="Add" data-toggle="tooltip" data-func="add" data-title="Add a Printer"><i class="material-icons">add</i></a></div>                                                        
-                                        <div class="btn icon-link-size green lighten-3"><a class="printer-tasks" data-href="" title="Delete" data-toggle="tooltip" data-func="delete"><i class="material-icons">close</i></a></div>
-                                        <div class="btn icon-link-size green lighten-3"data-toggle="modal" data-target="#staffModal"><a class="printer-tasks" data-href="" title= "Test" data-toggle="tooltip" data-func="test"><i class="material-icons">settings_input_antenna</i></a></div>
+                                        <div class="btn icon-link-size green lighten-3" data-toggle="modal" data-target="#add-edit-Printer"><a data-href="{{url_for('printer')}}" class="printer-tasks" title="Add" data-toggle="tooltip" data-func="add" data-title="Add a Printer"><i class="material-icons">add</i></a></div>
+                                        <div class="btn icon-link-size green lighten-3"><a class="printer-tasks" data-href="" title= "Edit" data-toggle="tooltip" data-func="edit"><i class="material-icons">edit</i></a></div>
+                                        <div class="btn icon-link-size green lighten-3"><a class="printer-tasks" data-href="" title="Delete" data-toggle="tooltip" data-func="delete"><i class="material-icons">close</i></a></div>                                        
                                     </span>
                                 </div>
                             </div>                        
@@ -207,15 +213,17 @@
                                     <form id="add-printer" method="POST" action="">
                                         <div class="form-group">
                                             <!-- <label for="exampleFormControlInput1">Email address</label> -->
-                                            <input type="text" class="form-control" id="printer_name" name="printername" placeholder="Printer Name" required/>
+                                            <input type="text" class="dbAction form-control" id="printer_name" name="printername" placeholder="Printer Name" required/>
                                         </div>
                                         <div class="form-group">
                                             <label for="role">Printer Device</label>
-                                            <select class="form-control selectpicker" id="device" name="device" data-style="btn btn-link" id="device" required>
+                                            <select class="dbAction form-control selectpicker" id="device" name="device" data-style="btn btn-link" id="device" required>
                                               {% if devices %}
-                                              {% for device in device %}
-                                               <option value="{{role.id}}">{{role.role_type}}</option>
+                                              {% for device in devices %}
+                                               <option value="{{device[2]}}">{{device[2]}}</option>
                                                {% endfor %}
+                                               {% else %}
+                                               <option disabled selected value="">Could Not Detect Installed Printers</option>
                                              {% endif %}
                                                
                                                 
@@ -223,7 +231,7 @@
                                         </div>                            
                                         <div class="form-group">
                                         <label for="position">Printer Type</label>
-                                        <select class="form-control selectpicker" id="printer_type" name="printer_type" data-style="btn btn-link" required>
+                                        <select class="dbAction form-control selectpicker" id="printer_type" name="printertype" data-style="btn btn-link" required>
                                           {% if printertype %}
                                            {% for type in printertype %}
                                             <option value="{{type.id}}">{{type.name}}</option>

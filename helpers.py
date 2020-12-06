@@ -1,8 +1,14 @@
 import ast, csv, os
-from datetime import datetime
-from flask import request, json
+from tempfile import mktemp
+from win32 import win32print
+from datetime import datetime,time, timedelta
+from flask import request, json, make_response, render_template
 import config
+import locale
+import ghostscript
 
+import pdfkit
+pdfconfig = pdfkit.configuration(wkhtmltopdf= 'venv\Lib\site-packages\wkhtmltopdf\\bin\wkhtmltopdf.exe')
 
 #Get list of rows from table form
 def multiRow(list):
@@ -361,4 +367,65 @@ def iterateData(data, opennum=0, paidnum=0, refundnum=0, voidnum=0, pendnum=0,op
             pend+= ((subtotal-od)+ordtax) 
 
     return {'openorders': opennum, 'open': open, 'voidorders': voidnum, 'void': void, 'paidorders': paidnum, 'paid': paid, 'refundorders': refundnum, 'refund': refund, 'pendingorders': pendnum, 'pend': pend, 'in': innum, 'inamount': inamount, 'out': outnum, 'outamount': outamount, 'gross': gross, 'discount': totaldiscount, 'tax': totaltax}
+
+def chartOrders(orders, date1=0,date2=0,date3=0,date4=0,date5=0,date6=0,date7=0):
+    taday = datetime.now().date()
+    am = time(00,00,00)                
+    pm = time(23, 59, 59)
+    day1 = datetime.strftime(taday - timedelta(days=6), "%A")
+    day2 = datetime.strftime(taday - timedelta(days=5), "%A")
+    day3 = datetime.strftime(taday - timedelta(days=4), "%A")
+    day4 = datetime.strftime(taday - timedelta(days=3), "%A")
+    day5 = datetime.strftime(taday - timedelta(days=2), "%A")
+    day6 = datetime.strftime(taday - timedelta(days=1), "%A")
+    day7 = datetime.strftime(taday, "%A")    
+    for order in orders:
+        if datetime.combine(datetime.now().date(), am) <  order.date_created <datetime.combine(datetime.now().date(), pm):
+            date1 +=1
+        if datetime.combine(taday - timedelta(days=1), am) <  order.date_created <datetime.combine(taday - timedelta(days=1), pm):
+            date2+=1
+        if datetime.combine(taday - timedelta(days=2), am) <  order.date_created <datetime.combine(taday - timedelta(days=2), pm):
+            date3+=1
+        if datetime.combine(taday - timedelta(days=3), am) <  order.date_created <datetime.combine(taday - timedelta(days=3), pm):
+            date4+=1
+        if datetime.combine(taday - timedelta(days=4), am) <  order.date_created <datetime.combine(taday - timedelta(days=4), pm):
+            date5+=1
+        if datetime.combine(taday - timedelta(days=5), am) <  order.date_created <datetime.combine(taday - timedelta(days=5), pm):
+            date6+=1
+        if datetime.combine(taday - timedelta(days=6), am) <  order.date_created <datetime.combine(taday - timedelta(days=6), pm):
+            date7+=1
+    return {'data7':date1,'data6':date2,'data5':date3,'data4':date4,'data3':date5,'data2':date6,'data1':date7, 'day1':day1, 'day2':day2, 'day3':day3, 'day4':day4, 'day5':day5, 'day6':day6, 'day7':day7}
+
+
+def render_to_pdf(html, css):
+    if css is None:
+        css = ['static/assets/css/bootstrap.min.css', 'static/assets/css/material-dashboard.css', 'static/assets/css/custom.css']   
+    pdf=pdfkit.from_string(html, False, css=css, configuration=pdfconfig)
+    if pdf:      
+        return pdf
+    return None
+       
+def printTicket(html, css=[], printer= win32print.GetDefaultPrinter()): 
+    pdf = render_to_pdf(html, css=css)
+    temp1 = mktemp('.pdf')
+    f1 = open(temp1, 'ab')
+    f1.write(pdf)
+    f1.close()
+    args = [
+        "-dPrinted", "-dBATCH", "-dNOSAFER", "-dNOPAUSE", "-dNOPROMPT"
+        "-q",
+        "-dNumCopies#1",
+        "-sDEVICE#mswinpr2",
+        f'-sOutputFile#"%printer%{printer}"', 
+        f'"{temp1}"'
+    ]
+    encoding = locale.getpreferredencoding()
+    args = [a.encode(encoding) for a in args]
+    ghostscript.Ghostscript(*args)
     
+def getPrinters():
+    allprinters = win32print.EnumPrinters(3)
+    printers=[]
+    for printer in list(allprinters):
+            printers.append(list(printer))
+    return  printers

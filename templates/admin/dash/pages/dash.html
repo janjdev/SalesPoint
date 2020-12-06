@@ -20,8 +20,8 @@
                   <div class="card-icon">
                     <i class="material-icons">timeline</i>
                   </div>
-                  <h4 class="card-title">Coloured Bars Chart
-                    <small> - Rounded</small>
+                  <h4 class="card-title">Seven Day PreCast
+                    <small> -ORDERS</small>
                   </h4>
                 </div>
                 {% include 'admin/dash/componets/dash-salesChart.html' %}
@@ -51,6 +51,7 @@
                               {% set open = namespace(open=0) %}
                               {% set closed = namespace(closed=0) %}
                               {% set pending = namespace(pending=0) %}
+                              {% if orders %}
                               {% for order in orders %}
                                 {% if order.type_id == 1  %}
                                   {% set dinein.dinein = dinein.dinein + 1 %}
@@ -68,6 +69,7 @@
                                   {% set pending.pending = pending.pending + 1 %}
                                 {% endif %}
                               {% endfor %}
+                            {% endif %}
                               <tbody>
                                 <tr>
                                   <td><span><b>DINE IN</b></span> </td>
@@ -218,9 +220,9 @@
                             </div>
                             <label for="printerType">Select printer type</label>   
                             <select id="printerType" name="printerType" class="form-control selectpicker" data-style="btn btn-link" required>
-                              {% if printers %}
-                            {% for printer in printers %}
-                            <option value="{{printer.id}}">{{printer.name}}</option>
+                              {% if printertypes %}
+                            {% for type in printertypes %}
+                            <option value="{{type.id}}">{{type.name}}</option>
                             {% endfor %}
                             {% else %}
                             <option disabled selected value="">Printer Type</option> 
@@ -236,8 +238,11 @@
                             </div>
                             <label for="printer">Select printer</label>   
                             <select id="printer" name="printer" class="form-control selectpicker" data-style="btn btn-link" required>
-                              <option>Printer</option>
-                              <option>Printer</option>
+                              {% if printers%}
+                                {% for printer in printers %}
+                              <option>{{printer[2]}}</option>
+                                {% endfor %}
+                              {% endif %}
                             </select>
                           </div>
                           <div class="input-group">
@@ -258,22 +263,25 @@
         <script src="{{ url_for('static', filename='assets/js/plugins/chartist.min.js')}}"></script>
         <script src="{{ url_for('static', filename='assets/js/core/jquery.min.js')}}"></script>
         <script src="{{ url_for('static', filename='assets/js/plugins/bootstrap-notify.js')}}"></script>
+        {% if chart %}        
+         
         <script>
+          
           var data = {
             // A labels array that can contain any sort of values
-            labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'],
+            labels: ['{{chart.day1}}', '{{chart.day2}}','{{chart.day3}}','{{chart.day4}}','{{chart.day5}}','{{chart.day6}}','{{chart.day7}}',],
             // Our series array that contains series objects or in this case series data arrays
             series: [
-              [5, 2, 4, 2, 0]
+              [{{chart.data1}},{{chart.data2}},{{chart.data3}},{{chart.data4}},{{chart.data5}},{{chart.data6}},{{chart.data7}},]
             ]
           };
-          
           // Create a new line chart object where as first parameter we pass in a selector
           // that is resolving to our chart container element. The Second parameter
           // is the actual data object.
       let  salesChart =   new Chartist.Line('.ct-chart', data);
      
-        </script>          
+        </script> 
+    {% endif %}         
        {% endblock %}
              
               

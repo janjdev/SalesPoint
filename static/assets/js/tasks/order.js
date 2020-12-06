@@ -252,10 +252,68 @@ function simpleAjaxforms(url, type, form){
     })
   }
 
+
+  function getTicket(id){
+    let page = '/orderview/'+id;
+    console.log(page);
+    $.ajax({
+      url: page,
+      type: 'POST',
+      data: id
+    }).done(function(response){
+      let callback = eval(response.callback)
+      if(response.param){
+        if(response.param == 'form'){
+          callback = callback(form)
+        }
+        else{
+          callback = callback(response.param)
+        }
+      }
+      Swal.fire({
+        type: response.alertType,
+        text: response.message,
+        timer: response.timer,
+        onClose: callback
+      })
+      
+    })
+  }
+  
+  function sendToPrint(data){
+    console.log('printing');
+    $('#appendTicket').append(data)
+    let el = document.getElementById('appendTicket')
+    let pdf = html2pdf().from(el).toPdf();
+    $.ajax({
+      url: '/printticket',
+      type: 'POST',
+      data:  pdf
+    }).done(function(response){
+    
+      let callback = eval(response.callback)
+      if(response.param){
+        if(response.param == 'form'){
+          callback = callback(form)
+        }
+        else{
+          callback = callback(response.param)
+        }
+      }
+      Swal.fire({
+        type: response.alertType,
+        text: response.message,
+        timer: response.timer,
+        onClose: callback
+      })
+      
+    })
+  }
+
 });
   
 // ----------------------------CallBacks------------------------------------
 function goTo(page){
   window.location.href = page;
 }  
-  
+

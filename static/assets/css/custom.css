@@ -39,12 +39,37 @@ header{
 }
 span.header_logo {
     display: inline-block;
-    height: 100%;
+    max-width: 50px;
+    min-width: 50px;
 }
 span.header_logo img{
     max-width: 100%;
     max-height: 100%;
+    
 }
+
+#tourbtn{
+    position: absolute;
+    width: 30px;
+    height: 43px;
+    left: 10%;
+    background: white;
+}
+#tourbtn i {
+    width: 100%;
+    display: block;
+    height: 100%;
+    margin-bottom: 0;
+    margin-top: 0;
+    font-size: 1.5rem;
+    width: 1.5rem;
+    position: absolute;
+    left: 10px;
+    right: 0;
+    top: 8px;
+    color: purple;
+}
+
 header hr {
     padding: 0;
     margin: 0;
@@ -718,6 +743,23 @@ button#send {
   .gross{
       border-bottom:dashed;
   }
+
+  /* Guided Tour */
+  .introjs-tooltip {
+    -webkit-box-sizing: content-box;
+    box-sizing: content-box;
+    position: absolute;
+    visibility: visible;
+    background-color: #fff;
+    min-width: 250px;
+    max-width: 300px;
+    border-radius: 5px;
+    -webkit-box-shadow: 0 3px 30px rgba(33,33,33,.3);
+    box-shadow: 0 3px 30px rgba(33,33,33,.3);
+    -webkit-transition: opacity .1s ease-out;
+    -o-transition: opacity .1s ease-out;
+    transition: opacity .1s ease-out;
+}
 .navbar .collapse .navbar-nav .nav-item .nav-link{
     color: #9c27b0;
 }
@@ -1234,10 +1276,6 @@ a.photography-entry.img.image-popup.d-flex.justify-content-center.align-items-ce
         width: 100%;
     }
 
-}
-
-@media screen and (min-width: 1301px){
-    
 }
 
 /*Reverse Gradients*/

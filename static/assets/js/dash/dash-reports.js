@@ -182,8 +182,19 @@ window.addEventListener('DOMContentLoaded', () => {
         placeCaretAtEnd(editDiv);        
       });
     }
+    // else if(command == 'print'){
+    //     let report = document.getElementById("data");
+    //     let printWindow = window.open("about:blank", "PrintWindow", "", "");
+    //     let printDocument = printWindow.document;
+    //     printDocument.write("<html><body></body></html>");
+    //     printDocument.body.innerHTML = report.innerHTML;
+    //     var result = printWindow.print();
+    //     printWindow.close();
+    //     console.log($(this).attr('id') + " returned '" + result + "'");
+    // }
     else
-    {
+    { 
+        // 
       document.execCommand($(this).data('command'), false, null);
       } 
     });

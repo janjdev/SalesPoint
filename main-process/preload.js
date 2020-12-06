@@ -3,11 +3,42 @@
 const electron = require('electron');
 const remote = require('electron').remote
 
-
+const BrowserWindow = electron.remote.BrowserWindow; 
 
 
 window.addEventListener('DOMContentLoaded', () => { 
+  
+  var options = { 
+      silent: false, 
+      printBackground: true, 
+      color: false, 
+      margin: { 
+          marginType: 'printableArea'
+      }, 
+     selectionOnly: true,
+      landscape: false, 
+      pagesPerSheet: 1, 
+      collate: false, 
+      copies: 1, 
+      header: 'Header of the Page', 
+      footer: 'Footer of the Page'
+  } 
+    
+ $(document).on('click', '#print', (event) => { 
+
+      $("#editable").selectText();  
+      let win = BrowserWindow.getFocusedWindow(); 
+      // let win = BrowserWindow.getAllWindows()[0]; 
+    
+    win.webContents.print(options, (success, failureReason) => { 
+          if (!success) console.log(failureReason); 
+    
+          console.log('Print Initiated'); 
+      }); 
+  }); 
+
 const sw = require('../static/assets/js/plugins/sweetalert2.all.min.js');
+
 
 $(document).on('click', '#shutdown', function(e){
     e.preventDefault();
@@ -104,17 +135,37 @@ $(document).on('click', '#shutdown', function(e){
                 }
             })
         }
+
+        
+
 });
 
-function shutdown(){
-    remote.getCurrentWindow().close()
-}
-   
+  function shutdown(){
+      remote.getCurrentWindow().close()
+  } 
+
+  jQuery.fn.selectText = function(){
+    var doc = document;
+    var element = document.getElementById('editContent');
+    console.log(this, element);
+    if (doc.body.createTextRange) {
+        var range = document.body.createTextRange();
+        range.moveToElementText(element);
+        range.select();
+    } else if (window.getSelection) {
+        var selection = window.getSelection();        
+        var range = document.createRange();
+        range.selectNodeContents(element);
+        selection.removeAllRanges();
+        selection.addRange(range);
+    }
+};
+
 
     
-   
-    
-});
+  });
+
+  
 
 
 
