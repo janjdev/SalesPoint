@@ -1,6 +1,6 @@
 import ast, csv, os
 from tempfile import mktemp
-from win32 import win32print
+from win32 import win32print, win32api
 from datetime import datetime,time, timedelta
 from flask import request, json, make_response, render_template
 import config
@@ -405,7 +405,10 @@ def render_to_pdf(html, css):
         return pdf
     return None
        
-def printTicket(html, css=[], printer= win32print.GetDefaultPrinter()): 
+def printTicket(html, printer, css=[]):
+    if printer is None:
+        printer = win32print.GetDefaultPrinter()
+
     pdf = render_to_pdf(html, css=css)
     temp1 = mktemp('.pdf')
     f1 = open(temp1, 'ab')
@@ -429,3 +432,17 @@ def getPrinters():
     for printer in list(allprinters):
             printers.append(list(printer))
     return  printers
+
+def testPrint(printer):
+    filename = mktemp (".txt")
+    open (filename, "ab").write ("This is a test")
+    win32api.ShellExecute (
+    0,
+    "print",
+    filename,
+    '/d:"%s"' % printer,
+    ".",
+    0
+    )
+
+  

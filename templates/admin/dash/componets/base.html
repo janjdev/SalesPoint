@@ -79,6 +79,18 @@
  {% if bodyClass == "main_window" %}
  <script src="{{ url_for('static', filename='assets/js/hints/main-hints.js')}}"></script>
  {% endif %}
+
+ {% if bodyClass == "reports" %}
+ <script>
+     // ==================To Print=========================
+        $(document).on('click', 'a#print', function(e){
+            e.preventDefault();
+            let report = document.getElementById("editContent");
+            html2pdf(report);
+        // worker.from(report).toPdf().save();
+        });
+ </script>
+ {% endif %}
 </body>
 </html>
 {% endblock base %}

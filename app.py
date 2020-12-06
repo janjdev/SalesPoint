@@ -4,8 +4,7 @@ from datetime import datetime, timedelta, time
 from flask import Flask, request, redirect, render_template, session, url_for, abort, jsonify, flash
 from flask.helpers import flash
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import event, DDL, extract, func
-import sqlalchemy
+from sqlalchemy import event, DDL
 from sqlalchemy.event import listen
 from jinja2 import TemplateNotFound
 from sqlalchemy.orm import backref
@@ -13,7 +12,7 @@ from sqlalchemy.sql.elements import Null
 from sqlalchemy.sql.schema import ForeignKey
 from werkzeug import datastructures
 import werkzeug
-from hashutil import make_pw_hash, check_pw_hash
+from hashutil import make_pw_hash
 from helpers import *
 from mimetypes import MimeTypes
 from werkzeug.utils import secure_filename
@@ -53,10 +52,10 @@ class Staff(db.Model):
     role = db.relationship('Staff_Role', backref='role')
     position = db.relationship('Staff_Position', backref="position")    
 
-    def __init__(self, first_name, last_name, pos, role, is_active=True, id_updated=False):
+    def __init__(self, first_name, last_name, pos, role, stid, is_active=True, id_updated=False):
         self.first_name = first_name
         self.last_name = last_name
-        self.staff_id = make_pw_hash(''.join([random.choice(string.digits) for x in range(6)]))
+        self.staff_id = stid
         self.position_id = pos
         self.role_id = role
         self.is_active = is_active
@@ -297,7 +296,7 @@ class Printer(db.Model):
     __tablename__ = "printer"      
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), unique=True, nullable = False)
-    printer =  db.Column(db.String(255), unique=True, nullable = False)
+    printer =  db.Column(db.String(255), nullable = False)
     type_id = db.Column(db.Integer, db.ForeignKey('printer_type.id', ondelete='CASCADE'), nullable=False)
     ptype = db.relationship('Printer_Type', backref="ptype")
 
@@ -549,7 +548,11 @@ def sendToPrint(template, id, printerid=None):
         printerid = 3 
     order = Order.query.filter_by(id=id).first()
     html = render_template(template, order=order, term=getTerminal())
-    printer = Printer.query.filter_by(type_id = printerid).first().printer
+
+    try:
+        printer = Printer.query.filter_by(type_id = printerid).first().printer       
+    except:
+        printer = None
     try:
         printTicket(html, ['static/assets/css/tickets/ticket.css'], printer)            
     except Exception as e:
@@ -578,7 +581,9 @@ def shut_down():
                 shutdown()   
                 return jsonify({'status': 'success', 'message': 'Shutting Down...', 'alertType': 'success', 'timer': 500, 'callback': 'shutdown'})
         elif 'id' in request.form:
-            staff = Staff.query.filter_by(staff_id = request.form['id']).first()
+            ID = request.form['id']
+            checkpass = make_pw_hash(ID, "Mamihlapinatapei") 
+            staff = Staff.query.filter_by(staff_id = checkpass).first()
             if staff.role_id == 1:
                 return jsonify({'status': 'success', 'message': 'Shutting Down...', 'alertType': 'success', 'timer': 500, 'callback': 'shutdown'})
             else:
@@ -662,7 +667,8 @@ def edit_cust(user_id):
 def dine_in():
     if request.method == 'POST':
         ID = request.form['staffID']
-        staff = Staff.query.filter_by(staff_id = ID).first()
+        checkpass = make_pw_hash(ID, "Mamihlapinatapei") 
+        staff = Staff.query.filter_by(staff_id = checkpass).first()
         if staff:
             if staff.role_id < 3:              
                 session['id'] = staff.id
@@ -684,7 +690,8 @@ def dine_in():
 def carry_out():
     if request.method == 'POST':
         ID = request.form['staffID']
-        staff = Staff.query.filter_by(staff_id = ID).first()
+        checkpass = make_pw_hash(ID, "Mamihlapinatapei") 
+        staff = Staff.query.filter_by(staff_id = checkpass).first()
         if staff:
             if staff.role_id < 3:              
                 session['id'] = staff.id
@@ -704,11 +711,9 @@ def carry_out():
 
 @app.route('/order/', methods=['POST'])
 def order():
-    if 'id' in session:
-        
+    if 'id' in session:        
         if request.method == 'POST':
-            # try:
-               
+            try:               
                 status = request.form['orderstatus']
                 i = request.form['items']
                 items = multiRow(i)
@@ -821,17 +826,18 @@ def order():
                     return jsonify({'status': 'success', 'alertType': 'success', 'timer': 500, 'callback': 'goTo', 'param': url_for('orders') })
                 else:
                     return jsonify({'status': 'success', 'alertType': 'success', 'timer': 500, 'callback': 'clearOrder'})
-            # except Exception as e:
-            #     print(e)
-            #     db.session.rollback()
-            #     return jsonify({'status': 'error', 'message': 'Internal System Error ' + str(e), 'alertType': 'error'})         
+            except Exception as e:
+                print(e)
+                db.session.rollback()
+                return jsonify({'status': 'error', 'message': 'Internal System Error ' + str(e), 'alertType': 'error'})         
     return redirect(url_for('logout'))
 
 @app.route('/orders', methods=['GET', 'POST'])
 def orders():
     if request.method == 'POST':
         ID = request.form['staffID']
-        staff = Staff.query.filter_by(staff_id = ID).first()
+        checkpass = make_pw_hash(ID, "Mamihlapinatapei") 
+        staff = Staff.query.filter_by(staff_id = checkpass).first()
         if staff: 
             if staff.role_id < 3:                       
                 session['id'] = staff.id
@@ -884,7 +890,6 @@ def ordertatus(orderid):
             
             if order.type_id == 1:
                 for table in order.tables:
-                    print(table)
                     t = Table.query.filter_by(id = table.table).first()
                     t.available = True
             db.session.commit()
@@ -905,7 +910,8 @@ def reopen(orderid):
 def kitchen():
     if request.method == 'POST':
         ID = request.form['staffID']
-        staff = Staff.query.filter_by(staff_id = ID).first()
+        checkpass = make_pw_hash(ID, "Mamihlapinatapei") 
+        staff = Staff.query.filter_by(staff_id = checkpass).first()
         if staff:
             if staff.role_id < 3:              
                 session['id'] = staff.id
@@ -944,7 +950,8 @@ def orderview(id):
 def admin():
     if request.method == 'POST':       
         ID = request.form['staffID']
-        staff = Staff.query.filter_by(staff_id = ID).first()
+        checkpass = make_pw_hash(ID, "Mamihlapinatapei")
+        staff = Staff.query.filter_by(staff_id = checkpass).first()
         if staff:                   
             if staff.role_id == 1:
                 session['role'] = "Administrator"
@@ -1028,15 +1035,34 @@ def printer(id):
             else:
                 printer = Printer(request.form['printername'], request.form['device'], request.form['printertype'])        
                 db.session.add(printer)
-            db.session.commit()
-            return jsonify({'message': 'OK', 'alertType': 'success', 'timer': 500, 'callback': 'loadTable'})
+            try:
+                db.session.commit()    
+                return jsonify({'message': 'OK', 'alertType': 'success', 'timer': 500, 'callback': 'loadTable'})
+            except IntegrityError:
+                db.session.rollback()
+                return jsonify({'status': 'error', 'message': 'A printer with that name already exist.', 'alertType': 'error', 'timer': 2500})
+            except Exception as e:
+                db.session.rollback()
+                return jsonify({'status': 'error', 'message': 'Internal System Error ' + str(e), 'alertType': 'error', 'timer': 2500})
         else:
             return redirect(url_for('config'))
     else:
         return redirect(url_for('logout'))
 
-
-
+@app.route('/test_print/<int:id>', methods=['POST'])
+def printerTest(id):
+    if session.get('role') == "Administrator":
+        if (request.method == 'POST'):
+            if id is not None:
+                printer = Printer.query.filter_by(id = id).first().printer
+                try:
+                    testPrint(printer)
+                    return jsonify({'message': 'OK', 'alertType': 'success', 'timer': 500, 'callback': 'loadTable'})
+                except Exception as e:
+                    return jsonify({'message': 'Could Not Reach Printer. '+'\n' + str(e), 'alertType': 'error', 'timer': 2500, 'callback': 'loadTable'})
+            return jsonify({'message': 'Could Not Reach Printer.', 'alertType': 'error', 'timer': 2500, 'callback': 'loadTable'})
+        else:
+             return redirect(url_for('logout'))
 #=======================================Staff Functions=========================================
 
 @app.route('/staff', methods=['POST', 'GET'])
@@ -1056,15 +1082,36 @@ def staff():
 
 @app.route('/staff/add', methods=['POST', 'GET'])
 def add_staff():
-    if request.method == 'POST':
-        fname = request.form['fname']
-        lname = request.form['lname']
-        pos = request.form['position']
-        role = request.form['role']
-        newHire = Staff(fname, lname, pos, role)
-        db.session.add(newHire)
-        db.session.commit()
-    return jsonify({'message': 'OK', 'alertType': 'success', 'timer': 500, 'callback': 'goTo', 'param' : url_for('staff')})
+    if session.get('role') == 'Administrator':
+        if request.method == 'POST':
+            fname = request.form['fname']
+            lname = request.form['lname']
+            pos = request.form['position']
+            role = request.form['role']
+            passw = ''.join([random.choice(string.digits) for x in range(6)])
+            q = "Mamihlapinatapei"
+            make_pw_hash(passw, q)
+            newHire = Staff(fname, lname, pos, role,  make_pw_hash(passw, q))
+            db.session.add(newHire)
+            db.session.commit()
+            return jsonify({'title':'Staff ID', 'message': 'ID for Staff ' + fname +' ' + lname +'\n' + passw, 'alertType': 'success', 'callback': 'loadStaffTable'})
+        return redirect(url_for('staff'))
+    return redirect(url_for('logout'))
+
+@app.route('/staff/pw/<int:id>', methods=['POST'])
+def chnpw(id):
+    if session.get('role') == 'Administrator':
+        if request.method == 'POST': 
+            staff = Staff.query.filter_by(id = id).first()
+            if staff:
+                passw = ''.join([random.choice(string.digits) for x in range(6)])
+                q = "Mamihlapinatapei"
+                staff.staff_id = make_pw_hash(passw, q)
+                db.session.commit()
+                return jsonify({'title':'Staff ID', 'message': 'ID for Staff: ' + staff.first_name +' ' + staff.last_name +'\n' + passw, 'alertType': 'success'})
+        return redirect(url_for('staff'))
+    return redirect(url_for('logout'))
+
 
 @app.route('/staff/edit/<int:user_id>', methods=['POST'])
 def edit_staff(user_id):
@@ -1086,7 +1133,7 @@ def edit_staff(user_id):
                     else:
                         db.session.delete(st)
                         db.session.commit()
-                        return jsonify({'message': 'OK', 'alertType': 'success', 'timer': 500, 'callback': 'goTo', 'param' : url_for('staff')})
+                        return jsonify({'message': 'OK', 'alertType': 'success', 'timer': 500, 'callback': 'loadStaffTable'})
             elif 'inactive' in request.form:
                 y = str(session.get('id')) == request.form['inactive']              
                 if y == True:                   
@@ -1095,13 +1142,13 @@ def edit_staff(user_id):
                     Staff.query.filter_by(id = request.form['inactive']).first().is_active = False
                     Staff.query.filter_by(id = request.form['inactive']).first().inactive_date = datetime.now().date()
                     db.session.commit()
-                    return jsonify({'message': 'OK', 'alertType': 'success', 'timer': 500, 'callback': 'goTo', 'param' : url_for('staff')})                    
+                    return jsonify({'message': 'OK', 'alertType': 'success', 'timer': 500, 'callback': 'loadStaffTable'})                    
             elif 'active' in request.form:
                 print(type(request.form['active']))    
                 Staff.query.filter_by(id = request.form['active']).first().is_active = True
                 Staff.query.filter_by(id = request.form['active']).first().inactive_date =None
                 db.session.commit()
-                return jsonify({'message': 'OK', 'alertType': 'success', 'timer': 500, 'callback': 'goTo', 'param' : url_for('staff')})           
+                return jsonify({'message': 'OK', 'alertType': 'success', 'timer': 500, 'callback': 'loadStaffTable'})           
             else:
                 user = Staff.query.filter_by(id = user_id).first()
                 user.first_name = request.form['fname']
@@ -1226,8 +1273,7 @@ def addCat():
 @app.route('/edit_item/<int:id>', methods=['POST'])
 def edit_item(id):
     if session.get('role') == 'Administrator':
-        if request.method == 'POST': 
-            print(request.form)          
+        if request.method == 'POST':       
             item = Menu_Item.query.filter_by(id = id).first()
             item.item_name = request.form['item_name']
             item.unit_price= request.form['price']

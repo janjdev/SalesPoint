@@ -1,7 +1,8 @@
 window.addEventListener('DOMContentLoaded', () => {
 
   //Actions buttons or links
-  let tasks = document.querySelectorAll('.staff-tasks'), actions = document.querySelectorAll('.row_action');
+  let tasks = document.querySelectorAll('.staff-tasks');
+  let actions = document.querySelectorAll('.row_action');
   
   //Needed variables
   let page, title, func, id, isValid=true, inputs = document.querySelectorAll('.dbAction');
@@ -108,21 +109,24 @@ window.addEventListener('DOMContentLoaded', () => {
         form.setAttribute('action', page);
         });
     });
-    
-    actions.forEach(function(action){
-      action.addEventListener('click', function(e){
+ //======================ROW ACTIONS==========================     
+      $(document).on('click', '.row_action', function(e){
         e.preventDefault();
-        id = action.getAttribute('data-id');
-        func = action.getAttribute('data-func');
-        console.log(func);
-        if (func == 'edit')
+        id = $(this).attr('data-id');
+        func =$(this).attr('data-func'); 
+       if (func == 'reset')
         {
-          page = '/staff/edit/' + id;
+          page = '/staff/pw/' + id
+        }
+        else if (func == 'copy')
+        {
+          page = $(this).attr('data-href');
         }
         else
-        {
-          page = action.getAttribute('data-href');
+        {       
+          page = '/staff/edit/' + id;
         }
+        console.log(page);
         if (func == 'copy' || func == 'edit')
         {
           //Is offered         
@@ -138,17 +142,18 @@ window.addEventListener('DOMContentLoaded', () => {
           document.querySelector('input[name="fname"]').value = $('tr#' + id + ' td.first_name')[0].innerText;
           document.querySelector('input[name="lname"]').value = $('tr#' + id + ' td.last_name')[0].innerText;
           document.querySelector('#staff_pos').value = $('tr#' + id + ' td.pos')[0].getAttribute('data-pos');
-          $('#staff_pos').change();
+          $('#staff_pos').trigger('change');
           document.querySelector('#staff_role').value = $('tr#' + id + ' td.rol')[0].getAttribute('data-rol');
-          $('#staff_role').change();
+          $('#staff_role').trigger('change');
           $('#staffModal').modal('show');  
         }
-        else{
+        else 
+        {
           let aform = document.createElement('form'), bput = document.createElement('input');
           bput.value = id;
           bput.setAttribute('name', func)
           aform.appendChild(bput);
-          url = '/staff/edit/' + id;
+          url = page;
           type = 'POST';
           form = aform;
           ajaxforms(url, type, form);
@@ -156,7 +161,7 @@ window.addEventListener('DOMContentLoaded', () => {
         }
         
       })
-    })
+    
 
   $('#cancel').on('click', function(e){
       form.reset();
@@ -255,39 +260,14 @@ window.addEventListener('DOMContentLoaded', () => {
     })
   }
 
-
-  function goToRegister(){
-    window.location.href = '/register';
+  function goTo(page){
+    $('#staffModal').modal('hide');
+    window.location.href = page;
+  }  
+  function loadStaffTable(){
+    $('#staffModal').modal('hide');
+    $('#tableH').load(document.URL +  '  #table');
   }
-function goToAdmin(){
-  window.location.href='/admin';
-  }
-function goToLogin(){
-  window.location.href ='/login';
-  }
-
-function goTo(page){
-  $('#staffModal').modal('hide');
-  window.location.href = page;
-}  
-function loadStaffTable(){
-  document.querySelectorAll('.modal-backdrop')[0].remove();
-  $('#staffModal').removeClass('show').css({'display': 'none'});
-  $('#staff_table').load(document.URL +  '  #stafflist');
-   
-  
-}
-function clearPassFields(){
-  $(document.querySelectorAll('input[type="password"]')).each(function(){$(this).val("");})    
-  }
-function clearEmailFields(){
-  $(document.querySelectorAll('input[type="email"]')).each(function(){$(this).val("");})
-  }
-function unlock(url){
-  window.location.href= url;
-  }
-
-
   function noMatch(form){
    jQuery(form).parent().parent().addClass('animated shake');
     setTimeout(function(){

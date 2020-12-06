@@ -54,6 +54,24 @@ window.addEventListener('DOMContentLoaded', () => {
    
     /*--------------------Printers----------------------------*/
 
+    $(document).on('click', '.test_printer', function(e){
+        let id = $(this).attr('data-id');
+        $('#overlay').removeClass('hide');
+        $.ajax({
+          url:'/test_print/'+id,
+          type: 'POST',
+          data: id
+        }).done(function(response){
+          $('#overlay').addClass('hide');
+          Swal.fire({
+            type: response.alertType,
+            text: response.message,
+            timer: response.timer,
+          })
+
+        })
+    });
+
     let page, checked, title, pfunc, action, id, isValid=true, form= document.querySelector('#add-printer ');
     const modalTitle = document.querySelector('#modal-title');
 
@@ -93,7 +111,7 @@ window.addEventListener('DOMContentLoaded', () => {
               });
               return;
             }
-            id =  checked[0].closest('tr').getAttribute('id');
+            id =  checked[0].closest('tr').getAttribute('id')
             page = '/printers/' + id;
             action = document.createElement('input');
             action.value=pfunc;
@@ -101,14 +119,17 @@ window.addEventListener('DOMContentLoaded', () => {
           }
           if(pfunc == 'edit')
           {
-            $('input[name="printername"]').val($('tr#'+ id + 'td.name').innerText);
-            $('select[name="device"]').val($('tr#'+ id + 'td.printer').innerText);
-            $('select[name="printertype"]').val($('tr#'+ id + 'td.type').innerText);
+            $('input[name="printername"]').val($('tr#'+ id + ' td.name').text());
+
+            $('select[name="device"]').val($('tr#'+ id + ' td.printer').text()).prop("selected", true).trigger('change');
+            document.querySelector('select[name="printertype"]').value = $('tr#'+ id + ' td.type').attr('data-type');
+            $('select[name="printertype"').prop("selected", true).trigger('change');
+           
             $('#add-edit-Printer').modal('show');
           }
           if(pfunc=='delete')
           {
-            $(form).submit();
+            $(form).trigger('submit');
           }
         });
  
@@ -122,6 +143,8 @@ window.addEventListener('DOMContentLoaded', () => {
         }]
       });
       $('.dataTables_length').addClass('bs-select');
+
+  //================Submit the Form======================= 
 
       $(form).on('submit', function(e){
         e.preventDefault();
@@ -198,10 +221,10 @@ function loadTable(){
   $('#add-edit-Printer').modal('hide');
   $('#printer').load(document.URL + ' #printerrow');
   document.getElementById('add-printer').reset();
+  $('input[name="action"]').detach();
 }
 
 function loadElement(el){
-  // let rform = `${el}form`;
-  // document.getElementById(rform).reset();
+
   $('#'+el + 'form').load(document.URL + ' #' + el +'Set');
 }

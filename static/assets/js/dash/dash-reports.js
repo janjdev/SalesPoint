@@ -130,6 +130,8 @@ window.addEventListener('DOMContentLoaded', () => {
         }, 1000);
     }
 
+
+
   // Create WYSIWYG functions for rich text editors
   $('.tools a').mousedown(function(e){
     e.preventDefault();
@@ -182,8 +184,9 @@ window.addEventListener('DOMContentLoaded', () => {
         placeCaretAtEnd(editDiv);        
       });
     }
-    // else if(command == 'print'){
-    //     let report = document.getElementById("data");
+    else if(command == 'print')
+    {
+      
     //     let printWindow = window.open("about:blank", "PrintWindow", "", "");
     //     let printDocument = printWindow.document;
     //     printDocument.write("<html><body></body></html>");
@@ -191,11 +194,11 @@ window.addEventListener('DOMContentLoaded', () => {
     //     var result = printWindow.print();
     //     printWindow.close();
     //     console.log($(this).attr('id') + " returned '" + result + "'");
-    // }
+    }
     else
     { 
         // 
-      document.execCommand($(this).data('command'), false, null);
+    //   document.execCommand($(this).data('command'), false, null);
       } 
     });
 });

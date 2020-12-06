@@ -10,7 +10,7 @@
         <h4 class="card-title">{{tablename}}</h4>
       </div>
       <div id="stafflist" class="card-body">
-        <div class="table-responsive">
+        <div id="tableH" class="table-responsive">
           <table id="table" class="table table-striped">
             <thead>
               <tr> 
@@ -58,8 +58,8 @@
                   {% else %}
                   {% set inactive = "" %}
                   {% endif %}
-                  <button data-id="{{ staff.staff.id }}" type="button" class="row_action btn btn-link red-accent-3-text" rel="tooltip" data-placement="bottom" title="Set Inactive" data-func="inactive" {{inactive}}>
-                    <i class="material-icons">close</i>
+                  <button data-id="{{ staff.staff.id }}" type="button" class="row_action btn btn-link red-accent-3-text teal-lighten-2-text" rel="tooltip" data-placement="bottom" title="Set Inactive" data-func="inactive" {{inactive}}>
+                    <i class="material-icons-outlined">person_remove</i>
                   </button>
                  
                   {% if staff.staff.is_active == True%}   
@@ -67,9 +67,12 @@
                   {% else %}
                   {% set active = "" %}
                   {% endif %}
-                  <button data-id="{{staff.staff.id}}" type="button" class="row_action btn btn-link lime-accent-4-text" rel="tooltip" data-placement="bottom" title="Set Active" data-func="active" {{active}}>
-                    <i class="material-icons">check</i>
+                  <button data-id="{{staff.staff.id}}" type="button" class="row_action btn btn-link lime-accent-4-text teal-lighten-2-text" rel="tooltip" data-placement="bottom" title="Set Active" data-func="active" {{active}}>
+                    <i class="material-icons-outlined">person_add_alt_1</i>
                   </button>
+                  <button data-id="{{ staff.staff.id }}" type="button" class="row_action btn btn-link teal-lighten-2-text" rel="tooltip" data-placement="bottom" title="Reset PassWord" data-func="reset">
+                    <i class="material-icons">replay</i>
+                  </button>               
                 </td>
               </tr>
               {% endfor %}       
