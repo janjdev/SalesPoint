@@ -9,22 +9,17 @@
             </div>
             <div class="modal-body">  
                         
-               <div class="tablesRow row">
+               <div id="discountsBody" class="row scrolling-wrapper-flexbox">
                 {% if discounts %}
                 {% for discount in discounts%}
-                {% if loop.index > 18 %}
-                  {% set hide='hide' %}
-                {% else %}
-                  {% set hide='' %}
-                {% endif %}
-                <button id="discount{{discount.id}}" class="discount btn btn-primary btn-round btn-sm discount-btn discount-page {{hide}}" data-value="{{discount.value}}" data-type="{{discount.type_id}}">                   
+                <button id="discount{{discount.id}}" class="discount btn btn-primary btn-round btn-sm discount-btn item_scroll" data-value="{{discount.value}}" data-type="{{discount.type_id}}">                   
                     <div>{{discount.discount_name}}</div>
                     <div>{{discount.value}}</div>
                     <div>{{discount.discounttype.name}}</div>
                 </button>
                 {% endfor %}
               {% endif %}
-               </div>               
+               </div>            
             </div>
             <div class="modal-footer">
                 <div class="row col-md-12 justify-content-center">

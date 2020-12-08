@@ -53,18 +53,16 @@
                             <input hidden name="orderid" value="{% if order%} {{order.id}} {% endif %}">
                             {% if order %}
                               {% for item in order.items%}
-                                <tr id="{{item.menu_item_id}}">
+                                <tr id="{{item.id}}">
                                   <td id="qty${id}" class="qty pt-3-half" ><input class="dbAction text-center" name="qty" type="number" value="{{item.quantity}}" /><input class="dbAction" hidden name="orderitem_id" value="{{item.id}}" /><span></span></td>
-                                  <td class="pt-3-half" ><input class="dbAction" hidden name="item" type="text" value="{{item.item.id}}" />{{item.item.item_name}}</td>
-                                  <td class="pt-3-half" ><input class="dbAction" hidden name="price" type="text" pattern="[+-]?[0-9]{1,3}(?:,?[0-9]{3})*(?:\.[0-9]{1,2})?" value="{{item.item.unit_price}}" />{{item.item.unit_price}}</td>
+                                  <td class="pt-3-half" ><input class="dbAction" hidden name="item" type="text" value="{{item.id}}" />{{item.item_name}}</td>
+                                  <td class="pt-3-half" ><input class="dbAction" hidden name="price" type="text" pattern="[+-]?[0-9]{1,3}(?:,?[0-9]{3})*(?:\.[0-9]{1,2})?" value="{{item.unit_price}}" />{{item.unit_price}}</td>
                                   <td class="pt-3-half" ><input class="itemNote text-capitalize" name="itemnote" type="text" value="{% if item.notes != None %}{{item.notes}}{% endif %}" /></td>                                                      
                                   <td>
                                       <span class="table-remove">
                                           <button type="button" class="btn btn-danger btn-rounded btn-sm my-0">x</button>
-                                      </span>
-                                      {% for tax in item.item.taxes %}                                     
-                                      <input  hidden name="taxes" data-value="{{ tax.tax_rate}}" value="{{tax.id}}" />
-                                    {% endfor %}
+                                      </span>                                                                        
+                                      <input  hidden name="taxes" data-value="{{item.tax_rate}}" value="{{item.id}}" />                                   
                                   </td>                                
                                 </tr>
                               {% endfor %}
@@ -115,7 +113,7 @@
           </fieldset>
           {% if order %}
             {% for discount in order.discounts %}
-            <input name="orderdiscount" data-value="{{discount.discount.value}}" data-type="{{discount.discount.type_id}}" hidden="" class="discount-discount{{discount.discount.id}}" value="{{discount.discount.id}}">
+            <input name="orderdiscount" data-value="{{discount.value}}" data-type="{{discount.type_id}}" hidden="" class="discount-discount{{discount.id}}" value="{{discount.id}}">
             {% endfor %}
           {% endif %}
         </form><!--End of Ticket Form-->
@@ -128,7 +126,7 @@
           <div class="photography">
               <div id="orderItemsRow" class="row">
               {% for item in items %}
-                {% if loop.index < 6 %}
+                {% if loop.index < 17 %}
                   {% set active='active' %}
                 {% else %}
                   {% set active='' %}
@@ -165,7 +163,7 @@
         <button id="all" class="cat-btn btn btn-primary col-md-12 ">All</button>       
           {% if cat %}
             {% for c in cat%}
-            {% if loop.index < 3 %}
+            {% if loop.index < 11 %}
               {% set active='active' %}
             {% else %}
               {% set active='' %}
@@ -233,5 +231,6 @@
     <script  src="{{ url_for('static', filename='assets/js/tasks/neworder.js')}}"></script>    
 
     <script  src="{{ url_for('static', filename='assets/js/tasks/order.js')}}"></script> 
+   
   
   {% endblock %}

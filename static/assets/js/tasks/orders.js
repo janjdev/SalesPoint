@@ -20,7 +20,7 @@ window.addEventListener('DOMContentLoaded', () => {
     });
 
     $('.dataTables_length').addClass('bs-select');
-    $(window).resize(function(){
+    $(window).on('resize', function(){
         m = window.innerHeight < 900 ? .225 : .335
         pl= (m * window.innerHeight);
         $('div.dataTables_scrollBody').css({'max-height': pl+'px'});
@@ -100,7 +100,7 @@ window.addEventListener('DOMContentLoaded', () => {
         });
 
     //Single row selection
-    $('#ordersTable').on('click keydown', 'tr', function(e){
+    $(document).on('click keydown', 'tr', function(e){
         $('#ordersTable tr').not($(this)).removeClass('active blue lighten-2');
         $(this).addClass('active blue lighten-2');
         $('input[name="rowSelect"]').prop('checked', false)

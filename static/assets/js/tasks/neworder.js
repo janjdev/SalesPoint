@@ -7,6 +7,7 @@ window.addEventListener('DOMContentLoaded', () => {
     const ncform = document.querySelector('form#newCust');
     const editform = document.querySelector('form#updateCust');
     const catbtns = document.querySelectorAll('.cat-page');
+    const disbtns = document.querySelectorAll('.discount-btn');
 
     //Element with data
     let parent;
@@ -35,9 +36,17 @@ window.addEventListener('DOMContentLoaded', () => {
       const nextCat = document.querySelector('#menu_categories a#nextcat');
       //Previous Categories
       const prevCat = document.querySelector('#menu_categories a#prevcat')
+      //Next Items
+      const nextdis = document.querySelector('#discountsModal a#nextdis');
+      //Previous Items
+      const prevdis = document.querySelector('#discountsModal a#prevdis')
+      //Next Items
+      const nexttable = document.querySelector('#menu_items a#nextitem');
+      //Previous Items
+      const prevtable = document.querySelector('#menu_items a#previtem')
 
     //Needed variables
-    let itemId, itemname, itemprice, newRow, tax, discount, func, cID ,isValid=true, page, currentitems=$('.menu-item'), itemsend = false, catend=false, itemstart=true, catstart=false,  inputs, m = window.innerHeight < 900 ? .225 : .335, pl= (m * window.innerHeight);
+    let itemId, itemname, itemprice, newRow, tax, discount, func, cID ,isValid=true, page, currentitems=$('.menu-item'), itemsend = false, catend=false, disend=false, itemstart=true, catstart=false,  distart=true,  inputs, m = window.innerHeight < 900 ? .225 : .335, pl= (m * window.innerHeight);
 
     //Element to append to orderlist when menu item is clicked
     function elAppend(id, name, price)
@@ -101,12 +110,12 @@ window.addEventListener('DOMContentLoaded', () => {
     $('.dataTables_length').addClass('bs-select');
     $('div.dataTables_wrapper div.dataTables_filter').parent().prev().css({'display': 'none'});
 
-    $(window).resize(function(){
-      m = window.innerHeight < 900 ? .225 : .335
-      pl= (m * window.innerHeight);
-      $('div.dataTables_scrollBody').css({'max-height': pl+'px'});
-      tableSort.draw();      
-    });
+    $(window).on('resize',() => {
+        m = window.innerHeight < 900 ? .225 : .335;
+        pl = (m * window.innerHeight);
+        $('div.dataTables_scrollBody').css({ 'max-height': pl + 'px' });
+        tableSort.draw();
+      });
 
   //-------------------------------------------------------------------------
   
@@ -127,7 +136,7 @@ window.addEventListener('DOMContentLoaded', () => {
           currentitems = $('div.menu-item.'+ filtered);       
           for(i = 0; i < currentitems.length; i++){
               currentitems[i].classList.remove('active')
-              if (i < 5){
+              if (i < 16){
                 currentitems[i].classList.add('active');
               }             
           }
@@ -140,7 +149,7 @@ window.addEventListener('DOMContentLoaded', () => {
         nextItem.addEventListener('click', function(e){
           e.preventDefault();
           let aitems=[];
-          if (!itemsend && currentitems.length > 5)
+          if (!itemsend && currentitems.length > 16)
           {
             currentitems.each(function(i, el){
               if (el.classList.contains('active')){
@@ -149,7 +158,7 @@ window.addEventListener('DOMContentLoaded', () => {
               }
             });
             let start = Math.max(...aitems) + 1;
-            let end = start+5;
+            let end = start+16;
             if (end >= currentitems.length)
             {
               itemsend = true;
@@ -164,7 +173,7 @@ window.addEventListener('DOMContentLoaded', () => {
         prevItem.addEventListener('click', function(e){
           e.preventDefault();
           let bitems=[];
-          if (!itemstart && currentitems.length > 5)
+          if (!itemstart && currentitems.length > 16)
           {
             currentitems.each(function(i, el){
               if (el.classList.contains('active')){
@@ -173,7 +182,7 @@ window.addEventListener('DOMContentLoaded', () => {
               }
             });
             let start = Math.min(...bitems) - 1;
-            let end = start-5;
+            let end = start-16;
             if (end <= 0)
             {
               itemstart = true;
@@ -184,10 +193,10 @@ window.addEventListener('DOMContentLoaded', () => {
             }
           }
         });
-
+// Paginate Categories
         nextCat.addEventListener('click', function(e){
           e.preventDefault();
-          if(!catend && catbtns.length > 2){
+          if(!catend && catbtns.length > 10){
               let acats =[];
               catbtns.forEach(function(el, i){
                 if (el.classList.contains('active')){
@@ -195,9 +204,8 @@ window.addEventListener('DOMContentLoaded', () => {
                   acats.push(i);
                 }
               });
-
               let start = Math.max(...acats) + 1;
-              let end = start+2;
+              let end = start+10;
               if (end >= catbtns.length)
               {
                 catend = true;
@@ -208,11 +216,10 @@ window.addEventListener('DOMContentLoaded', () => {
               catstart = false;
             }
         });
-
         prevCat.addEventListener('click', function(e){
           e.preventDefault();
           let bcats=[];
-          if (!catstart && catbtns.length > 2)
+          if (!catstart && catbtns.length > 10)
           {
             catbtns.forEach(function(el, i){
               if (el.classList.contains('active')){
@@ -221,7 +228,7 @@ window.addEventListener('DOMContentLoaded', () => {
               }
             });
             let start = Math.min(...bcats) - 1;
-            let end = start-2;
+            let end = start-10;
             if (end <= 0)
             {
               catstart = true;
@@ -323,7 +330,6 @@ window.addEventListener('DOMContentLoaded', () => {
               newtax.setAttribute('data-value', tax.innerText);
               newtax.setAttribute('name','taxes');
               newtax.setAttribute('hidden','');
-              // tax.cloneNode(true)
                 newRow.appendChild(newtax)
             });
 
@@ -378,7 +384,7 @@ window.addEventListener('DOMContentLoaded', () => {
     //Functions to manipulate order items from side buttons
 
         //Traverse up the table
-        $("#up").click(function() {
+        $("#up").on('click',function() {
           let row = $(table).find('tr.active'); 
 
           if (table.querySelectorAll('tr').length > 1){
@@ -394,7 +400,7 @@ window.addEventListener('DOMContentLoaded', () => {
           });
 
           //Traverse down the table
-        $("#down").click(function() {
+        $("#down").on('click',function() {
               let row = $(table).find('tr.active');
               let len = table.querySelectorAll('tr').length            
               if (len > 1){
@@ -408,7 +414,7 @@ window.addEventListener('DOMContentLoaded', () => {
               }         
               });
           //Increase item quantity
-          $('#add').click(function(e){
+          $('#add').on('click',function(e){
             e.preventDefault();
             let row = $(table).find('tr.active input[name="qty"]');
             let itemValue = row.val(); row.val(parseInt(itemValue) + 1);
@@ -416,7 +422,7 @@ window.addEventListener('DOMContentLoaded', () => {
           });
 
           //Decrease item quantity
-          $('#sub').click(function(e){
+          $('#sub').on('click',function(e){
             e.preventDefault();
             let row = $(table).find('tr.active input[name="qty"]');
             let itemValue = row.val(); row.val(parseInt(itemValue) - 1);
@@ -427,7 +433,7 @@ window.addEventListener('DOMContentLoaded', () => {
           });
 
           //Remove item button function
-          $('#remove').click(function (e) {
+          $('#remove').on('click',function (e) {
             e.preventDefault();
             let row = $(table).find('tr.active');     
             tableSort.row($(row)).remove().draw();        
@@ -557,9 +563,10 @@ $(document).on('click', 'button.discount-btn', function(e){
   tickTotal.value = ticketTotal();
   });
 
+
 ncb.addEventListener('click', function(e){
     e.preventDefault();
-    $(ncform).submit();      
+    $(ncform).trigger('submit');      
 });
 
 jQuery(ncform).on('submit', function(e){
@@ -635,6 +642,9 @@ if ($('body').hasClass('dinein')){
   $('#tablesModal').modal('show');
  
 };
+
+
+
 
  });
 

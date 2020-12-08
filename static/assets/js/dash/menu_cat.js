@@ -1,3 +1,6 @@
+//Variable for dataTables
+let cattable
+
 window.addEventListener('DOMContentLoaded', () => {
 
   //--------------Menu Categories-------------------//
@@ -15,7 +18,7 @@ window.addEventListener('DOMContentLoaded', () => {
 }
 
   //Actions buttons or links
-  let cattasks = document.querySelectorAll('.cat-task');
+  // let cattasks = document.querySelectorAll('.cat-task');
 
   //The form to submit
   let catform = document.querySelector('form#catform');  
@@ -26,8 +29,7 @@ window.addEventListener('DOMContentLoaded', () => {
   //Element that holds the title of the form
   const modalTitle = document.querySelector('#modal-title');
   
-  //All input checkboxes returns an HTML collection
-  let Checks = document.querySelectorAll('.row-check');
+  
 
   //Checked input checkboxes returns an HTMl collection
   let checked = document.querySelectorAll('input.row-check:checked');
@@ -37,11 +39,11 @@ window.addEventListener('DOMContentLoaded', () => {
   $('tr.False button[data-func="archived"]').attr('disabled', true);
 
   //Sort table function
-  $('table#catTable').DataTable({
+  cattable = $('table#catTable').DataTable({
     "aaSorting": [],
     columnDefs: [{
     orderable: false,
-    targets: [0,1,5],
+    targets: [0,1,6],
     "scrollY": "10vh",
     "scrollCollapse": true,
     "scrollX": true
@@ -60,24 +62,24 @@ window.addEventListener('DOMContentLoaded', () => {
   });
 
 //tasks function for add, edit, copy
-cattasks.forEach(function(task) {
-  task.addEventListener('click', function(e){
+
+ $(document).on('click', '.cat-task', function(e){
     //get the route      
-    page = task.getAttribute('data-href');
+    page = $(this).attr('data-href');
     //get the title of the action
-    title = task.getAttribute('data-title');
+    title = $(this).attr('data-title');
     //get the specific task
-    func =  task.getAttribute('data-func');
+    func = $(this).attr('data-func');
     //set the title of the modal
     modalTitle.innerText = title         
 
     //if the task is edit or copy get the selected row information
     if (func != 'add')
     {
-        if (func == 'edit' || func == 'archive')
+        if (func == 'edit' || func == 'delete')
         {
           if (checked.length < 1){
-          Swal.fire({
+            Swal.fire({
             type: 'error',
             text: 'Select a row to ' + func,
             timer: 2000,
@@ -85,14 +87,14 @@ cattasks.forEach(function(task) {
             return;
           }
         }    
-        if (func == 'edit' || func == 'archive')
+        if (func == 'edit' || func == 'delete')
         {
          
           id = checked[0].closest('tr').getAttribute('id');
         }
         else
         {
-          id = task.getAttribute('data-id');          
+          id =$(this).attr('data-id');          
         }        
         document.querySelector('input[name="cat_name"]').value = $('tr#' + id + ' td.name')[0].innerText;
         page = '/menu/edit_cat/' + id;  
@@ -112,20 +114,27 @@ cattasks.forEach(function(task) {
         }
         else
         { 
-          if(func == "archived" || func == 'archive')
+          if(func == 'archive')
           {
             document.querySelector('input[name="active"]').removeAttribute('checked');
           }
-          else
+         if(func == "active")
           {
             document.querySelector('input[name="active"]').setAttribute('checked', 'checked');
+          }
+          if(func == 'delete')
+          {
+            let bput = document.createElement('input');
+            bput.value = id;
+            bput.setAttribute('name', func)
+            catform.appendChild(bput);
           }     
           
-          $(catform).submit();        
+          $(catform).trigger('submit');        
         }            
       }
     });
-  });  
+  
 
  //Add/Edit a Categorey
 jQuery(catform).on('submit', function(e){
@@ -154,13 +163,13 @@ jQuery(catform).on('submit', function(e){
   })
 
       //Function to disable multi row select in table
-  Checks.forEach(function(check){
-    check.addEventListener('change', function(e){
+  
+    $(document).on('click','.row-check', function(e){
       //if a row (checkbox) is checked
-        if (e.target.checked)
+        if ($(this).prop("checked", true))
         {
           //remove checked property from all checkboxes but (not) this checkbox
-          $(Checks).not(e.target).prop("checked", false);
+          $('.row-check').not($(this)).prop("checked", false);
 
           //get the check input
           checked = document.querySelectorAll('input.row-check:checked');
@@ -171,21 +180,9 @@ jQuery(catform).on('submit', function(e){
           checked = document.querySelectorAll('input.row-check:checked');
         } 
     });
-  });
+  
 
-function loadElement(el){
-  if($('.modal').hasClass('show'))
-  {
-    $('.modal').modal('hide');
-  }
-  location.reload();    
-  setTimeout(function(){
-    $('a.active').removeClass('active show');
-    $('.tab-pane.active').removeClass('active');        
-     $('#menu' +el).addClass('active show');
-     $('#' + el).addClass('active show');
-   },100)
-}
+
 
 function ajaxforms(url, type, form){
   $.ajax({
@@ -238,3 +235,22 @@ function noMatch(form){
  }
 
 });
+
+function loadElement(){
+  $('#staffModal').modal('hide');
+  cattable.destroy();
+  $('#tableC').load(document.URL +  '  #catTable');
+  setTimeout(function(){
+    cattable = $('table#catTable').DataTable({
+      "aaSorting": [],
+      columnDefs: [{
+      orderable: false,
+      targets: [0,1,6],
+      "scrollY": "10vh",
+      "scrollCollapse": true,
+      "scrollX": true
+      }]
+    });
+    $('.dataTables_length').addClass('bs-select');
+  },550)
+}

@@ -1,7 +1,7 @@
 {% extends 'shared/head.html' %}
 {% block base %}
 <body class="{{bodyClass}}">       
-<div class="wrapper ">
+<div id="office" class="wrapper">
     <!--Include the sidebar-->
     {% include 'admin/dash/componets/sidebar.html' %}
     <div class="main-panel">
@@ -16,11 +16,39 @@
             </div>
         </div>
         <!--Include the footer-->
-       
+        <div id="modalAutoLogout" class="modal fade" tabindex="-1" role="dialog" data-backdrop="static">
+            <div class="modal-dialog" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title">Enter Your ID</h5>                 
+                </div>
+                <div class="modal-body">
+                  <form id="reAuth" method="POST">
+                    <div class="row  justify-content-center">
+                      <div class="col-md-8 form-group form-file-upload form-file-simple bmd-form-group">
+                          <input id="staff_id" type="password" name="staffID" class="form-control inputFileVisible text-center" placeholder="ID:" autofocus required/>                      
+                      </div>
+                    </div>
+                    <div class="row col-md-12 justify-content-center">
+                      <div class="">
+                        <button id="forcelogout" type="reset" class="btn btn-secondar pull-left" data-dismiss="modal">Cancel<div class="ripple-container"></div></button>
+                        <button id="forceAuth" type="submit" class="btn btn-success pull-right">Submit<div class="ripple-container"></div></button>
+                      </div>
+                    </div>
+                </form>
+                </div>
+                <div class="modal-footer">
+                  
+                </div>         
+                </div>
+              </div>
+            </div>
+          </div>
     </div>
 </div>
  <!--   Core JS Files   -->
- <script src="{{ url_for('static', filename='assets/js/core/jquery.min.js')}}"></script>
+ <script src="{{ url_for('static', filename='assets/js/core/jquery.min.js')}}"></script> 
+<script src="{{ url_for('static', filename='assets/js/shared/autolog.js')}}"></script>
  <script src="{{ url_for('static', filename='assets/js/core/popper.min.js')}}"></script>
  <script src="{{ url_for('static', filename='assets/js/core/bootstrap-material-design.min.js')}}"></script>
  <!-- <script src="{{ url_for('static', filename='assets/js/plugins/perfect-scrollbar.jquery.min.js')}}"></script> -->

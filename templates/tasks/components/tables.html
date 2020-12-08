@@ -8,20 +8,15 @@
                 </button>
             </div>
             <div class="modal-body">                           
-               <div class="tablesRow row">
+               <div id="tablesModalBody" class="row scrolling-wrapper-flexbox">
                 {% if tables %}
-                {% for table in tables%}
-                {% if loop.index < 18 %}
-                  {% set active='active' %}
-                {% else %}
-                  {% set active='' %}
-                {% endif %}
+                {% for table in tables%}              
                 {% if table.available == False %}
                     {% set avail='disabled' %}
                 {% else  %}
                 {% set avail='' %}
                 {% endif %}      
-                <button id="table{{table.id}}" class="btn btn-primary btn-round btn-sm table-btn table-page{{active}} {{avail}}">
+                <button id="table{{table.id}}" class="btn btn-primary btn-round btn-sm table-btn item_scroll {{avail}}">
                     <div class="tableno">{{table.table_no}}</div>
                     <div>Capcity: {{table.capacity}}</div>
                 </button>

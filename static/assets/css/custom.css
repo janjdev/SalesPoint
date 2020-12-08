@@ -27,6 +27,7 @@ b{
 a#logoff {
     width: 100px;
 }
+
 /*==========HEADER=============*/
 header{
     height: 20vh ;
@@ -269,6 +270,13 @@ body.shared-tasks .sidebar{
 height: 64px;
 }
 
+body.shared-tasks.tickets .sidebar{
+    height: auto;
+    }
+.rowTickets .scrolling-wrapper-flexbox {
+    width: 100%;
+    flex-wrap: wrap;
+}
 /*==========================Carry Out====================*/
 .row.order-row, .row.orders, .shared-tasks .task-row {
     position: fixed;
@@ -541,8 +549,6 @@ body.position #posRow.row, body.tax #taxRow, .tablesRow.row, body.discounts #dis
 
 /* ==============================Orders====================================== */
 
-
-
 .card .routeBtns [class*=card-header-] .card-icon {
     margin-top: -40px;
 }
@@ -609,8 +615,6 @@ p.instructions {
 
 .tickets .task-row .container {
     display: flex;
-    overflow-x: hidden;
-    overflow-y: scroll;
     align-items: flex-end;
 }
 
@@ -765,6 +769,17 @@ button#send {
     -webkit-transition: opacity .1s ease-out;
     -o-transition: opacity .1s ease-out;
     transition: opacity .1s ease-out;
+}
+
+/* Horizontal Scrolling */
+.scrolling-wrapper-flexbox {
+	display: flex;
+	flex-wrap: nowrap;
+	overflow-x: auto;
+}
+
+.scrolling-wrapper-flexbox .item_scroll {
+	flex: 0 0 auto;
 }
 .navbar .collapse .navbar-nav .nav-item .nav-link{
     color: #9c27b0;

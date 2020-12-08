@@ -1,8 +1,8 @@
 
 window.addEventListener('DOMContentLoaded', () => {
-let url,  type, form, id;
+let url,  type, form, id, isValid=true;
 
- $('body').on('click', '.btn-bump', function(e){
+ $(document).on('click', '.btn-bump', function(e){
     id = $(this).attr('data-id');
     url = '/orderticket/' + id;
     type = 'POST';
@@ -10,6 +10,28 @@ let url,  type, form, id;
 
     ajaxforms(url, type, form);
 });
+
+$(document).on('click', '#searchticket', function(e){
+  e.preventDefault();
+  form = document.getElementById('ticketSearch');
+  validate(form.querySelectorAll('input[name="open"]'))
+  if (isValid)
+  {
+    $('#ticketSearch').trigger('submit');
+  }
+  else{
+    noMatch(form);
+    isValid=true;
+  } 
+});
+
+$('#ticketSearch').on('submit', function(e){
+  e.preventDefault();
+  url = '/orderticket';
+  type = 'POST';
+  form = $(this);
+  ajaxforms(url, type, form);
+})
 
 function ajaxforms(url, type, form){
     $.ajax({
@@ -29,6 +51,7 @@ function ajaxforms(url, type, form){
       }
       Swal.fire({
         type: response.alertType,
+        title: response.title,
         text: response.message,
         timer: response.timer,
         onClose: callback
@@ -37,7 +60,28 @@ function ajaxforms(url, type, form){
     })
   }
 
+  function validate(args){
+    let fields = [];
+    args.forEach(el => fields.push(el));
+    console.log(fields);
+    fields.forEach(function(el){
+      if (el.value == '' || /\S/.test(el.value) == false)
+      {
+        isValid = false;
+        console.log(el.value);
+      }     
+    });    
+
+  }
+
+  function noMatch(form){
+    jQuery(form).parent().parent().addClass('animated shake');
+     setTimeout(function(){
+       jQuery(form).parent().parent().removeClass('animated shake');
+     }, 1000);
+   }
+
   function reload(){
-  location.reload();
+    location.reload();
   }
 });

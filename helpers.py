@@ -145,9 +145,9 @@ def setAutolog(time):
 
 
 def getAutolog():
-    with open ('configs/app.json', 'r+') as jfile:
+    with open ('configs/terminal.json', 'r+') as jfile:
         data = json.load(jfile)
-        autolog = data['autolog']
+        autolog = data['timer']
     return autolog
 
 def Load_Data(file_name):   
@@ -185,26 +185,26 @@ def calcualte(i, num=0, amount=0):
 
 def iterateData(data, opennum=0, paidnum=0, refundnum=0, voidnum=0, pendnum=0,open=0,paid=0,refund=0,void=0,pend=0,inamount=0,outamount=0,innum=0,outnum=0,gross=0,totaldiscount=0,totaltax=0):
     
-    for i in data:
-        if i.type_id == 1:   
+    for order in data:
+        if order.type_id == 1:   
             innum+=1
             subtotal=0
             ordtax=0
             od= 0
-            for item in i.items:
+            for item in order.items:
                 qty = item.quantity
-                price = item.item.unit_price
+                price = item.price
                 subtotal+= qty * price
-                tax= 0
-                for t in item.item.taxes:
-                    tax+= (t.tax_rate/100)
+                tax= (item.tax_rate/100)
+                # for t in item.item.taxes:
+                #     tax+= (t.tax_rate/100)
                 ordtax+= ((tax*price)*qty)
             taxdis =0
-            for dis in i.discounts:                
-                if dis.discount.type_id == 1:
-                    od += dis.discount.value
+            for dis in order.discounts:                
+                if dis.type_id == 1:
+                    od += dis.value
                 else:
-                    taxdis += dis.discount.value/100
+                    taxdis += dis.value/100
             od+=(taxdis*subtotal)
             inamount+= ((subtotal- od)+ordtax)
 
@@ -217,18 +217,18 @@ def iterateData(data, opennum=0, paidnum=0, refundnum=0, voidnum=0, pendnum=0,op
             od=0
             for item in i.items:
                 qty = item.quantity
-                price = item.item.unit_price
+                price = item.price
                 subtotal+= qty * price
-                tax = 0
-                for t in item.item.taxes:
-                    tax+= (t.tax_rate/100)
+                tax = (item.tax_rate/100)
+                # for t in item.item.taxes:
+                #     tax+= (t.tax_rate/100)
                 ordtax+=(tax*(price*qty))
             taxdis=0
             for dis in i.discounts:                
-                if dis.discount.type_id == 1:
-                    od += dis.discount.value
+                if dis.type_id == 1:
+                    od += dis.value
                 else:
-                    taxdis += dis.discount.value/100
+                    taxdis += dis.value/100
             od+=(taxdis*subtotal)
             outamount+= ((subtotal- od)+ordtax)
            
@@ -243,18 +243,18 @@ def iterateData(data, opennum=0, paidnum=0, refundnum=0, voidnum=0, pendnum=0,op
             ordtax=0
             for item in i.items:
                 qty = item.quantity
-                price = float(item.item.unit_price)
+                price = float(item.price)
                 subtotal+= float(qty * price)
-                tax=0            
-                for t in item.item.taxes:
-                    tax+= float((t.tax_rate/100))
+                tax=(item.tax_rate/100)            
+                # for t in item.item.taxes:
+                #     tax+= float((t.tax_rate/100))
                 ordtax += (tax*(price*qty))
             taxdis =0
             for dis in i.discounts:                
-                if dis.discount.type_id == 1:
-                    od += float(dis.discount.value)
+                if dis.type_id == 1:
+                    od += float(dis.value)
                 else:
-                    taxdis += float(dis.discount.value/100)
+                    taxdis += float(dis.value/100)
             od+=(taxdis*subtotal)
             totaldiscount+=od
             paid+= ((subtotal-od)+ordtax)
@@ -270,20 +270,20 @@ def iterateData(data, opennum=0, paidnum=0, refundnum=0, voidnum=0, pendnum=0,op
             od=0
             for item in i.items:
                 qty = item.quantity
-                price = float(item.item.unit_price)
+                price = float(item.price)
                 subtotal+= float(qty * price)
                 # gross+=subtotal
-                tax=0
-                for t in item.item.taxes:
-                    tax+= float((t.tax_rate/100))
+                tax=(item.tax_rate/100)
+                # for t in item.item.taxes:
+                #     tax+= float((t.tax_rate/100))
                 # totaltax+= 
                 ordtax += (tax*(price*qty))
             taxdis =0
             for dis in i.discounts:                
-                if dis.discount.type_id == 1:
-                    od += float(dis.discount.value)
+                if dis.type_id == 1:
+                    od += float(dis.value)
                 else:
-                    taxdis += float(dis.discount.value/100)
+                    taxdis += float(dis.value/100)
             od+=(taxdis*subtotal)
             # totaldiscount+=od
             open+= ((subtotal- od)+ordtax)
@@ -296,20 +296,20 @@ def iterateData(data, opennum=0, paidnum=0, refundnum=0, voidnum=0, pendnum=0,op
             od=0
             for item in i.items:
                 qty = item.quantity
-                price = float(item.item.unit_price)
+                price = float(item.price)
                 subtotal+= float(qty * price)
                 # gross+=subtotal
-                tax=0
-                for t in item.item.taxes:
-                    tax+= float((t.tax_rate/100))
+                tax=(item.tax_rate/100)
+                # for t in item.item.taxes:
+                #     tax+= float((t.tax_rate/100))
                 # totaltax+= (tax*subtotal)
                 ordtax += (tax*(price*qty)) 
             taxdis =0
             for dis in i.discounts:                
-                if dis.discount.type_id == 1:
-                    od += float(dis.discount.value)
+                if dis.type_id == 1:
+                    od += float(dis.value)
                 else:
-                    taxdis += float(dis.discount.value/100)
+                    taxdis += float(dis.value/100)
             od+=(taxdis*subtotal)
             # totaldiscount+=od
             void+= ((subtotal-od)+ordtax)
@@ -322,20 +322,20 @@ def iterateData(data, opennum=0, paidnum=0, refundnum=0, voidnum=0, pendnum=0,op
             od =0
             for item in i.items:
                 qty = item.quantity
-                price = float(item.item.unit_price)
+                price = float(item.price)
                 subtotal+= float(qty * price)
                 # gross+=subtotal
-                tax = 0
-                for t in item.item.taxes:
-                    tax+= float((t.tax_rate/100))
+                tax = (item.tax_rate/100)
+                # for t in item.item.taxes:
+                #     tax+= float((t.tax_rate/100))
                 # totaltax+= (tax*subtotal)
                 ordtax+=(tax*(price*qty))
             taxdis =0
             for dis in i.discounts:                
-                if dis.discount.type_id == 1:
-                    od += float(dis.discount.value)
+                if dis.type_id == 1:
+                    od += float(dis.value)
                 else:
-                    taxdis += float(dis.discount.value/100)
+                    taxdis += float(dis.value/100)
             od+=(taxdis*subtotal)
             # totaldiscount+=od
             refund+= ((subtotal-od)+ordtax)
@@ -348,20 +348,20 @@ def iterateData(data, opennum=0, paidnum=0, refundnum=0, voidnum=0, pendnum=0,op
             od =0
             for item in i.items:
                 qty = item.quantity
-                price = float(item.item.unit_price)
+                price = float(item.price)
                 subtotal+= float(qty * price)
                 # gross+=subtotal
-                tax = 0
-                for t in item.item.taxes:
-                    tax+= float((t.tax_rate/100))
+                tax =(item.tax_rate/100)
+                # for t in item.item.taxes:
+                #     tax+= float((t.tax_rate/100))
                     # totaltax+= (tax*subtotal)
                 ordtax+=(tax*(price*qty))
             taxdis=0
             for dis in i.discounts:                
-                if dis.discount.type_id == 1:
-                    od += float(dis.discount.value)
+                if dis.type_id == 1:
+                    od += float(dis.value)
                 else:
-                    taxdis += float(dis.discount.value/100)
+                    taxdis += float(dis.value/100)
             od+=(taxdis*subtotal)
             # totaldiscount+=od
             pend+= ((subtotal-od)+ordtax) 
@@ -435,7 +435,7 @@ def getPrinters():
 
 def testPrint(printer):
     filename = mktemp (".txt")
-    open (filename, "ab").write ("This is a test")
+    open (filename, "w").write ("This is a test")
     win32api.ShellExecute (
     0,
     "print",

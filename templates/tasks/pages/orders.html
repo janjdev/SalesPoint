@@ -82,7 +82,7 @@
                                   <td class="text-center text-capitalize">{{order.chk_num}}</td>
                                   <td class="name text-center text-capitalize">{{order.date_created.strftime('%m-%d-%Y %I:%M %p')}}</td>
                                   <td class="is_active text-center text-capitalize">{{order.type.order_type}}</td>
-                                  <td class="is_active text-center text-capitalize"> {% for table in order.tables %} {{table.tables.table_no}}, {% endfor %} </td>
+                                  <td class="is_active text-center text-capitalize"> {% for table in order.tables %} {{table.table}}, {% endfor %} </td>
                                   <td class="is_active text-center text-capitalize">{{order.createdby.first_name}}</td>  
                                   <td class="is_active text-center text-capitalize">{{order.status.status}}</td>
                                   <td class="is_active text-center text-capitalize">{{order.customer.name}}</td>
@@ -90,11 +90,9 @@
                                   {% set taxtotal = namespace(tvalue=0) %}
                                     {% for item in order.items %}
                                       {% set currenttotal = namespace(bvalue=0) %}                                      
-                                      {% set currenttotal.bvalue = currenttotal.bvalue + (item.item.unit_price * item.quantity) %}
-                                        {% set currenttax = namespace(ctvalue=0) %}
-                                        {% for tax in item.item.taxes %}
-                                          {% set currenttax.ctvalue = currenttax.ctvalue + tax.tax_rate|float %}
-                                        {% endfor %}
+                                      {% set currenttotal.bvalue = currenttotal.bvalue + (item.price * item.quantity) %}
+                                        {% set currenttax = namespace(ctvalue=0) %}                                       
+                                          {% set currenttax.ctvalue = currenttax.ctvalue + item.tax_rate|float %}                                       
                                         {% set taxtotal.tvalue =  taxtotal.tvalue + (currenttotal.bvalue|float * (currenttax.ctvalue|round(5, 'floor')/100) ) %}   
                                         {% set subtotal.value = subtotal.value + currenttotal.bvalue %}
                                     {% endfor %}
@@ -103,10 +101,10 @@
                                     {% set amount = namespace(amount=0) %}
                                     {% set percent = namespace(percent=0) %}
                                     {% for discount in order.discounts %}                                   
-                                    {% if discount.discount.type_id == 1 %}
-                                    {% set amount.amount = amount.amount + discount.discount.value %}
+                                    {% if discount.type_id == 1 %}
+                                    {% set amount.amount = amount.amount + discount.value %}
                                     {% else %}
-                                    {% set percent.percent = percent.percent + discount.discount.value|float %}  
+                                    {% set percent.percent = percent.percent + discount.value|float %}  
                                     {% endif %}
                                     {% endfor %}
 

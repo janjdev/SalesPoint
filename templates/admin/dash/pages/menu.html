@@ -39,7 +39,7 @@
                         </div>
                         
                         <div id="categories" class="col-md-12">                            
-                            <div class="table-responsive">
+                            <div id="tableC" class="table-responsive">
                                 <table id="catTable" class="table table-striped w-auto">
                                 <thead>
                                     <tr> 
@@ -49,7 +49,8 @@
                                             {% for key in catkeys %}                                                                      
                                             <th class="th-sm text-center text-capitalize">{{key}}</th>
                                             {% endfor %}
-                                        {% endif %}                                        
+                                        {% endif %}
+                                        <th class="th-sm text-center text-capitalize">#Items</th>                                        
                                         <th class="text-center">Actions</th>                                                      
                                     </tr>
                                 </thead>
@@ -70,13 +71,14 @@
                                     </td>
                                     <td class="text-center text-capitalize">{{c.id}}</td>
                                     <td class="name text-center text-capitalize">{{c.name}}</td>
-                                    <td class="is_active text-center text-capitalize" data-cat_active="{{c.is_active}}">{{c.is_active}}</td>                                                                                            
+                                    <td class="is_active text-center text-capitalize" data-cat_active="{{c.is_active}}">{{c.is_active}}</td>
+                                    <td class="text-center text-capitalize">{{c.items|count}}</td>                                                                                            
                                     <td class="td-actions justify-content-center">                                                            
                                         <button data-id="{{c.id}}" type="button" id="edit" class="btn btn-link lime-accent-4-text cat-task" rel="tooltip" data-placement="bottom" title="Set Active" data-func="active" data-title="Edit Category">
                                             <i class="material-icons">check</i>
                                         </button>
-                                        <button data-id="{{c.id}}" type="button" id="archive_cat" class="btn btn-link red-accent-3-text cat-task" rel="tooltip" data-placement="bottom" title="Set inactive" data-title="Archive Category" data-func="archived">
-                                            <i class="material-icons">close</i>
+                                        <button data-id="{{c.id}}" type="button" id="archive_cat" class="btn btn-link red-accent-3-text cat-task" rel="tooltip" data-placement="bottom" title="Set inactive" data-title="Archive Category" data-func="archive">
+                                            <i class="material-icons">not_interested</i>
                                         </button>
                                     </td>
                                 </tr>
@@ -89,7 +91,7 @@
                                 <span>
                                     <div class="btn icon-link-size green lighten-3" data-toggle="modal" data-target="#catModal"><a data-href="{{url_for('addCat')}}" class="cat-task" title="Add" data-toggle="tooltip" data-func="add" data-title="Add Menu Category"><i class="material-icons">add</i></a></div>
                                     <div class="btn icon-link-size green lighten-3"><a class="cat-task" title= "Edit" data-toggle="tooltip" data-func="edit" data-title="Edit Menu Category"><i class="material-icons">edit</i></a></div>                                                        
-                                    <div class="btn icon-link-size green lighten-3"><a class="cat-task" title="Set inactive" data-toggle="tooltip" data-func="archive"><i class="material-icons">close</i></a></div>
+                                    <div class="btn icon-link-size green lighten-3"><a class="cat-task" title="Delete" data-toggle="tooltip" data-func="delete"><i class="material-icons">close</i></a></div>
                                     
                                 </span>
                             </div>
@@ -185,7 +187,7 @@
                                                     <i class="material-icons">check</i>
                                                 </button>
                                                 <button data-id="{{i.item.id}}" type="button" class="btn btn-link red-accent-3-text item-task" rel="tooltip" data-placement="bottom" title="Set inactive" data-func="archived" data-title="Archive Item">
-                                                    <i class="material-icons">close</i>
+                                                    <i class="material-icons">not_interested</i>
                                                 </button>
                                             </td>
                                         </tr>

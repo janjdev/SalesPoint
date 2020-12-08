@@ -1,10 +1,10 @@
 {% extends 'tasks/components/task-base.html' %}
   {% block content %}
-  <div class="task-row row">
-    <div class="container">       
+  <div class="rowTickets row">
+    <div class="scrolling-wrapper-flexbox">       
         {% if tickets %}
             {% for ticket in tickets %}
-            <div class="col-lg-3 col-md-6 col-sm-6">
+            <div class="col-lg-3 col-md-6 col-sm-6 item_scroll">
                 <div class="card card-login card-hidden">
                     <div class="card-header card-header-warning">
                     <h4 class="card-title">Ticket Number: {{ticket.order.chk_num}} </h4>
@@ -20,7 +20,7 @@
                         <div class="row items">
                             <span class="index">{{item.quantity}}</span>      
                             <div class="itemname">                 
-                                <p>{{item.item.item_name}}</p>
+                                <p>{{item.item_name}}</p>
                             </div>
                             <div class="notes" >                 
                                 <span>note:</span><p class="instructions">{{item.notes}}</p>

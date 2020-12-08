@@ -63,7 +63,7 @@ jQuery(multi).on('submit', function(e){
 
 
 //Cancel form edits
-$('#editCancel').click(function(e){
+$('#editCancel').on('click',function(e){
 
   $(editbtn).removeClass('update');
   $('#edit_cancel').addClass('hide');
