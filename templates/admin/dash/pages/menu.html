@@ -74,10 +74,10 @@
                                     <td class="is_active text-center text-capitalize" data-cat_active="{{c.is_active}}">{{c.is_active}}</td>
                                     <td class="text-center text-capitalize">{{c.items|count}}</td>                                                                                            
                                     <td class="td-actions justify-content-center">                                                            
-                                        <button data-id="{{c.id}}" type="button" id="edit" class="btn btn-link lime-accent-4-text cat-task" rel="tooltip" data-placement="bottom" title="Set Active" data-func="active" data-title="Edit Category">
+                                        <button data-id="{{c.id}}" type="button" class="btn btn-link lime-accent-4-text cat-task" rel="tooltip" data-placement="bottom" title="Set Active" data-title="Set Active" data-func="active">
                                             <i class="material-icons">check</i>
                                         </button>
-                                        <button data-id="{{c.id}}" type="button" id="archive_cat" class="btn btn-link red-accent-3-text cat-task" rel="tooltip" data-placement="bottom" title="Set inactive" data-title="Archive Category" data-func="archive">
+                                        <button data-id="{{c.id}}" type="button" class="btn btn-link red-accent-3-text cat-task" rel="tooltip" data-placement="bottom" title="Set inactive" data-title="Set inactive" data-func="archive">
                                             <i class="material-icons">not_interested</i>
                                         </button>
                                     </td>
@@ -134,7 +134,7 @@
                         </div>
                         
                             <div id="items" class="col-md-12">                  
-                                <div class="table-responsive">
+                                <div id="tableI" class="table-responsive">
                                     <table id="itemTable" class="table table-striped w-auto">
                                     <thead>
                                         <tr> 
@@ -165,7 +165,7 @@
                                                 </label>                                                                                               
                                                 </div>
                                             </td>
-                                            <td id="theID" class="text-center text-capitalize">{{i.item.id}}</td>
+                                            <td class="text-center text-capitalize">{{i.item.id}}</td>
                                             <td class="item_name text-center text-capitalize">{{i.item.item_name}}</td>
                                             <td class="price text-center text-capitalize">{{i.item.unit_price}}</td> 
                                             <td class="category text-center text-capitalize" data-cat="{{i.item.item_category}}">{{i.cat}}</td>
@@ -183,10 +183,10 @@
                                             </td>
                                                                                                                                       
                                             <td class="td-actions justify-content-center">                                                            
-                                                <button data-id="{{i.item.id}}" type="button" class="btn btn-link lime-accent-4-text item-task" rel="tooltip" data-placement="bottom" title="Set Active" data-func="active" data-title="Edit Item">
+                                                <button data-id="{{i.item.id}}" type="button" class="btn btn-link lime-accent-4-text item-task" rel="tooltip" data-placement="bottom" title="Set Active" data-func="active" data-title="Set Active">
                                                     <i class="material-icons">check</i>
                                                 </button>
-                                                <button data-id="{{i.item.id}}" type="button" class="btn btn-link red-accent-3-text item-task" rel="tooltip" data-placement="bottom" title="Set inactive" data-func="archived" data-title="Archive Item">
+                                                <button data-id="{{i.item.id}}" type="button" class="btn btn-link red-accent-3-text item-task" rel="tooltip" data-placement="bottom" title="Set Inactive" data-func="archive" data-title="Set Inactive">
                                                     <i class="material-icons">not_interested</i>
                                                 </button>
                                             </td>
@@ -200,7 +200,7 @@
                                     <span>
                                         <div class="btn icon-link-size green lighten-3" data-toggle="modal" data-target="#itemModal"><a class="item-task" data-href="{{url_for('add_item')}}"  title="Add" data-toggle="tooltip" data-func="add" data-title="Add Menu Item"><i class="material-icons">add</i></a></div>                                                        
                                         <div class="btn icon-link-size green lighten-3"><a class="item-task" data-href="" title="Edit" data-toggle="tooltip" data-func="edit" data-title="Edit Menu Item"><i class="material-icons">edit</i></a></div>
-                                        <div class="btn icon-link-size green lighten-3"><a class="item-task" title= "Archive Item" data-toggle="tooltip" data-func="archive"><i class="material-icons">close</i></a></div>
+                                        <div class="btn icon-link-size green lighten-3"><a class="item-task" title= "Delete Item" data-toggle="tooltip" data-func="delete"><i class="material-icons">close</i></a></div>
                                     </span>
                                 </div>
                             </div>                        

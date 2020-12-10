@@ -78,6 +78,50 @@ app.on('ready', function ()  {
     callback(pathname);
     }); 
     createWindow(); 
+
+
+    const template = [
+      //   { role: 'editMenu' },
+        {
+          label: 'Edit',
+          submenu: [
+            { role: 'undo' },
+            { role: 'redo' },
+            { type: 'separator' },
+            { role: 'cut' },
+            { role: 'copy' },
+            { role: 'paste' },
+            { role: 'delete' },
+            { type: 'separator' },
+            { role: 'selectAll' }
+          ]
+        },
+      //   { role: 'viewMenu' },
+        {
+          label: 'View',
+          submenu: [
+            { role: 'resetzoom' },
+            { role: 'zoomin' },
+            { role: 'zoomout' },
+            { type: 'separator' },
+            { role: 'togglefullscreen' }
+          ]
+        },
+      //   { role: 'windowMenu' },
+        {
+          label: 'Window',
+          submenu: [
+            { role: 'minimize' },
+            { role: 'zoom' },
+            { role: 'close' }
+          ]
+        }
+      ]
+    const menu =  Menu.buildFromTemplate(template)
+    Menu.setApplicationMenu(menu)
+
+
+
  });  
   
 app.on('activate', function () {

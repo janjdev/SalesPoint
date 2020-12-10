@@ -29,14 +29,12 @@ window.addEventListener('DOMContentLoaded', () => {
   //Element that holds the title of the form
   const modalTitle = document.querySelector('#modal-title');
   
-  
-
-  //Checked input checkboxes returns an HTMl collection
-  let checked = document.querySelectorAll('input.row-check:checked');
+   //Checked input checkboxes returns an HTMl collection
+  let checked = document.querySelectorAll('#catTable input.row-check:checked');
 
   //Toggle Actions Enabled
-  $('tr.True button[data-func="active"]').attr('disabled', true);
-  $('tr.False button[data-func="archived"]').attr('disabled', true);
+  $('#catTable tr.True button[data-func="active"]').attr('disabled', true);
+  $('#catTable tr.False button[data-func="archive"]').attr('disabled', true);
 
   //Sort table function
   cattable = $('table#catTable').DataTable({
@@ -55,15 +53,21 @@ window.addEventListener('DOMContentLoaded', () => {
   document.querySelectorAll('.category-filter select').forEach(function(filter){
     filter.addEventListener('change', function(e){
       const filtered = e.target.selectedOptions[0].value;
-      console.log(filtered);
-      $('tr[data-class="cat"]').not('.'+filtered).toggle();
-      $('tr[data-class="cat"].'+ filtered).css({display: 'table-row'});
+      $.fn.dataTable.ext.search.pop();
+      $.fn.dataTable.ext.search.push(
+        function(settings, data, dataIndex) {
+            return $(cattable.row(dataIndex).node()).hasClass(filtered);
+        }
+     );      
+      // $('tr[data-class="cat"]').not('.'+filtered).toggle();
+      // $('tr[data-class="cat"].'+ filtered).css({display: 'table-row'});
+      cattable.draw();
     });
   });
 
 //tasks function for add, edit, copy
-
  $(document).on('click', '.cat-task', function(e){
+   
     //get the route      
     page = $(this).attr('data-href');
     //get the title of the action
@@ -89,7 +93,6 @@ window.addEventListener('DOMContentLoaded', () => {
         }    
         if (func == 'edit' || func == 'delete')
         {
-         
           id = checked[0].closest('tr').getAttribute('id');
         }
         else
@@ -169,15 +172,19 @@ jQuery(catform).on('submit', function(e){
         if ($(this).prop("checked", true))
         {
           //remove checked property from all checkboxes but (not) this checkbox
-          $('.row-check').not($(this)).prop("checked", false);
+          // $('.row-check').not($(this)).prop("checked", false);
+          $('input', cattable.cells().nodes()).prop('checked', false);
+          $(this).prop("checked", true)
 
           //get the check input
           checked = document.querySelectorAll('input.row-check:checked');
         }
         else
         {
-          //set checked input to an empty array           
+          //set checked input to an empty array 
+          $(this).prop("checked", false);          
           checked = document.querySelectorAll('input.row-check:checked');
+
         } 
     });
   
@@ -237,7 +244,8 @@ function noMatch(form){
 });
 
 function loadElement(){
-  $('#staffModal').modal('hide');
+  $('#catModal').modal('hide');
+  document.getElementById('catform').reset();
   cattable.destroy();
   $('#tableC').load(document.URL +  '  #catTable');
   setTimeout(function(){

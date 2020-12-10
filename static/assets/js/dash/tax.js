@@ -1,3 +1,4 @@
+let tablesSort;
 window.addEventListener('DOMContentLoaded', () => {
 
     //get the generated list of items
@@ -28,8 +29,17 @@ window.addEventListener('DOMContentLoaded', () => {
     //Flag to validate inputs
     let isValid = true;
 
+    //Sort the table
+  tableSort = $('#table').DataTable({
+    "aaSorting": [],
+    columnDefs: [{
+    orderable: false,
+    targets: [1,2]
+    }]
+  });
+  $('.dataTables_length').addClass('bs-select');
 
-    $('#editCancel').click(function(e){
+    $('#editCancel').on('click', function(e){
 
       $(editbtn).removeClass('update');
       $('#edit_cancel').addClass('hide');
@@ -224,7 +234,18 @@ function validate(args){
 //---------------Callbacks----------------------------------
 function loadTable(){
     $('#taxModal').modal('hide');
+    tablesSort.destroy()
     $('#taxRow').load(document.URL +  '  #tax_table');
+    setTimeout(function(){
+      tableSort = $('#table').DataTable({
+        "aaSorting": [],
+        columnDefs: [{
+        orderable: false,
+        targets: [1,2]
+        }]
+      });
+      $('.dataTables_length').addClass('bs-select');
+    }, 150);
 }
 
 function reload(){

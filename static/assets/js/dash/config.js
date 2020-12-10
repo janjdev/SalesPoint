@@ -225,6 +225,5 @@ function loadTable(){
 }
 
 function loadElement(el){
-
   $('#'+el + 'form').load(document.URL + ' #' + el +'Set');
 }

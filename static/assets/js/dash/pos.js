@@ -1,3 +1,4 @@
+let posTable, form
 window.addEventListener('DOMContentLoaded', () => { 
 
     //Actions buttons or links
@@ -10,7 +11,7 @@ window.addEventListener('DOMContentLoaded', () => {
     const modalTitle = document.querySelector('#modal-title');
   
     //The form to submit
-    let form = document.querySelector('form#staff');  
+    form = document.querySelector('form#staff');  
   
     //All input checkboxes returns an HTML collection
     let staffChecks = document.querySelectorAll('.post-action');
@@ -19,7 +20,7 @@ window.addEventListener('DOMContentLoaded', () => {
     let checked = document.querySelectorAll('input:checked');
 
     //Sort the table
-    $('#table').DataTable({
+    posTable = $('#table').DataTable({
       "aaSorting": [],
       columnDefs: [{
       orderable: false,
@@ -27,9 +28,6 @@ window.addEventListener('DOMContentLoaded', () => {
       }]
     });
     $('.dataTables_length').addClass('bs-select');  
-    
-    
-  
     //Function to disable multi row select in table
     staffChecks.forEach(function(check){
       check.addEventListener('change', function(e){
@@ -38,6 +36,7 @@ window.addEventListener('DOMContentLoaded', () => {
           {
             //remove checked property from all checkboxes but (not) this checkbox
             $(staffChecks).not(e.target).prop("checked", false);
+            $('input', posTable.cells().nodes()).not(e.target).prop('checked', false);
   
             //get the check element
             checked = document.querySelectorAll('input:checked');
@@ -92,14 +91,11 @@ window.addEventListener('DOMContentLoaded', () => {
           form.setAttribute('action', page);
           });
       });
-      
-      
-      actions.forEach(function(action){
-        action.addEventListener('click', function(e){
+      $(document).on('click', '.row_action', function(e){
           e.preventDefault();
-          id = action.getAttribute('data-id');
-          func = action.getAttribute('data-func');
-          modalTitle.innerText = action.getAttribute('data-title');
+          id = $(this).attr('data-id');
+          func =$(this).attr('data-func'); 
+          modalTitle.innerText =$(this).attr('data-title');
           
           if (func == 'edit' || func == 'terminate')
           {
@@ -107,7 +103,7 @@ window.addEventListener('DOMContentLoaded', () => {
           }
           else
           {
-            page = action.getAttribute('data-href');
+            page = $(this).attr('data-href');
           }
           if (func != 'terminate')
           {
@@ -128,7 +124,6 @@ window.addEventListener('DOMContentLoaded', () => {
                 form.querySelector('input[name="action"]').value = 'delete';
                 ajaxforms(page, 'POST', form);              
               } else if (
-                /* Read more about handling dismissals below */
                 result.dismiss === Swal.DismissReason.cancel
               ) {
                
@@ -137,9 +132,7 @@ window.addEventListener('DOMContentLoaded', () => {
             
           }
           
-        })
-      })
-  
+        })  
     $('#cancel').on('click', function(e){
         form.reset();
     });
@@ -169,9 +162,7 @@ window.addEventListener('DOMContentLoaded', () => {
       });    
   
     }
-  
-  
-  
+   
     function ajaxforms(url, type, form){
       $.ajax({
         url: url,
@@ -198,36 +189,6 @@ window.addEventListener('DOMContentLoaded', () => {
       })
     }
   
-  
-    function goToRegister(){
-      window.location.href = '/register';
-    }
-  function goToAdmin(){
-    window.location.href='/admin';
-    }
-  function goToLogin(){
-    window.location.href ='/login';
-    }
-  
-  function goTo(page){
-    window.location.href = page;
-  }  
-  function loadStaffTable(){
-    document.querySelectorAll('.modal-backdrop')[0].remove();
-    $('#staffModal').removeClass('show').css({'display': 'none'});
-    $('#staff_table').load(document.URL +  '  #stafflist');    
-  }
-  function clearPassFields(){
-    $(document.querySelectorAll('input[type="password"]')).each(function(){$(this).val("");})    
-    }
-  function clearEmailFields(){
-    $(document.querySelectorAll('input[type="email"]')).each(function(){$(this).val("");})
-    }
-  function unlock(url){
-    window.location.href= url;
-    }
-  
-  
     function noMatch(form){
      jQuery(form).parent().parent().addClass('animated shake');
       setTimeout(function(){
@@ -237,7 +198,24 @@ window.addEventListener('DOMContentLoaded', () => {
   
   });
 
+  // =================CallBack=================
 
+  function loadTable(){   
+    $('#staffModal').modal('hide');
+    form.reset();
+    posTable.destroy()
+    $('#tableP').load(document.URL +  '  #table');  
+    setTimeout(function(){
+      posTable = $('#table').DataTable({
+        "aaSorting": [],
+        columnDefs: [{
+        orderable: false,
+        targets: [0, 1, 4]
+        }]
+      });
+      $('.dataTables_length').addClass('bs-select');  
+    }, 500) ;
+  }
 
 
   

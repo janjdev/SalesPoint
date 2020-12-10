@@ -1,8 +1,9 @@
+let staffTable;
 window.addEventListener('DOMContentLoaded', () => {
 
   //Actions buttons or links
   let tasks = document.querySelectorAll('.staff-tasks');
-  let actions = document.querySelectorAll('.row_action');
+  // let actions = document.querySelectorAll('.row_action');
   
   //Needed variables
   let page, title, func, id, isValid=true, inputs = document.querySelectorAll('.dbAction');
@@ -20,7 +21,7 @@ window.addEventListener('DOMContentLoaded', () => {
   let checked = document.querySelectorAll('input:checked');
 
   //Sort the table
-  $('#table').DataTable({
+  staffTable = $('#table').DataTable({
     "aaSorting": [],
     columnDefs: [{
     orderable: false,
@@ -30,10 +31,6 @@ window.addEventListener('DOMContentLoaded', () => {
   $('.dataTables_length').addClass('bs-select');
   
   
-  //Toggle Actions Enabled
-  // $('tr.True button[data-func="active"]').attr('disabled', true);
-  // $('tr.False button[data-func="terminate"]').attr('disabled', true);
-
   //Function to disable multi row select in staff table
   staffChecks.forEach(function(check){
     check.addEventListener('change', function(e){
@@ -42,6 +39,7 @@ window.addEventListener('DOMContentLoaded', () => {
         {
           //remove checked property from all checkboxes but (not) this checkbox
           $(staffChecks).not(e.target).prop("checked", false);
+          $('input', staffTable.cells().nodes()).not(e.target).prop('checked', false);
 
           //get the check input
           checked = document.querySelectorAll('input:checked');
@@ -264,10 +262,6 @@ window.addEventListener('DOMContentLoaded', () => {
     $('#staffModal').modal('hide');
     window.location.href = page;
   }  
-  function loadStaffTable(){
-    $('#staffModal').modal('hide');
-    $('#tableH').load(document.URL +  '  #table');
-  }
   function noMatch(form){
    jQuery(form).parent().parent().addClass('animated shake');
     setTimeout(function(){
@@ -276,5 +270,21 @@ window.addEventListener('DOMContentLoaded', () => {
   }
 
 });
+function loadStaffTable(){
+  $('#staffModal').modal('hide');
+  $('form#staff').trigger("reset");
+  staffTable.destroy();
+  $('#tableH').load(document.URL +  '  #table');   
+  setTimeout(function(){
+    staffTable = $('#table').DataTable({
+      "aaSorting": [],
+      columnDefs: [{
+      orderable: false,
+      targets: [0, 1, 7]
+      }]
+    });
+    $('.dataTables_length').addClass('bs-select');
+  }, 500)
+}
 
 

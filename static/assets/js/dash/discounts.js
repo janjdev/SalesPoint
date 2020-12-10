@@ -1,3 +1,4 @@
+let tableSort;
 window.addEventListener('DOMContentLoaded', () => {
 
     //get the generated list of items
@@ -15,7 +16,7 @@ window.addEventListener('DOMContentLoaded', () => {
     const taxform = document.getElementById('discountForm');
 
     //get the tax form inputs
-    let inputs = document.querySelectorAll('input.dbAction');
+    // let inputs = document.querySelectorAll('input.dbAction');
 
     const tinputs = taxform.querySelectorAll('input.dbAction');
 
@@ -28,7 +29,7 @@ window.addEventListener('DOMContentLoaded', () => {
 
     //Cancel Update - gives smooth transition appearance, really just resets the entire form :)
 
-    $('#editCancel').click(function(e){
+    $('#editCancel').on('click', function(e){
 
         $(editbtn).removeClass('update');
         $('#edit_cancel').addClass('hide');
@@ -44,7 +45,14 @@ window.addEventListener('DOMContentLoaded', () => {
         location.reload();
     });
 
-
+    tableSort = $('#table').DataTable({
+      "aaSorting": [],
+      columnDefs: [{
+      orderable: false,
+      targets: [1, 6, 7]
+      }]
+    });
+    $('.dataTables_length').addClass('bs-select');
 
 $('body').on('click', '#delete', function(){
 
@@ -352,6 +360,16 @@ function loadTable(){
     $('#discountModal').modal('hide');
     discountForm.reset();
     $('#discountsRow').load(document.URL +  '  #discount_table');
+    setTimeout(function(){
+      tableSort = $('#table').DataTable({
+        "aaSorting": [],
+        columnDefs: [{
+        orderable: false,
+        targets: [1,2]
+        }]
+      });
+      $('.dataTables_length').addClass('bs-select');
+    }, 150);
 }
 
 function reload(){

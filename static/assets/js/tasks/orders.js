@@ -44,7 +44,6 @@ window.addEventListener('DOMContentLoaded', () => {
 
                 if($(this).hasClass('active')){
                     const filtered = e.target.getAttribute('data-filter');
-                    console.log(filtered);
                     filter['status'] = filtered;
                 }
                 else{
@@ -82,34 +81,54 @@ window.addEventListener('DOMContentLoaded', () => {
             }            
                 if (!('status' in filter) && ! ('type' in filter) ){
                     $('tr[data-class="orders"].all').css({display: 'table-row'})
+                        tablefilter('all');
                 };
 
                 if ('status' in filter && !('type' in filter)){
-                    $('tr[data-class="orders"]').not('.stat'+filter['status']).css({display: 'none'});
-                    $('tr[data-class="orders"].stat'+ filter['status']).css({display: 'table-row'});
+                    // $('tr[data-class="orders"]').not('.stat'+filter['status']).css({display: 'none'});
+                    // $('tr[data-class="orders"].stat'+ filter['status']).css({display: 'table-row'});
+                    tablefilter('stat'+ filter['status'])
+                    
                 }
                 if('type' in filter && !('status' in filter)){
-                    $('tr[data-class="orders"]').not('.type'+filter['type']).css({display: 'none'});
-                    $('tr[data-class="orders"].type'+ filter['type']).css({display: 'table-row'});
+                    // $('tr[data-class="orders"]').not('.type'+filter['type']).css({display: 'none'});
+                    // $('tr[data-class="orders"].type'+ filter['type']).css({display: 'table-row'});
+                    tablefilter('type'+ filter['type'])
                 }
                 
                 if('type' in filter && 'status' in filter){
-                    $('tr[data-class="orders"].all').css({display: 'none'})
-                    $('tr[data-class="orders"].stat'+ filter.status + '.type'+filter.type).css({display: 'table-row'});
+                    // $('tr[data-class="orders"].all').css({display: 'none'})
+                    // $('tr[data-class="orders"].stat'+ filter.status + '.type'+filter.type).css({display: 'table-row'});
+                    tablefilter('stat'+filter['status'] + ' type'+filter['type'])
                 }
+            
         });
+
+
+    // Orders Filter DataTable Helper
+    function tablefilter(filter)
+    {
+        $.fn.dataTable.ext.search.pop();
+        $.fn.dataTable.ext.search.push(
+          function(settings, data, dataIndex) {
+              return $(orderstable.row(dataIndex).node()).hasClass(filter);
+          }
+       );   
+       orderstable.draw();
+    }
 
     //Single row selection
     $(document).on('click keydown', 'tr', function(e){
         $('#ordersTable tr').not($(this)).removeClass('active blue lighten-2');
+        $('input[name="rowSelect"]', orderstable.cells().nodes()).prop('checked', false);       
+        orderstable.$('tr').removeClass('active blue lighten-2')
         $(this).addClass('active blue lighten-2');
-        $('input[name="rowSelect"]').prop('checked', false)
         $(this).find('input[name="rowSelect"]').prop('checked', true);
       });
 
     $(document).on('click', 'button.o-actions', function(e){
         let func = $(this).attr('data-action');
-        if (func == 'refund' || func == 'void'){
+        if (func == 'refund' || func == 'void' || func == "reopen"){
             if (! $('#user-role').text().toUpperCase() == "ADMINISTRATOR"){
                 Swal.fire({
                     type: 'error',

@@ -338,8 +338,7 @@ window.addEventListener('DOMContentLoaded', () => {
               let qty = parseInt($('tr#'+itemId).find('input[name="qty"]').val()) + 1            
              
                 $('tr#'+itemId).find('input[name="qty"]').val(qty);
-                $('tr#'+itemId).find('input[name="qty"]').attr('value', qty);
-                             
+                $('tr#'+itemId).find('input[name="qty"]').attr('value', qty);              
             }
             else
             {

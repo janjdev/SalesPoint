@@ -1,7 +1,7 @@
 
 import sys, os, io, collections, random, string, csv, tempfile, ast
 from datetime import datetime, timedelta, time
-from flask import Flask, request, redirect, render_template, session, url_for, abort, jsonify, flash
+from flask import Flask, request, redirect, render_template, session, url_for, abort, jsonify, flash, make_response
 from flask.helpers import flash
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import event, DDL
@@ -441,7 +441,9 @@ def getDiscounts():
 
 def exportTable(table, filename="table"):
     #create a csv file with the given filename
-    outfile = open('./files/'+filename+'.csv', 'w', newline='')
+    temp = tempfile.mktemp(".csv")
+    # open (filename, "w").write ("This is a test")
+    outfile = open(temp, 'w', newline='')
     #create a writer to write to the file    
     outcsv = csv.writer(outfile, dialect='excel')
     #get the records from the table
@@ -451,9 +453,11 @@ def exportTable(table, filename="table"):
     #write the records
     [outcsv.writerow([getattr(curr, column.name) for column in table.__mapper__.columns]) for curr in records]
     outfile.close()
+    # print(temp)
+    os.startfile(temp, "")
 
 def importToSQL(file):
-    try:
+    # try:
         file_name = file 
         data = Load_Data(file_name)
         for row in data:
@@ -541,13 +545,13 @@ def importToSQL(file):
                     record = Menu_Item(row[0], row[1], [2], row[3])
                     db.session.add(record) #Add all the records
         db.session.commit() #Attempt to commit all the records
-    except Exception as e:
-        db.session.rollback() #Rollback the changes on error
-        print(e)
-        return -3
-    finally:
-        print('final')
-        db.session.close() #Close the connection
+    # except Exception as e:
+    #     db.session.rollback() #Rollback the changes on error
+    #     return e       
+    # finally:
+    #     print('final')
+    #     db.session.close() #Close the connection
+       
 
 # =======================PRINTING FUNCTIONS=================================
 def sendToPrint(template, id, printerid=None):
@@ -578,8 +582,11 @@ def auth():
     ID = request.form['staffID']
     checkpass = make_pw_hash(ID, "Mamihlapinatapei") 
     staff = Staff.query.filter_by(staff_id = checkpass).first()
-    if staff:                   
+    if staff:
+        if staff.id == session.get('id'):                   
             return jsonify({'status': 'success', 'alertType': 'success', 'timer': 500, 'callback': 'reAuth'})
+        else:
+            return jsonify({'status': 'error', 'title': 'User MisMatch', 'message': 'Please signin with your ID', 'alertType': 'error'})
     else:
         return jsonify({'status': 'error', 'title': 'ID Not Found.', 'message': 'Contact your administrator for assistance or check the help docs for more information.', 'alertType': 'error'})
 
@@ -604,12 +611,12 @@ def shut_down():
         else:
              return jsonify({'status': 'error', 'message': 'Permission Restricted', 'alertType': 'error', 'timer': 2500})
     if request.method == 'GET':
-        # if session.get('role') == 'Administrator':
-        #     if shutdown is None:
-        #         raise RuntimeError('The function is not available')
-        #     else:
-        #         shutdown()
-        #         return redirect(url_for('logout'))  
+        if session.get('role') == 'Administrator':
+            if shutdown is None:
+                raise RuntimeError('The function is not available')
+            else:
+                shutdown()
+                return redirect(url_for('logout'))  
         return redirect(url_for('logout'))
     
 
@@ -621,8 +628,12 @@ def logout():
 
 @app.route('/exportmenu', methods=['Get', 'POST'])
 def export():
-  exportTable(Menu_Item, 'menu')
-  return redirect(request.referrer)
+    # try: 
+        exportTable(Menu_Item, 'menu')
+    # except:
+    #     flash("Unable to Open File", 'error') 
+    # return redirect(request.referrer)    
+ 
 
 @app.route('/importmenu', methods=['POST'])
 def importTable():
@@ -632,11 +643,15 @@ def importTable():
         filename = secure_filename(file.filename)        
         file.save(os.path.join(app.config['IMPORTS'], filename))
         filepath = os.path.join(app.config['IMPORTS'], filename)
-        # try:     
-        importToSQL(filepath)
-        #     return jsonify({'status': 'success', 'alertType': 'success', 'timer': 500,})
-        # except:
-        #     return jsonify({'status': 'Could not import all items. Check that the form is in the correct format. See "help" for more information', 'alertType': 'error', 'timer': 2500,})
+        try:     
+            importToSQL(filepath)
+            flash("Import Successful", 'success')
+            return jsonify({'status': 'success', 'alertType': 'success', 'timer': 500})
+        except Exception as e :
+            flash('Could not import all items. Check the .csv file is in the correct format. See "help" for more information', 'error')
+            return jsonify({'status': str(e), 'alertType': 'error', 'timer': 3500,})
+
+            
 
         
 
@@ -899,7 +914,7 @@ def ordertatus(orderid):
     if 'id' in session:
         if request.method == 'POST': 
             order = Order.query.filter_by(id = orderid).first()              
-            if request.form['action'] == 'void' or request.form['action'] == 'refund':
+            if request.form['action'] == 'void' or request.form['action'] == 'refund' or request.form['action'] == 'reopen':
                 if session.get('role') == "Administrator":
                     if request.form['action'] == 'void':
                         if order.status_id == 1 or order.status_id == 5:
@@ -911,6 +926,11 @@ def ordertatus(orderid):
                             order.status_id == 4
                         else:
                             return jsonify({'status': 'error', 'message': 'Only settled orders can be refunded', 'alertType': 'error', 'timer': 2500})
+                    if request.form['action'] == 'reopen':
+                        if order.status_id == 2 or order.status_id == 3 or order.status_id == 4:
+                            order.status_id = 1
+                        else:
+                            return jsonify({'status': 'error', 'title': 'Order is not Closed', 'message': 'Only settled, void or refund orders can be re-opened', 'alertType': 'error', 'timer': 2500})
                 else:
                     return jsonify({'status': 'error', 'message': 'Action requires Administrative Permissions', 'alertType': 'error', 'timer': 2500})
             if request.form['action'] == 'settle':
@@ -1191,8 +1211,7 @@ def edit_staff(user_id):
                     Staff.query.filter_by(id = request.form['inactive']).first().inactive_date = datetime.now().date()
                     db.session.commit()
                     return jsonify({'message': 'OK', 'alertType': 'success', 'timer': 500, 'callback': 'loadStaffTable'})                    
-            elif 'active' in request.form:
-                print(type(request.form['active']))    
+            elif 'active' in request.form:   
                 Staff.query.filter_by(id = request.form['active']).first().is_active = True
                 Staff.query.filter_by(id = request.form['active']).first().inactive_date =None
                 db.session.commit()
@@ -1231,7 +1250,7 @@ def positions():
             newPos = Staff_Position(name, 1)
             db.session.add(newPos)
             db.session.commit()
-            return jsonify({'message': 'OK', 'alertType': 'success', 'timer': 500, 'callback': 'goTo', 'param' : url_for('positions')})
+            return jsonify({'message': 'OK', 'alertType': 'success', 'timer': 500, 'callback': 'loadTable'})
     return redirect(url_for('logout')) 
 
 @app.route('/pos/edit/<int:pos_id>', methods=['POST'])
@@ -1247,7 +1266,7 @@ def edit_pos(pos_id):
                 pos.name = request.form['name']
                 pos.is_active = 0           
                 db.session.commit()
-                return jsonify({'message': 'OK', 'alertType': 'success', 'timer': 500, 'callback': 'goTo', 'param' : url_for('positions')})
+                return jsonify({'message': 'OK', 'alertType': 'success', 'timer': 500, 'callback': 'loadTable'})
             else:
                 staff = Staff.query.filter_by(position_id = pos_id).count()
                 if staff > 0:
@@ -1255,7 +1274,7 @@ def edit_pos(pos_id):
                 else:
                     db.session.delete(pos)
                     db.session.commit() 
-                    return jsonify({'message': 'OK', 'alertType': 'success', 'timer': 500, 'callback': 'goTo', 'param' : url_for('positions')})
+                    return jsonify({'message': 'OK', 'alertType': 'success', 'timer': 500, 'callback': 'loadTable'})
         else:
             return redirect(url_for('positions'))
     else: 
@@ -1285,7 +1304,7 @@ def menu():
         return redirect(url_for('logout'))    
 
 @app.route('/menu/edit_cat/<int:id>', methods=['POST'])
-def edit_cat(id):
+def edit_cat(id):   
     if session.get('role') == 'Administrator':
         if request.method == 'POST':        
             cate = Menu_Category.query.filter_by(id = id).first()
@@ -1331,6 +1350,7 @@ def addCat():
 
 @app.route('/edit_item/<int:id>', methods=['POST'])
 def edit_item(id):
+    print(request.form)
     if session.get('role') == 'Administrator':
         if request.method == 'POST':       
             item = Menu_Item.query.filter_by(id = id).first()
@@ -1421,11 +1441,20 @@ def add_item():
     else: 
         return redirect(url_for('logout'))
 
-@app.route('/edit_actions/<int:id>', methods=['POST'])
+@app.route('/delete_items/<int:id>', methods=['POST'])
 def actions(id):
     if session.get('role') == "Administrator":
         if request.method == 'POST':
-            print(request.args)
+            if id is not None:
+                mi = Menu_Item.query.filter_by(id = id).first()
+                if mi:
+                    db.session.delete(mi)
+                    db.session.commit()
+                    return jsonify({'message': 'OK', 'alertType': 'success', 'timer': 500, 'callback': 'loadElement', 'param' : 'item'})
+                else:
+                    return jsonify({'message': 'The item was not found in the system. Please, check "help".', 'alertType': 'error', 'timer': 3500})
+            else:
+                return jsonify({'message': 'The item was not found in the system. Please, check "help".', 'alertType': 'error', 'timer': 3500})
         else:
             return redirect(url_for('menu'))
     else:

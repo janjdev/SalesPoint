@@ -1,3 +1,6 @@
+//Variable for dataTables
+let itemTable
+
 window.addEventListener('DOMContentLoaded', () => {
 
 //---------------------Menu Items------------------------------//
@@ -15,10 +18,10 @@ window.addEventListener('DOMContentLoaded', () => {
     }
   
     //Actions buttons or links
-    let itemtasks = document.querySelectorAll('.item-task');
+    // let itemtasks = document.querySelectorAll('.item-task');
   
     //The form to submit
-   const itemform = document.querySelector('form#itemform'); 
+    let itemform = document.querySelector('form#itemform'); 
        
     //Needed variables
     let page, title, func, id, isValid=true, iteminputs = document.querySelectorAll('.itemAction');
@@ -26,19 +29,19 @@ window.addEventListener('DOMContentLoaded', () => {
     //Element that holds the title of the form
     const modalTitle = document.querySelector('#itemModal #modal-title');
     
-    //All input checkboxes returns an HTML collection
-    let Checks = document.querySelectorAll('.row-check');
-  
     //Checked input checkboxes returns an HTMl collection
-    let checked = document.querySelectorAll('input.row-check:checked');
+    let checked = document.querySelectorAll('#itemTable input.row-check:checked');
   
     //Toggle Actions Enabled
-    $('tr.True button[data-func="active"]').attr('disabled', true);
-    $('tr.False button[data-func="archived"]').attr('disabled', true);
+    $('#itemTable tr.True button[data-func="active"]').attr('disabled', true);
+    $('#itemTable tr.False button[data-func="archive"]').attr('disabled', true);
   
-    //Sort table function
-    $('table#itemTable').DataTable({
+     //Sort table function   
+      itemTable = $('table#itemTable').DataTable({
       "aaSorting": [],
+      // className: "row-check form-check-input",
+      // targets:   0,
+      // select: 'single',
       columnDefs: [{
       orderable: false,
       targets: [0,1,10],
@@ -48,35 +51,43 @@ window.addEventListener('DOMContentLoaded', () => {
       }]
     });
     $('.dataTables_length').addClass('bs-select');
-  
+      
     //Filter table function
     document.querySelectorAll('a.selects').forEach(function(filter){
       filter.addEventListener('click', function(e){
-        const filtered = e.target.getAttribute('data-filter');      
-        $('tr[data-class="itemrow"]').not('.'+filtered).css({'display': 'none'});
-        $('tr[data-class="itemrow"].'+ filtered).css({display: 'table-row'});
+        const filtered = e.target.getAttribute('data-filter');
+        $.fn.dataTable.ext.search.pop();
+        $.fn.dataTable.ext.search.push(
+          function(settings, data, dataIndex) {
+              return $(itemTable.row(dataIndex).node()).hasClass(filtered);
+          }
+       );      
+        // $('tr[data-class="itemrow"]').not('.'+filtered).css({'display': 'none'});
+        // $('tr[data-class="itemrow"].'+ filtered).css({display: 'table-row'});
+        itemTable.draw();
       });
     });
+
+    
   
-  //tasks function for add, edit, copy
-  itemtasks.forEach(function(task) {
-    task.addEventListener('click', function(e){       
+  //tasks function for add, edit, copy  
+    $(document).on('click', '.item-task', function(e){        
       //get the route      
-      page = task.getAttribute('data-href');
+      page = $(this).attr('data-href');      
       //get the title of the action
-      title = task.getAttribute('data-title');
+      title = $(this).attr('data-title');    
       //get the specific task
-      func =  task.getAttribute('data-func');
+      func =  $(this).attr('data-func');    
       //set the title of the modal
       modalTitle.innerText = title         
   
       //if the task is edit or copy get the selected row information
       if (func != 'add')
       {
-          if (func == 'edit' || func == 'archive')
+          if (func == 'edit' || func == 'delete')
           {
             if (checked.length < 1){
-            Swal.fire({
+              Swal.fire({
               type: 'error',
               text: 'Select a row to ' + func,
               timer: 2000,
@@ -84,27 +95,28 @@ window.addEventListener('DOMContentLoaded', () => {
               return;
             }
           }    
-          if (func == 'edit' || func == 'archive')
+          if (func == 'edit' || func=="delete")
           {
            
             id = checked[0].closest('tr').getAttribute('id');
           }
           else
           {
-            id = task.getAttribute('data-id');          
+            id =$(this).attr('data-id');
+                    
           }        
           document.querySelector('input[name="item_name"]').value = $('tr#' + id + ' td.item_name')[0].innerText;
           document.querySelector('input[name="price"]').value = $('tr#' + id + ' td.price')[0].innerText;
           document.querySelector('#item_cat').value = $('tr#' + id + ' td.category').attr('data-cat');
-          $('#item_cat').change();
+          $('#item_cat').trigger('change');
           let taxids=[];
-          $.each($('tr#2 td.tax span.taxtype'), function(i, el){
+          $.each($('tr#' + id + ' td.tax span.taxtype'), function(i, el){
             taxids.push(el.getAttribute('data-taxid'));        
           });        
           $.each(taxids, function(i,e){
               $("#taxselection option[value='" + e + "']").prop("selected", true);
           });
-          $('#taxselection').change();
+          $('#taxselection').trigger('change');
           document.querySelector('input[name="desc"]').value = $('tr#' + id + ' td.desc')[0].innerText;
           if (document.querySelector('img.img' != null))
           {
@@ -133,27 +145,27 @@ window.addEventListener('DOMContentLoaded', () => {
               document.querySelector('input[name="special"]').removeAttribute('checked');
             }
               
-            $('#itemModal').modal('show');
+              $('#itemModal').modal('show');
           }
-          else
-          { 
-            if(func == "archived" || func == 'archive')            
+          else 
+          {            
+            if( func == 'archive')            
             {
               document.querySelector('input[name="offered"]').removeAttribute('checked');
             }
-            else
+            if(func == 'active')
             {
               document.querySelector('input[name="offered"]').checked = true;
             }
-
-            $(itemform).submit();        
-          }                   
+           
+              $('#itemform').trigger("submit");        
+          }
         }
       });
-    });  
+    
   
    //Add/Edit a Item
-  $(itemform).on('submit', function(e){
+  $("#itemform").on('submit', function(e){
     e.preventDefault(); 
     validate(iteminputs);
     if(isValid){        
@@ -167,55 +179,75 @@ window.addEventListener('DOMContentLoaded', () => {
      
     /*--------------------SHARED----------------------------*/  
   
-    //Change value of is_active/is_offered
-    let active = document.querySelectorAll('.edit_active-offered')[0];
-    active.addEventListener('change', function(e){
-      if(e.target.checked){
-        e.target.value = 1;
-      }
-      else{
-        e.target.value = 0;
-        e.target.removeAttribute('checked')
-      }
-    })
+    
+   //Change value of is_active/is_offered
+  let active = document.querySelectorAll('.active-offered')[0];
+  active.addEventListener('change', function(e){
+    if(e.target.checked){
+      e.target.value = 1;
+    }
+    else{
+      e.target.value = 0;
+      e.target.removeAttribute('checked')
+    }
+  });
 
     $('.cancel').on('click', function(e){
         itemform.reset();
     });
   
-        //Function to disable multi row select in table
-    Checks.forEach(function(check){
-      check.addEventListener('change', function(e){
-        //if a row (checkbox) is checked
-          if (e.target.checked)
-          {
-            //remove checked property from all checkboxes but (not) this checkbox
-            $(Checks).not(e.target).prop("checked", false);
-  
+        // //Function to disable multi row select in table
+        $(document).on('click','input.row-check', function(e){
+
+          var $box = $(this);
+          if ($box.is(":checked")) {
+            // the name of the box is retrieved using the .attr() method
+            // as it is assumed and expected to be immutable
+            var group =  $("input.row-check");
+            // the checked state of the group/box on the other hand will change
+            // and the current value is retrieved using .prop() method
+            $(group).prop("checked", false);
+            $('input', itemTable.cells().nodes()).prop('checked', false);          
+            $box.prop("checked", true);
             //get the check input
             checked = document.querySelectorAll('input.row-check:checked');
-          }
-          else
-          {
+          } else {
+            $box.prop("checked", false);
+            $('input', itemTable.cells().nodes()).prop('checked', false);
             //set checked input to an empty array           
             checked = document.querySelectorAll('input.row-check:checked');
-          } 
-      });
-    });
-  
+          }
+        });
+     
   function loadElement(el){
-    if($('.modal').hasClass('show'))
-    {
-      $('.modal').modal('hide');
-    }
-        location.reload();    
-        setTimeout(function(){
-        $('a.active').removeClass('active show');
-        $('.tab-pane.active').removeClass('active');        
-        $('#menu' +el).addClass('active show');
-        $('#' + el).addClass('active show');
-        },500)
+   $('#itemModal').modal('hide');
+   itemTable.destroy();
+   $('#tableI').load(document.URL +  '  #itemTable');
+   $('tr.True button[data-func="active"]').attr('disabled', true);
+   $('tr.False button[data-func="archived"]').attr('disabled', true);
+   setTimeout(function(){
+    itemTable = $('table#itemTable').DataTable({
+      "aaSorting": [],
+      columnDefs: [{
+      orderable: false,
+      targets: [0,1,10],
+      "scrollY": "10vh",
+      "scrollCollapse": true,
+      "scrollX": true
+      }]
+    });
+    $('.dataTables_length').addClass('bs-select');
+  }, 500)      
+   
+    setTimeout(function(){
+    $('a.active').removeClass('active show');
+    $('.tab-pane.active').removeClass('active');        
+    $('#menu' +el).addClass('active show');
+    $('#' + el).addClass('active show');
+    },500)
   }
+
+
 
 
   function ajaxforms(url, type, form, pData=true, cType='application/x-www-form-urlencoded; charset=UTF-8', dType='', convert=false){
@@ -259,6 +291,7 @@ window.addEventListener('DOMContentLoaded', () => {
       if (el.value == '' || /\S/.test(el.value) == false)
       {
         isValid = false;
+        console.log(el);
       }     
     });    
   }
