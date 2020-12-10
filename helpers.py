@@ -40,7 +40,7 @@ def same_as(column_name):
 def getDate():
     return datetime.now().strftime("%A, %B, %d")
 
-def setBusInfo(name, phone, add, city, st, zip):
+def setBusInfo(name, phone, add, city, st, zip, image_path):
     with open('configs/info.json', 'r+') as info:
         data = json.load(info)
         if name != '':
@@ -55,6 +55,8 @@ def setBusInfo(name, phone, add, city, st, zip):
             data['state'] = st
         if zip != '':
             data['zip'] = zip
+        if image_path != '':
+            data['logo'] = image_path
         info.seek(0)
         json.dump(data, info)
         info.truncate()

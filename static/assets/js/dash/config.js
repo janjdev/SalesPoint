@@ -1,15 +1,67 @@
 window.addEventListener('DOMContentLoaded', () => {
 
+  //set the current tab
+  $('a[data-toggle="tab"]').on('show.bs.tab', function(e) {
+    localStorage.clear();
+    localStorage.setItem('configTab', $(e.target).attr('href'));
+  });
+  let configTab = localStorage.getItem('configTab');
+  if(configTab){
+    $('.nav-item a[href="' + configTab + '"]').tab('show');
+    $('.nav-item a[href="' + configTab + '"]').addClass('active show');
+  
+  }
+
+  let busform = document.querySelector('form#businfoform');
 
   //--------------Business Info-------------------//
 
   $(document).on('click', '#busbtn', function(e){
+    e.preventDefault();
     $('#businfoform').trigger('submit');
   })
     $('#businfoform').on('submit', function(e){
-      e.preventDefault();
-      ajaxforms('/bus', 'POST', $(this));
+      e.preventDefault();      
+      let formData = new FormData(busform);
+      // let  fileInput = document.getElementById('blogo');
+      // let file = fileInput.files[0];
+      // formData.append('logo', file)
+      ajaxCforms('/bus', 'POST', formData);
     });
+
+    function ajaxCforms(url, type, form, pData=true, cType='application/x-www-form-urlencoded; charset=UTF-8', dType='', convert=false){
+      $.ajax({
+        url: url,
+        type: type,
+        data: form,
+        cache: false,
+        processData: false,
+        contentType: false,
+        dataType: dType,
+      //   converters: {
+      //     'text json': convert
+      //   }
+      })
+      .done(function(response){            
+          let callback = eval(response.callback)            
+          if(response.param){
+            if(response.param == 'form'){
+              callback = callback(form)
+            }
+            else{
+              callback = callback(response.param)
+            }
+          }        
+          Swal.fire({
+            type: response.alertType,
+            text: response.message,
+            timer: response.timer,
+            onClose: callback
+          })
+        })
+  }
+
+
 
 
   //---------------------Terminal------------------------------//

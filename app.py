@@ -1052,9 +1052,11 @@ def config():
 
 @app.route('/bus', methods=['POST'])
 def get_bus():
+    print(request.form)
     if session.get('role') == "Administrator":
         if (request.method=='POST'):
-            setBusInfo(request.form['name'], request.form['phone'], request.form['add'], request.form['city'], request.form['st'], request.form['zip'])
+            path = ""
+            setBusInfo(request.form['name'], request.form['phone'], request.form['add'], request.form['city'], request.form['st'], request.form['zip'], path)
             return jsonify({'message': 'OK', 'alertType': 'success', 'timer': 500, 'callback': 'loadElement', 'param' : 'businfo'})
         else:
             return redirect(url_for('config'))
@@ -1625,16 +1627,23 @@ def tablemultiAdd():
     if session.get('role') == 'Administrator':
         if request.method == 'POST':
             num = int(request.form['num'])           
-            count = len(Table.query.all()) +1         
-            stopper = num + count
-            try:                   
-                for n in range(count, stopper):
-                    newtable = Table(n)                   
-                    db.session.add(newtable)
+            count = Table.query.count() + 1
+            stopper = num + count 
+            try:                               
+                while count < stopper: 
+                    table = Table.query.filter_by(table_no = count).first()
+                    if table:                 
+                        stopper=stopper+1
+                    else: 
+                        newtable = Table(count)
+                        db.session.add(newtable)
+                    count=count+1
+                #     newtable = Table(n)                   
+                #     db.session.add(newtable)
                 db.session.commit()
                 return jsonify({'message': 'OK', 'alertType': 'success', 'timer': 500, 'callback': 'reup'})
             except Exception as e:               
-                return jsonify({'message': 'Unable to create tables', 'alertType': 'warning', 'timer': 500})
+                return jsonify({'title': 'Unable to create tables', 'message': str(e), 'alertType': 'warning', 'timer': 5000})
         return redirect(url_for('setTable'))
     return redirect(url_for('logout'))
 

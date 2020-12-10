@@ -79,8 +79,6 @@ $('#editCancel').on('click',function(e){
 deletebtn.addEventListener('click', function(e){
     e.preventDefault();
     let checked = document.querySelectorAll('input.tableRow:checked');
-    console.log(checked);
-
     if(checked.length < 1)
     {
         Swal.fire({
@@ -262,6 +260,7 @@ function ajaxforms(url, type, form, pData=true, cType='application/x-www-form-ur
       }        
       Swal.fire({
         type: response.alertType,
+        title: response.title,
         text: response.message,
         timer: response.timer,
         onClose: callback
