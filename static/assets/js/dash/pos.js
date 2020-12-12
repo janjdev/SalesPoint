@@ -27,16 +27,18 @@ window.addEventListener('DOMContentLoaded', () => {
       targets: [0, 1, 4]
       }]
     });
-    $('.dataTables_length').addClass('bs-select');  
+    $('.dataTables_length').addClass('bs-select');
+    
+    
     //Function to disable multi row select in table
-    staffChecks.forEach(function(check){
-      check.addEventListener('change', function(e){
+    
+    $(document).on('click change', '.post-action', function(e){
         //if a row (checkbox) is checked
-          if (e.target.checked)
+          if ($(this).attr('checked', true))
           {
             //remove checked property from all checkboxes but (not) this checkbox
-            $(staffChecks).not(e.target).prop("checked", false);
-            $('input', posTable.cells().nodes()).not(e.target).prop('checked', false);
+            $('.post-action').not($(this)).prop("checked", false);
+            $('input', posTable.cells().nodes()).not($(this)).prop('checked', false);
   
             //get the check element
             checked = document.querySelectorAll('input:checked');
@@ -47,7 +49,7 @@ window.addEventListener('DOMContentLoaded', () => {
             checked = document.querySelectorAll('input:checked');
           } 
       });
-    });
+    
   
   //tasks function for add, edit, copy
     tasks.forEach(function(task) {

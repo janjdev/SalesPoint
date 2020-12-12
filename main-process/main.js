@@ -1,10 +1,13 @@
 // Modules to control application life and create native browser window
-const {app, BrowserWindow, protocol, Menu} = require('electron');
+const {app, BrowserWindow, protocol, Menu, ipcMain} = require('electron');
 const path = require('path');
 const { PythonShell } = require('python-shell');
 const menu = app.menu
 
-
+const firstRun = require('electron-first-run');
+ 
+const isFirstRun = firstRun()
+console.log(isFirstRun);
 
 const flask = path.join(__dirname, '../venv/Scripts/flask.exe')
 
@@ -38,7 +41,10 @@ function createWindow () {
   // Create the browser window.
   mainWindow = new BrowserWindow({
     width: 1250,
-    height: 850,
+    height: 880,
+    minHeight: 880,
+    minWidth: 1216,
+    frame: false,
     backgroundColor: '#fff',
     show: false,
     webPreferences: {
@@ -49,24 +55,27 @@ function createWindow () {
     },
     icon: path.join(__dirname, '../static/assets/img/icons/salespoint-green.png')
   });
-  const startURL = 'http://127.0.0.1:5000/';
+  const startURL = firstRun==true? 'http://127.0.0.1:5000/first': 'http://127.0.0.1:5000/';
   //`file://${path.join(__dirname, "../templates/window_main.html")}`;  
 
   
   // and load the index.html of the app.
   mainWindow.loadURL(startURL);
+ 
 
   mainWindow.webContents.session.clearCache(function(){});
+  mainWindow.webContents.send('MSG_FROM_MAIN', 'hello renderer');
 
-  mainWindow.once("ready-to-show", () => mainWindow.show());
+  mainWindow.once("ready-to-show", () => { mainWindow.show()});
   mainWindow.on("closed", () => {
     mainWindow = null
   });
   //start backend server
   startFlask();
   startApp();
-
+  
 }
+
 
 
 // This method will be called when Electron has finished
@@ -76,9 +85,9 @@ app.on('ready', function ()  {
     protocol.registerFileProtocol('file', (request, callback) => {
     const pathname = decodeURI(request.url.replace('file:///', ''));
     callback(pathname);
-    }); 
+    });
+   
     createWindow(); 
-
 
     const template = [
       //   { role: 'editMenu' },
@@ -100,6 +109,9 @@ app.on('ready', function ()  {
         {
           label: 'View',
           submenu: [
+            { role: 'forceReload' },
+            { role: 'toggleDevTools' },
+            { type: 'separator' },
             { role: 'resetzoom' },
             { role: 'zoomin' },
             { role: 'zoomout' },
@@ -115,14 +127,30 @@ app.on('ready', function ()  {
             { role: 'zoom' },
             { role: 'close' }
           ]
-        }
+        },
+        {
+          role: 'About',
+          id: 'about',
+          submenu: [
+            {
+              label: 'Learn More',
+              click: async () => {
+                const { shell } = require('electron')
+                await shell.openExternal('https://github.com/janjdev/SalesPoint')
+              }
+            },
+          ]
+        },
+        {
+          role: 'Help',
+          label: 'Help',
+          icon: path.join(__dirname, '../static/assets/img/icons/help.png'),
+      },
       ]
     const menu =  Menu.buildFromTemplate(template)
     Menu.setApplicationMenu(menu)
 
-
-
- });  
+});  
   
 app.on('activate', function () {
   // On macOS it's common to re-create a window in the app when the
@@ -169,7 +197,22 @@ files().then(function(val){
   });
 });
 
+const createModal = (htmlFile, parentWindow, width, height) => {
+  let modal = new BrowserWindow({
+    width: width,
+    height: height,
+    modal: true,
+    parent: parentWindow,
+    webPreferences: {
+      nodeIntegration: true
+    }
+  })
 
+  modal.loadFile(htmlFile)
+
+  return modal;
+
+}
 
 
 

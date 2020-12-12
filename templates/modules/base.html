@@ -6,7 +6,9 @@
         <!-- End Google Tag Manager (noscript) -->
 <div class="wrapper ">
     <!--Include the sidebar-->
+    {% if bodyClass != 'firstRun' %}
     {% include '/modules/header.html' %}
+    {% endif %}
     <div class="main-panel">
         <!--Include the navbar-->
         
@@ -68,6 +70,22 @@
  <!-- Control Center for Material Dashboard: parallax effects, scripts for the example pages etc -->
  <script src="{{ url_for('static', filename='assets/js/material-dashboard.min.js')}}" type="text/javascript"></script>
  <script src="{{ url_for('static', filename='assets/js/material-dashboard.min2.js')}}" type="text/javascript"></script>
+ {% if bodyClass == 'firstRun' %}
+ <script src="{{url_for('static', filename='assets/js/firstrun/demo-pro.js')}}"></script>
+ 
+ <script>
+    $(document).ready(function() {
+      // Initialise the wizard
+      demo.initMaterialWizard();
+      setTimeout(function() {
+        $('.card.card-wizard').addClass('active');
+      }, 600);
+      $('.popover-dismiss').popover({
+        trigger: 'focus'
+      })
+    });
+  </script>
+ {% endif %}
  <!-- Custom JS-->
  <script src="{{ url_for('static', filename='assets/js/plugins/html2pdf.bundle.min.js')}}"></script>
  <script src="{{url_for('static', filename='assets/js/actions.js')}}"></script>

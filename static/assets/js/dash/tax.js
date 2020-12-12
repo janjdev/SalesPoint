@@ -1,4 +1,4 @@
-let tablesSort;
+let tableSort;
 window.addEventListener('DOMContentLoaded', () => {
 
     //get the generated list of items
@@ -7,9 +7,7 @@ window.addEventListener('DOMContentLoaded', () => {
     //get the action buttons
     const editbtn = document.querySelector('#edit');
 
-    console.log(editbtn);
-
-    const deletebtn = document.querySelector('#delete');
+    // const deletebtn = document.querySelector('#delete');
 
     //Form to edit current taxes
     const editForm = document.getElementById('taxEditForm');
@@ -30,7 +28,7 @@ window.addEventListener('DOMContentLoaded', () => {
     let isValid = true;
 
     //Sort the table
-  tableSort = $('#table').DataTable({
+  tableSort = $('#table').DataTable({ 
     "aaSorting": [],
     columnDefs: [{
     orderable: false,
@@ -71,7 +69,6 @@ window.addEventListener('DOMContentLoaded', () => {
         {         
             let items = [];
             let rows = $(checked).closest('tr').toArray()
-            console.log(rows);
             let inputs;
             
             rows.forEach(function(row){
@@ -87,8 +84,6 @@ window.addEventListener('DOMContentLoaded', () => {
             //convert form as needed
             let formData = new FormData(editForm);
             formData.append('items', data)
-
-            console.log(items);
             
             
             validate(editForm.querySelectorAll('input.dbAction'));
@@ -123,6 +118,49 @@ window.addEventListener('DOMContentLoaded', () => {
             $('#edit_cancel').removeClass('hide');
         }
     });
+
+$(document).on('click', '#delete', function(e){
+  e.preventDefault();
+  let checked = taxlist.querySelectorAll('input.taxRow:checked');
+        
+  if(checked.length < 1)
+  {
+      Swal.fire({
+          type: 'error',
+          text: 'Select a row to edit',
+          timer: 2000,
+        });
+      return;
+  }
+  Swal.fire({
+    title: 'Are you sure?',
+    text: 'Delete Tax(es) ' ,
+    type: 'warning',
+    showCancelButton: true,
+    confirmButtonText: 'Yes!',
+    cancelButtonText: 'No, cancel!',
+    reverseButtons: true
+  }).then((result) => {
+    if (result.value) {
+    let p =$(checked).closest('tr').find('input[name="taxid"]')
+    let aform = document.createElement('form'), bput = document.createElement('input');
+    bput.value ="delete";
+    bput.setAttribute('name', "action")
+    aform.appendChild(bput);
+    p.each(function(i, el){
+     aform.appendChild(el)
+    });
+    console.log(aform);
+          url = '/tax_edit/';
+          type = 'POST';
+          form = aform;
+          simpleAjaxforms(url, type, form);
+    }
+  });
+
+})
+
+
 
   //New tax Form
 
@@ -234,7 +272,7 @@ function validate(args){
 //---------------Callbacks----------------------------------
 function loadTable(){
     $('#taxModal').modal('hide');
-    tablesSort.destroy()
+    tableSort.destroy()
     $('#taxRow').load(document.URL +  '  #tax_table');
     setTimeout(function(){
       tableSort = $('#table').DataTable({

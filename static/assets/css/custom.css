@@ -118,20 +118,20 @@ div#blogo_container {
 
 
 /*================MAIN WINDOOW=============*/
-body.main_window .wrapper .main-panel{
+body.main_window .wrapper .main-panel, body.firstRun .wrapper .main-panel{
     width: 100%;
     min-height: auto;
 }
 
-body.main_window .wrapper{
+body.main_window .wrapper, body.firstRun .wrapper{
     height: auto;
 }
 
-body.main_window .wrapper .main-panel > .content{
+body.main_window .wrapper .main-panel > .content, body.firstRun .wrapper .main-panel > .content{
     min-height: auto;
 }
 
-.main_window .container-fluid {
+.main_window .container-fluid, .firstRun .container-fluid {
     display: flex;
     justify-content: center;
 }
@@ -172,6 +172,7 @@ body.dashboard .dashboard-cards{
 }
 .sidebar{
     box-shadow: none;
+    margin-top: 20px;
 }
 
 body.dashboard .dropdown-menu.show, .inner.show a.dropdown-item{
@@ -278,7 +279,9 @@ th.theID {
 .shared-tasks .sidebar .logo a.logo-mini, .shared-tasks .sidebar .logo .logo-mini {
     width: 200px;
 }
-
+body.shared-tasks .sidebar{
+    margin-top: 30px;;
+}
 body.shared-tasks .sidebar{
 height: 64px;
 }
@@ -512,6 +515,7 @@ div#order_total {
 /*---------Categories------------*/
 div#menu_categories {
     text-align: center;
+    margin-left: -22px;
 }
 
 /*---------------------Bottom Functions--------------------------*/
@@ -794,6 +798,18 @@ button#send {
 .scrolling-wrapper-flexbox .item_scroll {
 	flex: 0 0 auto;
 }
+
+/* ---------------First Run Wizard------------------ */
+#wizard #orderinfobtn i{
+    font-size: 3em;
+    color: white;
+}
+
+#address input:disabled {
+    border: none;
+    padding-top: 15px;
+}
+
 .navbar .collapse .navbar-nav .nav-item .nav-link{
     color: #9c27b0;
 }

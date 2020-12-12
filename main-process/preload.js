@@ -2,12 +2,127 @@
 // It has the same sandbox as a Chrome extension.
 const electron = require('electron');
 const remote = require('electron').remote
+const path = require('path');
+const customTitlebar = require('custom-electron-titlebar');
 
 const BrowserWindow = electron.remote.BrowserWindow; 
 
 
 window.addEventListener('DOMContentLoaded', () => { 
+
+  let thisWin = BrowserWindow.getFocusedWindow();
+  let currentURL = thisWin.webContents.getURL()
+  console.log(currentURL);
+  let loadFile;
+    if (currentURL == 'http://127.0.0.1:5000/')
+    {
+      loadFile = `file://${path.join(__dirname, "./help/NavigatingtheSystem.html")}`
+    }
+    else
+      {
+        if( currentURL == 'http://127.0.0.1:5000/admin')
+      {
+        loadFile = `file://${path.join(__dirname, "./help/AdministratorFeatures.html")}`
+      }
+    else
+    {
+      if( currentURL == 'http://127.0.0.1:5000/first')
+      {
+        loadFile = `file://${path.join(__dirname, "./help/GettingStarted.html")}`
+      }
+      else
+      {
+          if( currentURL == 'http://127.0.0.1:5000/staff')
+        {
+          loadFile = `file://${path.join(__dirname, "./help/AddaStaffMember.html")}`
+        }
+        else
+        {
+          if( currentURL == 'http://127.0.0.1:5000/staff/positions')
+          {
+            loadFile = `file://${path.join(__dirname, "./help/AddaPosition.html")}`
+          }
+          else
+          {
+              if( currentURL == 'http://127.0.0.1:5000/discounts')
+              {
+                loadFile = `file://${path.join(__dirname, "./help/CouponsandDiscounts.html")}`
+              }
+              else
+              {
+                  if( currentURL == 'http://127.0.0.1:5000/tax/')
+                  {
+                    loadFile = `file://${path.join(__dirname, "./help/Taxes.html")}`
+                  }
+                  else
+                  {
+                    if( currentURL == 'http://127.0.0.1:5000/menu')
+                    {
+                      loadFile = `file://${path.join(__dirname, "./help/MenuManagement.html")}`
+                    }
+                    else
+                    {
+                      if( currentURL == 'http://127.0.0.1:5000/reports')
+                        {
+                          loadFile = `file://${path.join(__dirname, "./help/CreatingReports.html")}`
+                        }
+                        else
+                        {
+                          if( currentURL == 'http://127.0.0.1:5000/setTable/')
+                          {
+                            loadFile = `file://${path.join(__dirname, "./help/AddTables.html")}`
+                          }
+                          else
+                          {
+                            if( currentURL == 'http://127.0.0.1:5000/kitchen'){
+                              loadFile = `file://${path.join(__dirname, "./help/Kitchen.html")}`
+                            }
+                            else
+                            {
+                              if( currentURL == 'http://127.0.0.1:5000/orders'){
+                                loadFile = `file://${path.join(__dirname, "./help/CompletingAnOrder.html")}`
+                              }
+                              else
+                              {
+                                if( currentURL == 'http://127.0.0.1:5000/carry-out' || currentURL == 'http://127.0.0.1:5000/dine-in'){
+                                  loadFile = `file://${path.join(__dirname, "./help/FromtheMenu1.html")}`
+                                }
+                              }
+                            }
+                          }
+                        }
+                    }
+                  }
+              }
+
+          }
+        }
+      }
+    }
+  }
+    
+  $(document).on('click', '.menubar-menu-button', function(e){
+    if ($(this).attr('aria-label') == 'Help'){
+
+      const child = new BrowserWindow({ parent: thisWin, modal: true, show: false })
+
+      child.loadURL(loadFile)
+      child.once('ready-to-show', () => {
+      child.show()
+})
+      
+    }
+  })
+ 
+  new customTitlebar.Titlebar({
+    backgroundColor: customTitlebar.Color.fromHex('#FFFFFF'),
+    // icon: path.join(__dirname, '../static/assets/img/icons/help.png')
+  }); 
   
+  $(document).on('click', '#shutdownMain', function(e){
+    shutdown();
+  })
+
   var options = { 
       silent: false, 
       printBackground: true, 
@@ -22,7 +137,9 @@ window.addEventListener('DOMContentLoaded', () => {
       copies: 1, 
       header: 'Header of the Page', 
       footer: 'Footer of the Page'
-  } 
+  }
+  
+  
     
  $(document).on('click', '#print', (event) => { 
 
@@ -34,7 +151,7 @@ window.addEventListener('DOMContentLoaded', () => {
           if (!success) console.log(failureReason); 
     
           console.log('Print Initiated'); 
-      }); 
+      });
   }); 
 
 const sw = require('../static/assets/js/plugins/sweetalert2.all.min.js');
@@ -136,6 +253,7 @@ $(document).on('click', '#shutdown', function(e){
             })
         }
 
+        
         
 
 });

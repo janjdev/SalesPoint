@@ -22,13 +22,7 @@ const childWindow = new BrowserWindow({
 window.addEventListener('DOMContentLoaded', () => {
     const {$} = require('jquery');
     
-    //const currentWindow = remote.getCurrentWindow;
-
-  let cancel = document.querySelector('#cancel');
-    cancel.addEventListener('click', function(e){
-      console.log('can see');
-      //currentWindow.close();
-    })
+    
 
    
   

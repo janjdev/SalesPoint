@@ -16,7 +16,7 @@ window.addEventListener('DOMContentLoaded', () => {
     const taxform = document.getElementById('discountForm');
 
     //get the tax form inputs
-    // let inputs = document.querySelectorAll('input.dbAction');
+    // let inputs = document.querySelectorAll('input.dbAction'); 
 
     const tinputs = taxform.querySelectorAll('input.dbAction');
 
@@ -62,7 +62,7 @@ $('body').on('click', '#delete', function(){
       {
           Swal.fire({
               type: 'error',
-              text: 'Select a row to edit',
+              text: 'Select a row to delete',
               timer: 2000,
             });
           return;
@@ -79,23 +79,22 @@ $('body').on('click', '#delete', function(){
           reverseButtons: true
         }).then((result) => {
           if (result.value) {
-            editForm.querySelector('input[name="action"]').value = 'delete';
-
-            let items = [];
-            let rows = $(checked).closest('tr').find('input[name="discountid"]').toArray()          
-            let item = [];
-            rows.forEach(function(input){  
-            let i = $(input).serialize()
-            item.push( decodeURIComponent(i));                  
+            let rows = $(checked).closest('tr').find('input[name="discountid"]')
+            let aform = document.createElement('form'), bput = document.createElement('input');
+            bput.value ="delete";
+            bput.setAttribute('name', "action")
+            aform.appendChild(bput);
+            rows.each(function(i, el){
+             aform.appendChild(el)
             });
-                items.push(item);
-                console.log(items);
-            let data = JSON.stringify(items)
-            
-            //convert form as needed
-            let formData = new FormData(editForm);
-            formData.append('items', data); 
-            ajaxforms('/discount_edit/', 'POST', formData, false, false)    
+            console.log(aform);
+
+            url = '/discount_edit/';
+            type = 'POST';
+            form = aform;
+            simpleAjaxforms(url, type, form);
+
+         
                          
           } else if (
             /* Read more about handling dismissals below */

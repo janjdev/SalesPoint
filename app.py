@@ -457,7 +457,7 @@ def exportTable(table, filename="table"):
     os.startfile(temp, "")
 
 def importToSQL(file):
-    # try:
+    try:
         file_name = file 
         data = Load_Data(file_name)
         for row in data:
@@ -545,9 +545,9 @@ def importToSQL(file):
                     record = Menu_Item(row[0], row[1], [2], row[3])
                     db.session.add(record) #Add all the records
         db.session.commit() #Attempt to commit all the records
-    # except Exception as e:
-    #     db.session.rollback() #Rollback the changes on error
-    #     return e       
+    except Exception as e:
+        db.session.rollback() #Rollback the changes on error
+        return e       
     # finally:
     #     print('final')
     #     db.session.close() #Close the connection
@@ -569,6 +569,34 @@ def sendToPrint(template, id, printerid=None):
     except Exception as e:
         print(str(e))
 #======================ROUTES==============================================
+@app.route('/help', methods=['GET'])
+def help():
+    return render_template('/help/SalesPoint User Manual.html')
+
+@app.route('/first', methods=['GET', 'POST'] )
+def firstRun():
+    if request.method == 'POST':
+        print(request.form)
+        if 'autolog' in request.form:
+            checked = 'checked'
+        else:
+            checked = ''
+        setTerminal(request.form['id'], request.form['location'], checked, request.form['timer'], '', '')
+        setBusInfo(request.form['name'], request.form['phone'], request.form['add'], request.form['city'],request.form['st'],request.form['zip'], '')
+        passw = ''.join([random.choice(string.digits) for x in range(6)])
+        q = "Mamihlapinatapei"
+        make_pw_hash(passw, q)
+        newHire = Staff(request.form['fname'], request.form['lname'], request.form['pos'], request.form['role'],  make_pw_hash(passw, q))
+        db.session.add(newHire)
+        db.session.commit()
+        return jsonify({'title':'YOUR USER ID', 'message': 'ID for ' + request.form['fname'] +' ' + request.form['lname'] +':\n' + passw, 'alertType': 'success'})
+    else:
+        try:
+            getURL()        
+            return render_template('firstRun.html', title="SalesPoint - Version 1.0-build 1.0.1", bodyClass='firstRun')
+        except TemplateNotFound:
+            abort(404)
+
 @app.route('/', methods=['GET', 'POST'] )
 def home():
     getURL()
@@ -628,11 +656,11 @@ def logout():
 
 @app.route('/exportmenu', methods=['Get', 'POST'])
 def export():
-    # try: 
+    try: 
         exportTable(Menu_Item, 'menu')
-    # except:
-    #     flash("Unable to Open File", 'error') 
-    # return redirect(request.referrer)    
+    except:
+        flash("Unable to Open File", 'error') 
+    return redirect(request.referrer)    
  
 
 @app.route('/importmenu', methods=['POST'])
@@ -651,9 +679,6 @@ def importTable():
             flash('Could not import all items. Check the .csv file is in the correct format. See "help" for more information', 'error')
             return jsonify({'status': str(e), 'alertType': 'error', 'timer': 3500,})
 
-            
-
-        
 
 
 #====================================Customers==================================
@@ -953,7 +978,7 @@ def reopen(orderid):
         staff = Staff.query.filter_by(id = session.get('id')).first()
         customers = Customer.query.filter(Customer.id > 1).all()
         order = Order.query.filter_by(id = orderid).first()                 
-        return render_template('tasks/pages/new_order.html', title="SalesPoint - Version 1.0-build 1.0.1", bodyClass='shared-tasks', images=getImages(), date=getDate(), user=staff, ordertype=order.type.order_type, orderstatus="Edit Ticket", cat=getActiveCat(), items=getOfferedItems(), orderstatusID=order.status_id, ordertypeID=order.type_id, customers=customers, taxes=Tax.query.all(), order=order, typeclass=order.type.order_type, discounts=getDiscounts())
+        return render_template('tasks/pages/new_order.html', title="SalesPoint - Version 1.0-build 1.0.1", bodyClass='shared-tasks', images=getImages(), date=getDate(), user=staff, ordertype=order.type.order_type, orderstatus="Edit Ticket", cat=getActiveCat(), items=getOfferedItems(), orderstatusID=order.status_id, ordertypeID=order.type_id, customers=customers, taxes=Tax.query.all(), order=order, typeclass=order.type.order_type, discounts=getDiscounts(), term=getTerminal())
     return redirect(url_for('logout'))
 
 
@@ -1076,7 +1101,7 @@ def get_term():
             if 'defaultfont' in request.form:
                 font = request.form['defaultfont']            
             setTerminal(request.form['id'], request.form['location'], log, request.form['timer'], font, request.form['fontpath'])
-            return jsonify({'message': 'OK', 'alertType': 'success', 'timer': 500, 'callback': 'loadElement', 'param' : 'terminal'})
+            return jsonify({'message': 'OK', 'alertType': 'success', 'timer': 500, 'callback': 'reload' })
         else:
             return redirect(url_for('config'))
     else:
@@ -1483,16 +1508,24 @@ def tax():
 def taxedit():
     if session.get('role') == 'Administrator':
         if request.method == 'POST':
-            l = request.form['items']           
-            rows = multiRow(l)        
-            for row in rows:
-                tax = Tax.query.filter_by(id = row['taxid']).first()                   
-                if tax:                        
-                    tax.tax_type = row['taxtype']
-                    tax.tax_rate = row['taxrate']
-                    db.session.add(tax)
-            db.session.commit()
-            return jsonify({'message': 'OK', 'alertType': 'success', 'timer': 500, 'callback': 'reload'})
+            if request.form['action'] == 'delete':
+                rows = request.form.getlist('taxid')
+                for row in rows:                  
+                    tax = Tax.query.filter_by(id = row).first()
+                    db.session.delete(tax)
+                    db.session.commit()
+                return jsonify({'message': 'OK', 'alertType': 'success', 'timer': 500, 'callback': 'reload'})
+            else:
+                l = request.form['items']           
+                rows = multiRow(l)                 
+                for row in rows:
+                    tax = Tax.query.filter_by(id = row['taxid']).first()                   
+                    if tax:                        
+                        tax.tax_type = row['taxtype']
+                        tax.tax_rate = row['taxrate']
+                        db.session.add(tax)
+                db.session.commit()
+                return jsonify({'message': 'OK', 'alertType': 'success', 'timer': 500, 'callback': 'reload'})
         return redirect(url_for('tax'))
     return redirect(url_for('logout'))
 
@@ -1533,17 +1566,17 @@ def discounts():
 @app.route('/discount_edit/', methods=['POST'])
 def disedit():
     if session.get('role') == 'Administrator':
-        if request.method == 'POST': 
-            l = request.form['items']           
-            rows = multiRow(l) 
-            print(rows)                    
+        if request.method == 'POST':                     
             if request.form['action'] == 'delete':
+                rows = request.form.getlist('discountid')
                 for row in rows:
-                    ds = Discount.query.filter_by(id = row['discountid']).first()
+                    ds = Discount.query.filter_by(id = row).first()
                     db.session.delete(ds)
                     db.session.commit()
                 return jsonify({'message': 'OK', 'alertType': 'success', 'timer': 500, 'callback': 'reload'})
-            else:                 
+            else:
+                l = request.form['items']           
+                rows = multiRow(l)                  
                 for row in rows:
                     try:
                         discount = Discount.query.filter_by(id = row['discountid']).first()                   

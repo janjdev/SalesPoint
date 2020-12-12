@@ -73,11 +73,21 @@
                                     <td class="name text-center text-capitalize">{{c.name}}</td>
                                     <td class="is_active text-center text-capitalize" data-cat_active="{{c.is_active}}">{{c.is_active}}</td>
                                     <td class="text-center text-capitalize">{{c.items|count}}</td>                                                                                            
-                                    <td class="td-actions justify-content-center">                                                            
-                                        <button data-id="{{c.id}}" type="button" class="btn btn-link lime-accent-4-text cat-task" rel="tooltip" data-placement="bottom" title="Set Active" data-title="Set Active" data-func="active">
+                                    <td class="td-actions justify-content-center">
+                                        {% if c.is_active == True%}   
+                                        {% set active = "disabled" %}              
+                                        {% else %}
+                                        {% set active = "" %}
+                                        {% endif %}                                                            
+                                        <button data-id="{{c.id}}" type="button" class="btn btn-link lime-accent-4-text cat-task" rel="tooltip" data-placement="bottom" title="Set Active" data-title="Set Active" data-func="active" {{active}}>
                                             <i class="material-icons">check</i>
                                         </button>
-                                        <button data-id="{{c.id}}" type="button" class="btn btn-link red-accent-3-text cat-task" rel="tooltip" data-placement="bottom" title="Set inactive" data-title="Set inactive" data-func="archive">
+                                        {% if c.is_active == False%}   
+                                        {% set inactive = "disabled" %}              
+                                        {% else %}
+                                        {% set inactive = "" %}
+                                        {% endif %}
+                                        <button data-id="{{c.id}}" type="button" class="btn btn-link red-accent-3-text cat-task" rel="tooltip" data-placement="bottom" title="Set inactive" data-title="Set inactive" data-func="archive" {{inactive}}>
                                             <i class="material-icons">not_interested</i>
                                         </button>
                                     </td>
@@ -182,11 +192,21 @@
                                               {% endif %}
                                             </td>
                                                                                                                                       
-                                            <td class="td-actions justify-content-center">                                                            
-                                                <button data-id="{{i.item.id}}" type="button" class="btn btn-link lime-accent-4-text item-task" rel="tooltip" data-placement="bottom" title="Set Active" data-func="active" data-title="Set Active">
+                                            <td class="td-actions justify-content-center">
+                                                {% if i.item.is_offered == True%}   
+                                                {% set itactive = "disabled" %}              
+                                                {% else %}
+                                                {% set itactive = "" %}
+                                                {% endif %}                                                                                      
+                                                <button data-id="{{i.item.id}}" type="button" class="btn btn-link lime-accent-4-text item-task" rel="tooltip" data-placement="bottom" title="Set Active" data-func="active" data-title="Set Active" {{itactive}}>
                                                     <i class="material-icons">check</i>
                                                 </button>
-                                                <button data-id="{{i.item.id}}" type="button" class="btn btn-link red-accent-3-text item-task" rel="tooltip" data-placement="bottom" title="Set Inactive" data-func="archive" data-title="Set Inactive">
+                                                {% if i.item.is_offered == False%}   
+                                                {% set itinactive = "disabled" %}              
+                                                {% else %}
+                                                {% set itinactive = "" %}
+                                                {% endif %}
+                                                <button data-id="{{i.item.id}}" type="button" class="btn btn-link red-accent-3-text item-task" rel="tooltip" data-placement="bottom" title="Set Inactive" data-func="archive" data-title="Set Inactive" {{itinactive}}>
                                                     <i class="material-icons">not_interested</i>
                                                 </button>
                                             </td>

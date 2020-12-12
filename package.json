@@ -2,7 +2,7 @@
   "name": "salespoint",
   "version": "1.0.0",
   "build": "1.0.1",
-  "description": "A Point of Sales cross-platform application made by Team1 of IS4850, Fall 2020 to fullfill the requirements of the Senior Project. Lead Developer: January Johnson",
+  "description": "A Point of Sales cross-platform application made by January Johnson of Team1 from UMSL: IS4850, Fall 2020 to fullfill the requirements of the Senior Project. Lead Developer/Engineer: January Johnson",
   "main": "main-process/main.js",
   "scripts": {
     "test": "mocha && standard",
@@ -29,9 +29,14 @@
     "url": "https://github.com/janjdev/SalesPoint/issues"
   },
   "homepage": "https://github.com/janjdev/SalesPoint#readme",
-  "devDependencies": {},
+  "devDependencies": {
+    "electron-builder": "^22.9.1"
+  },
   "dependencies": {
+    "custom-electron-titlebar": "^3.2.5",
     "electron": "^10.1.5",
+    "electron-first-run": "^3.0.0",
+    "electron-reload": "^1.5.0",
     "get-system-fonts": "^2.0.2",
     "jsprintmanager": "^3.0.5",
     "python-shell": "^2.0.2",
