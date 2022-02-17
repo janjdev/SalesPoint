@@ -162,51 +162,51 @@
                                     </thead>
                                     <tbody>
                                         {% if items %}
-                                            {% for i in items %}                                                      
-                                        <tr id="{{i.item.id}}" data-class="itemrow"  class="{{i.item.is_offered}} {{i.item.item_category}} all">
+                                            {% for item in items %}                                                      
+                                        <tr id="{{item.id}}" data-class="itemrow"  class="{{item.is_offered}} {{item.item_category}} all">
                                             <td class="text-center"></td>                                                        
                                             <td>
                                                 <div class="form-check">
                                                 <label class="form-check-label">
-                                                    <input class="row-check form-check-input" type="checkbox" value="" data-id="{{i.item.id}}">
+                                                    <input class="row-check form-check-input" type="checkbox" value="" data-id="{{item.id}}">
                                                     <span class="form-check-sign">
                                                     <span class="check"></span>
                                                     </span>
                                                 </label>                                                                                               
                                                 </div>
                                             </td>
-                                            <td class="text-center text-capitalize">{{i.item.id}}</td>
-                                            <td class="item_name text-center text-capitalize">{{i.item.item_name}}</td>
-                                            <td class="price text-center text-capitalize">{{i.item.unit_price}}</td> 
-                                            <td class="category text-center text-capitalize" data-cat="{{i.item.item_category}}">{{i.cat}}</td>
-                                            <td class="desc text-center text-capitalize">{{i.item.item_description}}</td>                                            
-                                            <td class="offered text-center text-capitalize">{{i.item.is_offered}}</td>
-                                            <td class="special text-center text-capitalize">{{i.item.is_special}}</td>
-                                            <td class="tax text-center text-capitalize">{% for tax in i.item.taxes %} <span class="taxtype" data-taxid="{{tax.id}}">{{tax.tax_type}}: </span>{{'%.2f'|format(tax.tax_rate)}} <br>{% endfor %}</td> 
+                                            <td class="text-center text-capitalize">{{item.id}}</td>
+                                            <td class="item_name text-center text-capitalize">{{item.item_name}}</td>
+                                            <td class="price text-center text-capitalize">{{item.unit_price}}</td> 
+                                            <td class="category text-center text-capitalize" data-cat="{{item.item_category}}">{{item.category.name}}</td>
+                                            <td class="desc text-center text-capitalize">{{item.item_description}}</td>                                            
+                                            <td class="offered text-center text-capitalize">{{item.is_offered}}</td>
+                                            <td class="special text-center text-capitalize">{{item.is_special}}</td>
+                                            <td class="tax text-center text-capitalize">{% for tax in item.taxes %} <span class="taxtype" data-taxid="{{tax.id}}">{{tax.tax_type}}: </span>{{'%.2f'|format(tax.tax_rate)}} <br>{% endfor %}</td> 
                                             <td class="img text-center text-capitalize">
-                                                {% if i.img %}
-                                                <div class="img-container">                                                    
-                                                    <img class="img" src="{% for img in i.item.item_image %}{{img.path}}{% endfor %}" alt="...">
+                                                {% if item.item_image %}
+                                                <div class="mnitem img-container">                                                    
+                                                    <img class="img" src="{% for img in item.item_image %}{{img.path}}{% endfor %}" alt="...">
                                                     
                                               </div>
                                               {% endif %}
                                             </td>
                                                                                                                                       
                                             <td class="td-actions justify-content-center">
-                                                {% if i.item.is_offered == True%}   
+                                                {% if item.is_offered == True%}   
                                                 {% set itactive = "disabled" %}              
                                                 {% else %}
                                                 {% set itactive = "" %}
                                                 {% endif %}                                                                                      
-                                                <button data-id="{{i.item.id}}" type="button" class="btn btn-link lime-accent-4-text item-task" rel="tooltip" data-placement="bottom" title="Set Active" data-func="active" data-title="Set Active" {{itactive}}>
+                                                <button data-id="{{item.id}}" type="button" class="btn btn-link lime-accent-4-text item-task" rel="tooltip" data-placement="bottom" title="Set Active" data-func="active" data-title="Set Active" {{itactive}}>
                                                     <i class="material-icons">check</i>
                                                 </button>
-                                                {% if i.item.is_offered == False%}   
+                                                {% if item.is_offered == False%}   
                                                 {% set itinactive = "disabled" %}              
                                                 {% else %}
                                                 {% set itinactive = "" %}
                                                 {% endif %}
-                                                <button data-id="{{i.item.id}}" type="button" class="btn btn-link red-accent-3-text item-task" rel="tooltip" data-placement="bottom" title="Set Inactive" data-func="archive" data-title="Set Inactive" {{itinactive}}>
+                                                <button data-id="{{item.id}}" type="button" class="btn btn-link red-accent-3-text item-task" rel="tooltip" data-placement="bottom" title="Set Inactive" data-func="archive" data-title="Set Inactive" {{itinactive}}>
                                                     <i class="material-icons">not_interested</i>
                                                 </button>
                                             </td>

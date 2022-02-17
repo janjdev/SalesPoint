@@ -1,30 +1,27 @@
 
-import sys, os, io, collections, random, string, csv, tempfile, ast
+import os, random, string, csv, tempfile, ast
 from datetime import datetime, timedelta, time
-from flask import Flask, request, redirect, render_template, session, url_for, abort, jsonify, flash, make_response
+from flask import Flask, request, redirect, render_template, session, url_for, abort, jsonify, flash
 from flask.helpers import flash
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import event, DDL
+from sqlalchemy import exc
 from sqlalchemy.event import listen
 from jinja2 import TemplateNotFound
 from sqlalchemy.orm import backref
 from sqlalchemy.sql.elements import Null
 from sqlalchemy.sql.schema import ForeignKey
-from werkzeug import datastructures
-import werkzeug
 from hashutil import make_pw_hash
 from helpers import *
-from mimetypes import MimeTypes
 from werkzeug.utils import secure_filename
-from collections import defaultdict
 from sqlalchemy.exc import IntegrityError
-from dateutil.tz import *
+
 
 
 app = Flask(__name__)
 app.config.from_pyfile(os.path.join(".", "config.py"), silent=False)
 db = SQLAlchemy(app)
-local = tzlocal()
+
 
 
 class Customer(db.Model):
@@ -378,6 +375,7 @@ event.listen(Staff_Position.__table__, 'after_create', DDL(""" INSERT INTO posit
 event.listen(Order_Status.__table__, 'after_create', DDL(""" INSERT INTO order_status (id, status) VALUES (1, 'open'),  (2, 'settled'), (3, 'void'), (4, 'refund'), (5, 'pending') """))
 event.listen(Order_Type.__table__, 'after_create', DDL(""" INSERT INTO order_type (id, order_type) VALUES (1, 'dine-in'),  (2, 'carry-out') """))
 event.listen(Discount_Type.__table__, 'after_create', DDL(""" INSERT INTO discount_type (id, name) VALUES (1, 'Amount'),  (2, 'Percentage') """))
+event.listen(Menu_Category.__table__, 'after_create', DDL(""" INSERT INTO menu_category (id, category_name) VALUES (0, 'MISC', True) """))
 event.listen(Ticket_Status.__table__, 'after_create', DDL(""" INSERT INTO ticket_status (id, status_type) VALUES (1, 'Open'),  (2, 'Closed') """))
 event.listen(Printer_Type.__table__, 'after_create', DDL(""" INSERT INTO printer_type (id, name) VALUES (1, 'report'),  (2, 'receipt'), (3, 'kitchen') """))
 event.listen(Report_Type.__table__, 'after_create', DDL(""" INSERT INTO report_type (id, name) VALUES (1, 'report'),  (2, 'chart') """))
@@ -460,34 +458,39 @@ def importToSQL(file):
     try:
         file_name = file 
         data = Load_Data(file_name)
+        eritem = []       
         for row in data:
             if row[0].isdigit() or Menu_Item.query.filter_by(item_name=row[0]).first() is not None or Menu_Item.query.filter_by(item_name=row[1]).first() is not None:
                 item = db.Model
                 if row[0].isdigit() or Menu_Item.query.filter_by(item_name=row[1]).first() is not None:              
-                    if row[0].isdigit():
+                    if row[0].isdigit():                       
                         item = Menu_Item.query.filter_by(id=row[0]).first()
                     else:
-                        item = Menu_Item.query.filter_by(item_name = row[1]).first()                       
-                    item.item_name = row[1]                               
-                    item.unit_price = row[2]                                                       
-                    if row[3].isdigit():
-                        item.item_category = row[3]                                               
-                    else: 
-                        exists = db.session.query(Menu_Category.id).filter_by(name=row[3].capitalize()).scalar() is not None
-                        if exists:
-                            item.item_category = Menu_Category.query.filter_by(name = row[3].capitalize()).first().id                           
+                        item = Menu_Item.query.filter_by(item_name = row[1]).first()
+                    if item is not None:                     
+                        item.item_name = row[1]                               
+                        item.unit_price = row[2]                                                       
+                        if row[3].isdigit():
+                            item.item_category = row[3]                                               
                         else: 
-                            newcat =  Menu_Category(row[3].capitalize())
-                            db.session.add(newcat)
-                            item.item_category = newcat.id      
-                    if row[4] != '':
-                        item.item_description = row[4]
-                    if row[5] != '':
-                        if row[5] == "FALSE":
-                            item.is_offered = False
-                    if row[6] != '':
-                        if row[6] == "FALSE":
-                                item.is_special = False
+                            exists = db.session.query(Menu_Category.id).filter_by(name=row[3].capitalize()).scalar() is not None
+                            if exists:
+                                item.item_category = Menu_Category.query.filter_by(name = row[3].capitalize()).first().id                           
+                            else: 
+                                newcat =  Menu_Category(row[3].capitalize())
+                                db.session.add(newcat)
+                                item.item_category = newcat.id      
+                        if row[4] != '':
+                            item.item_description = row[4]
+                        if row[5] != '':
+                            if row[5] == "FALSE":
+                                item.is_offered = False
+                        if row[6] != '':
+                            if row[6] == "FALSE":
+                                    item.is_special = False
+                    else:
+                        eritem.append(row[1])
+                        continue
                 else:
                     if Menu_Item.query.filter_by(item_name=row[0]).first() is not None:
                         item = Menu_Item.query.filter_by(item_name = row[0]).first()
@@ -545,12 +548,14 @@ def importToSQL(file):
                     record = Menu_Item(row[0], row[1], [2], row[3])
                     db.session.add(record) #Add all the records
         db.session.commit() #Attempt to commit all the records
+        if len(eritem) > 1:
+            return eritem
     except Exception as e:
         db.session.rollback() #Rollback the changes on error
         return e       
-    # finally:
-    #     print('final')
-    #     db.session.close() #Close the connection
+    finally:
+        print('final')
+        db.session.close() #Close the connection
        
 
 # =======================PRINTING FUNCTIONS=================================
@@ -585,6 +590,7 @@ def firstRun():
         setBusInfo(request.form['name'], request.form['phone'], request.form['add'], request.form['city'],request.form['st'],request.form['zip'], '')
         passw = ''.join([random.choice(string.digits) for x in range(6)])
         q = "Mamihlapinatapei"
+        # "c817972c-d20f-4d13-9a2a-ca3c407c27a8"
         make_pw_hash(passw, q)
         newHire = Staff(request.form['fname'], request.form['lname'], request.form['pos'], request.form['role'],  make_pw_hash(passw, q))
         db.session.add(newHire)
@@ -608,7 +614,8 @@ def home():
 @app.route('/auth', methods=['POST'])
 def auth():
     ID = request.form['staffID']
-    checkpass = make_pw_hash(ID, "Mamihlapinatapei") 
+    checkpass = make_pw_hash(ID, "Mamihlapinatapei")
+        # "c817972c-d20f-4d13-9a2a-ca3c407c27a8")  
     staff = Staff.query.filter_by(staff_id = checkpass).first()
     if staff:
         if staff.id == session.get('id'):                   
@@ -630,7 +637,8 @@ def shut_down():
                 return jsonify({'status': 'success', 'message': 'Shutting Down...', 'alertType': 'success', 'timer': 500, 'callback': 'shutdown'})
         elif 'id' in request.form:
             ID = request.form['id']
-            checkpass = make_pw_hash(ID, "Mamihlapinatapei") 
+            checkpass = make_pw_hash(ID, "Mamihlapinatapei")
+        # "c817972c-d20f-4d13-9a2a-ca3c407c27a8") 
             staff = Staff.query.filter_by(staff_id = checkpass).first()
             if staff.role_id == 1:
                 return jsonify({'status': 'success', 'message': 'Shutting Down...', 'alertType': 'success', 'timer': 500, 'callback': 'shutdown'})
@@ -646,8 +654,6 @@ def shut_down():
                 shutdown()
                 return redirect(url_for('logout'))  
         return redirect(url_for('logout'))
-    
-
 
 @app.route('/logout')
 def logout():   
@@ -665,19 +671,19 @@ def export():
 
 @app.route('/importmenu', methods=['POST'])
 def importTable():
-    print(request.files)
-    if 'importfile' in request.files:
-        file = request.files['importfile']
-        filename = secure_filename(file.filename)        
-        file.save(os.path.join(app.config['IMPORTS'], filename))
-        filepath = os.path.join(app.config['IMPORTS'], filename)
-        try:     
-            importToSQL(filepath)
-            flash("Import Successful", 'success')
-            return jsonify({'status': 'success', 'alertType': 'success', 'timer': 500})
-        except Exception as e :
-            flash('Could not import all items. Check the .csv file is in the correct format. See "help" for more information', 'error')
-            return jsonify({'status': str(e), 'alertType': 'error', 'timer': 3500,})
+    # print(request.files)
+    # if 'importfile' in request.files:
+    # jsonify({'message': " These items could not be added " + str(eritem)})
+    file = request.files['importfile']
+    filename = secure_filename(file.filename)        
+    file.save(os.path.join(app.config['IMPORTS'], filename))
+    filepath = os.path.join(app.config['IMPORTS'], filename)
+    try:     
+        importToSQL(filepath) 
+        return jsonify({'status': 'success', 'alertType': 'success', 'timer': 500, 'callback': 'goTo', 'param': url_for('menu')})
+    except Exception as e :
+        flash('Could not import all items. Check the .csv file is in the correct format. See "help" for more information', 'error')
+        return jsonify({'title': 'Import Failed', 'status': 'error', 'message': 'Could not import all items. Check the .csv file is in the correct format. See "help" for more information' + str(e), 'alertType': 'error', 'timer': 3500,})
 
 
 
@@ -696,15 +702,16 @@ def customer():
     return redirect(url_for('logout'))
 
 @app.route('/edit_cust/<int:user_id>', methods=['POST'])
-def edit_cust(user_id):
+def edit_cust(user_id):    
     if 'id' in session:
         if request.method == 'POST':
-            customer = Customer.query.filter_by(id = user_id).first()
+            customer = Customer.query.filter_by(id = user_id).first()            
             if 'delete' in request.form:
-                corders = Order.query.filter(Order.customer_id == user_id and Order.status_id == 1).all()
-                if len(corders) > 0:
+                corders = Order.query.filter(Order.status_id.like(1), Order.customer_id.like(user_id)).first()                
+                if corders is not None:                             
                     return jsonify({'status': 'error', 'message': 'Cannot delete customers with open orders. Settle orders before trying again' , 'alertType': 'warning', 'timer': 2500, 'callback': 'newCust'})
                 else:
+                    Order.query.filter_by(customer_id = user_id).update({Order.customer_id: 1})            
                     db.session.delete(customer)             
             else:         
                 cname = request.form['cname']
@@ -720,7 +727,8 @@ def edit_cust(user_id):
 def dine_in():
     if request.method == 'POST':
         ID = request.form['staffID']
-        checkpass = make_pw_hash(ID, "Mamihlapinatapei") 
+        checkpass = make_pw_hash(ID, "Mamihlapinatapei")
+        # "c817972c-d20f-4d13-9a2a-ca3c407c27a8") 
         staff = Staff.query.filter_by(staff_id = checkpass).first()
         if staff:
             if staff.role_id < 3:              
@@ -743,7 +751,8 @@ def dine_in():
 def carry_out():
     if request.method == 'POST':
         ID = request.form['staffID']
-        checkpass = make_pw_hash(ID, "Mamihlapinatapei") 
+        checkpass = make_pw_hash(ID, "Mamihlapinatapei")
+        # "c817972c-d20f-4d13-9a2a-ca3c407c27a8") 
         staff = Staff.query.filter_by(staff_id = checkpass).first()
         if staff:
             if staff.role_id < 3:              
@@ -907,7 +916,8 @@ def order():
 def orders():
     if request.method == 'POST':
         ID = request.form['staffID']
-        checkpass = make_pw_hash(ID, "Mamihlapinatapei") 
+        checkpass = make_pw_hash(ID, "Mamihlapinatapei")
+        # "c817972c-d20f-4d13-9a2a-ca3c407c27a8") 
         staff = Staff.query.filter_by(staff_id = checkpass).first()
         if staff: 
             if staff.role_id < 3:                       
@@ -986,7 +996,8 @@ def reopen(orderid):
 def kitchen():
     if request.method == 'POST':
         ID = request.form['staffID']
-        checkpass = make_pw_hash(ID, "Mamihlapinatapei") 
+        checkpass = make_pw_hash(ID, "Mamihlapinatapei")
+        # "c817972c-d20f-4d13-9a2a-ca3c407c27a8") 
         staff = Staff.query.filter_by(staff_id = checkpass).first()
         if staff:
             if staff.role_id < 3:              
@@ -1044,7 +1055,8 @@ def admin():
     if request.method == 'POST':       
         ID = request.form['staffID']
         checkpass = make_pw_hash(ID, "Mamihlapinatapei")
-        staff = Staff.query.filter_by(staff_id = checkpass).first()
+        # "c817972c-d20f-4d13-9a2a-ca3c407c27a8")
+        staff = Staff.query.filter_by(staff_id = ID).first()
         if staff:                   
             if staff.role_id == 1:
                 session['role'] = "Administrator"
@@ -1071,7 +1083,7 @@ def config():
     if session.get('role') == 'Administrator':
         user = Staff.query.filter_by(id = session.get('id')).first()
         printertypes = Printer_Type.query.all()
-        return render_template('admin/dash/pages/config.html', title="SalesPoint - Version 1.0-build 1", bodyClass='config', fonts=getFonts(), config_active='active', config_show='show', config_expand='true', admin_active='active', date=getDate(), role=session.get('role'), user=user, printertype = printertypes, info = getBusInfo(), term = getTerminal(), devices=getPrinters(), setprinters=Printer.query.all())
+        return render_template('admin/dash/pages/config.html', title="SalesPoint - Version 1.0-build 1", bodyClass='config', fonts=printFont(), config_active='active', config_show='show', config_expand='true', admin_active='active', date=getDate(), role=session.get('role'), user=user, printertype = printertypes, info = getBusInfo(), term = getTerminal(), devices=getPrinters(), setprinters=Printer.query.all())
     return redirect(url_for('home'))
 
 
@@ -1184,7 +1196,7 @@ def add_staff():
             pos = request.form['position']
             role = request.form['role']
             passw = ''.join([random.choice(string.digits) for x in range(6)])
-            q = "Mamihlapinatapei"
+            q = "c817972c-d20f-4d13-9a2a-ca3c407c27a8"
             make_pw_hash(passw, q)
             newHire = Staff(fname, lname, pos, role,  make_pw_hash(passw, q))
             db.session.add(newHire)
@@ -1200,7 +1212,7 @@ def chnpw(id):
             staff = Staff.query.filter_by(id = id).first()
             if staff:
                 passw = ''.join([random.choice(string.digits) for x in range(6)])
-                q = "Mamihlapinatapei"
+                q = "c817972c-d20f-4d13-9a2a-ca3c407c27a8"
                 staff.staff_id = make_pw_hash(passw, q)
                 db.session.commit()
                 return jsonify({'title':'Staff ID', 'message': 'ID for Staff: ' + staff.first_name +' ' + staff.last_name +'\n' + passw, 'alertType': 'success'})
@@ -1222,13 +1234,17 @@ def edit_staff(user_id):
                     if stod:
                         od =  Order.query.filter(Order.created_by_id == st.id).order_by(Order.date_created.desc()).first()
                         now =  datetime.now()
-                        exp = now - timedelta(days=30)                  
-                        if od.date_created > exp:
+                        exp = od.date_created + timedelta(days=30)             
+                        if now < exp:
                             return jsonify({'status': 'error', 'message': 'User has activity in the last 30 days', 'alertType': 'error', 'timer': 3500})
+                        else:
+                            db.session.delete(st)
+                            db.session.commit()
+                    
                     else:
                         db.session.delete(st)
                         db.session.commit()
-                        return jsonify({'message': 'OK', 'alertType': 'success', 'timer': 500, 'callback': 'loadStaffTable'})
+                        return jsonify({'status': 'success', 'message': 'OK', 'alertType': 'success', 'timer': 500, 'callback': 'loadStaffTable'})
             elif 'inactive' in request.form:
                 y = str(session.get('id')) == request.form['inactive']              
                 if y == True:                   
@@ -1275,9 +1291,16 @@ def positions():
         if request.method == 'POST':
             name = request.form['name']
             newPos = Staff_Position(name, 1)
-            db.session.add(newPos)
-            db.session.commit()
-            return jsonify({'message': 'OK', 'alertType': 'success', 'timer': 500, 'callback': 'loadTable'})
+            try:
+                db.session.add(newPos)
+                db.session.commit()
+                return jsonify({'message': 'OK', 'alertType': 'success', 'timer': 500, 'callback': 'loadTable'})
+            except IntegrityError:
+                db.session.rollback()
+                return jsonify({'message': 'The Position Already Exists', 'alertType': 'error', 'timer': 3500})
+            except Exception as e:
+                db.session.rollback()
+                return jsonify({'title': 'An error has occured. Contact your System Admin for more information', 'message': 'Error: ' + str(e), 'alertType': 'success', 'timer': 500, 'callback': 'loadTable'})
     return redirect(url_for('logout')) 
 
 @app.route('/pos/edit/<int:pos_id>', methods=['POST'])
@@ -1318,15 +1341,15 @@ def menu():
         i = Menu_Item.query.all()
         itemkeys = Menu_Item.__table__.columns.keys()
         s = []
-        for a in i:
-            t = Menu_Category.query.filter_by(id = a.item_category).first()
-            p = getItemImage(a.id)
-            bb = {'item': a, 'cat': t.name}
-            if p:
-                bb['img'] = p
-            s.append(bb)
+        # for a in i:
+        #     t = Menu_Category.query.filter_by(id = a.item_category).first()
+        #     p = getItemImage(a.id)
+        #     bb = {'item': a, 'cat': t.name}
+        #     if p:
+        #         bb['img'] = p
+        #     s.append(bb)
         user = Staff.query.filter_by(id = session.get('id')).first()
-        return render_template('/admin/dash/pages/menu.html', title="SalesPoint - Version 1.0-build 1", bodyClass="menu", menu_mng_active='active', ops_post='active', ops_expand='true', mng_show='show', date=getDate(), role=session.get('role'), user=user, cat=cat, items=s, menutable='Menu Categories', itemtable='Menu Items', catkeys=catkeys, itemkeys=itemkeys, taxes=taxes, term=getTerminal())
+        return render_template('/admin/dash/pages/menu.html', title="SalesPoint - Version 1.0-build 1", bodyClass="menu", menu_mng_active='active', ops_post='active', ops_expand='true', mng_show='show', date=getDate(), role=session.get('role'), user=user, cat=cat, items=Menu_Item.query.all(), menutable='Menu Categories', itemtable='Menu Items', catkeys=catkeys, itemkeys=itemkeys, taxes=taxes, term=getTerminal())
     else:    
         return redirect(url_for('logout'))    
 
@@ -1473,6 +1496,7 @@ def actions(id):
     if session.get('role') == "Administrator":
         if request.method == 'POST':
             if id is not None:
+                print(id)
                 mi = Menu_Item.query.filter_by(id = id).first()
                 if mi:
                     db.session.delete(mi)
@@ -1728,4 +1752,4 @@ def getorders(id):
 
 if (__name__) == '__main__':
     db.create_all()
-    app.run()
+    app.run(host='127.0.0.1', port=5000)

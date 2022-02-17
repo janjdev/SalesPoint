@@ -1,5 +1,6 @@
-$(document).ready(function() {
-$(function () {
+window.addEventListener('DOMContentLoaded', () => {
+
+  $(function () {
   //initalize all tooltips
     $('[data-toggle="tooltip"]').tooltip();
     $('.nav-mobile-menu .nav-item a.nav-link').removeClass('btn', 'btn-white', 'btn-round');
@@ -11,7 +12,6 @@ $(function () {
       $('.nav-mobile-menu .nav-item a.nav-link').removeClass('btn', 'btn-white', 'btn-round');
     }
   }
-  
 
  //Attach Featured Image to Post
  const attchbtn = document.querySelector('#attachmentBtn');
@@ -241,6 +241,7 @@ $('.popup-youtube, .popup-vimeo, .popup-gmaps').magnificPopup({
   fixedContentPos: false
 }); 
    
- });
-
+ })
 });
+
+

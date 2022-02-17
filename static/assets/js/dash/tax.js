@@ -50,7 +50,7 @@ window.addEventListener('DOMContentLoaded', () => {
     });
 
     //Edite functions
-    editbtn.addEventListener('click', function(e){
+    $(document).on('click', '#edit', function(e){
         e.preventDefault();
         let checked = document.querySelectorAll('input.taxRow:checked');
         console.log(checked);
@@ -117,7 +117,7 @@ window.addEventListener('DOMContentLoaded', () => {
             $(this).find('i').text('arrow_circle_up');
             $('#edit_cancel').removeClass('hide');
         }
-    });
+});
 
 $(document).on('click', '#delete', function(e){
   e.preventDefault();
@@ -284,6 +284,7 @@ function loadTable(){
       });
       $('.dataTables_length').addClass('bs-select');
     }, 150);
+    location.reload();  
 }
 
 function reload(){

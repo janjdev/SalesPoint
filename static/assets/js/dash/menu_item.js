@@ -1,5 +1,5 @@
 //Variable for dataTables
-let itemTable
+let itemTable, itemform;
 
 window.addEventListener('DOMContentLoaded', () => {
 
@@ -21,7 +21,7 @@ window.addEventListener('DOMContentLoaded', () => {
     // let itemtasks = document.querySelectorAll('.item-task');
   
     //The form to submit
-    let itemform = document.querySelector('form#itemform'); 
+    itemform = document.querySelector('form#itemform'); 
        
     //Needed variables
     let page, title, func, id, isValid=true, iteminputs = document.querySelectorAll('.itemAction');
@@ -148,17 +148,21 @@ window.addEventListener('DOMContentLoaded', () => {
               $('#itemModal').modal('show');
           }
           else 
-          {            
-            if( func == 'archive')            
-            {
-              document.querySelector('input[name="offered"]').removeAttribute('checked');
-            }
-            if(func == 'active')
-            {
-              document.querySelector('input[name="offered"]').checked = true;
-            }
-           
-              $('#itemform').trigger("submit");        
+          { 
+              if( func == 'archive')            
+              {
+                document.querySelector('input[name="offered"]').removeAttribute('checked');
+              }
+              if(func == 'active')
+              {
+                document.querySelector('input[name="offered"]').checked = true;
+              }
+              if (func == 'delete')
+              {
+                page = "/delete_items/" +id;
+              }
+                $('#itemform').trigger("submit");    
+                      
           }
         }
       });
@@ -181,14 +185,14 @@ window.addEventListener('DOMContentLoaded', () => {
   
     
    //Change value of is_active/is_offered
-  let active = document.querySelectorAll('.active-offered')[0];
-  active.addEventListener('change', function(e){
-    if(e.target.checked){
-      e.target.value = 1;
+  // let active = document.querySelectorAll('.active-offered')[0];
+ $(document).on('click, change', '.active-offered', function(e){
+    if($(this).prop("checked", true)){
+      $(this).val(1);
     }
     else{
-      e.target.value = 0;
-      e.target.removeAttribute('checked')
+      $(this).val(0);
+      $(this).prop('checked', false)
     }
   });
 
@@ -221,6 +225,7 @@ window.addEventListener('DOMContentLoaded', () => {
      
   function loadElement(el){
    $('#itemModal').modal('hide');
+   itemform.reset();
    itemTable.destroy();
    $('#tableI').load(document.URL +  '  #itemTable');
    $('tr.True button[data-func="active"]').attr('disabled', true);
@@ -287,13 +292,16 @@ window.addEventListener('DOMContentLoaded', () => {
   function validate(args){
     let fields = [];
     args.forEach(el => fields.push(el));
-    fields.forEach(function(el){
-      if (el.value == '' || /\S/.test(el.value) == false)
-      {
-        isValid = false;
-        console.log(el);
-      }     
-    });    
+    if (func != 'delete')
+    {
+      fields.forEach(function(el){
+        if (el.value == '' || /\S/.test(el.value) == false)
+        {
+          isValid = false;
+          console.log(el);
+        }     
+      }); 
+    }   
   }
   
   //Shake if required fields are empty

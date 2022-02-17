@@ -1,11 +1,14 @@
-import ast, csv, os
-from tempfile import mktemp
-from win32 import win32print, win32api
+import ast, csv, os, config
+from tempfile import mkstemp, mktemp
+from win32 import win32print, win32api, win32gui
 from datetime import datetime,time, timedelta
-from flask import request, json, make_response, render_template
-import config
+from flask import request, json
+from glob import glob
+
+
+
 import locale
-import ghostscript
+# import ghostscript
 
 import pdfkit
 pdfconfig = pdfkit.configuration(wkhtmltopdf= 'venv\Lib\site-packages\wkhtmltopdf\\bin\wkhtmltopdf.exe')
@@ -109,7 +112,20 @@ def getFonts():
             extIndex = font.rindex('.')
             font_name = font[index+1: extIndex]
             fonts.append((font_name, font))
+            printFont()
     return fonts
+
+def callback(font, tm, fonttype, names):
+    names.append(font.lfFaceName)
+    return True
+
+def printFont():
+    fontnames = []
+    hdc = win32gui.GetDC(None)
+    win32gui.EnumFontFamilies(hdc, None, callback, fontnames)
+    # print("\n".join(fontnames))
+    win32gui.ReleaseDC(hdc, None)
+    return fontnames
     
 def getURL():
     with open('configs/app.json', 'r+') as jsonFile:
@@ -410,23 +426,14 @@ def render_to_pdf(html, css):
 def printTicket(html, printer, css=[]):
     if printer is None:
         printer = win32print.GetDefaultPrinter()
-
     pdf = render_to_pdf(html, css=css)
-    temp1 = mktemp('.pdf')
+    temp1, filepath = mkstemp('.pdf') 
     f1 = open(temp1, 'ab')
     f1.write(pdf)
     f1.close()
-    args = [
-        "-dPrinted", "-dBATCH", "-dNOSAFER", "-dNOPAUSE", "-dNOPROMPT"
-        "-q",
-        "-dNumCopies#1",
-        "-sDEVICE#mswinpr2",
-        f'-sOutputFile#"%printer%{printer}"', 
-        f'"{temp1}"'
-    ]
-    encoding = locale.getpreferredencoding()
-    args = [a.encode(encoding) for a in args]
-    ghostscript.Ghostscript(*args)
+    print(filepath)
+    for f in glob(filepath, recursive=True):
+        win32api.ShellExecute(0, "print", f, '/d:"%s"' % printer, ".", 0)
     
 def getPrinters():
     allprinters = win32print.EnumPrinters(3)

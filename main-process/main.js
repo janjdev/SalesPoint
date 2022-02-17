@@ -3,27 +3,24 @@ const {app, BrowserWindow, protocol, Menu, ipcMain} = require('electron');
 const path = require('path');
 const { PythonShell } = require('python-shell');
 const menu = app.menu
+const sqlite3 = require('sqlite3').verbose();
 
-const firstRun = require('electron-first-run');
- 
-const isFirstRun = firstRun()
-console.log(isFirstRun);
+// const flask = path.join(__dirname, '../venv/Scripts/flask.exe');
 
-const flask = path.join(__dirname, '../venv/Scripts/flask.exe')
+const flaskapp = path.join(__dirname, '../app.py');
 
-//Function to start the backend server
-function startFlask() {
-  PythonShell.run(flask, null, function  (err, results)  {
-    if  (err){
-      console.log(err);;
-    }  
-    console.log('server initiated');
-    console.log('results', results);
-    });
-}
+// function startFlask() {
+//   PythonShell.run(flask, null, function  (err, results)  {
+//     if  (err){
+//       console.log(err);;
+//     }  
+//     console.log('server initiated');
+//     console.log('results', results);
+//     });
+// }
 
 function startApp(){
-  PythonShell.run('app.py', null, function  (err, results)  {
+  PythonShell.run(flaskapp, null, function  (err, results)  {
     if  (err){
       console.log(err);;
     }  
@@ -34,6 +31,29 @@ function startApp(){
 }
 
 python_process = PythonShell.childProcess;
+
+let db = new sqlite3.Database('./salespoint.db', sqlite3.OPEN_READONLY, (err) => {
+  if (err) {
+    console.error(err.message);
+  }
+  console.log('Connected to the salespoint database.');
+});
+
+
+// const executablePath = "../app/app.exe";
+
+// const child = require('child_process').execFile;
+
+// function startApp(){
+//   child(executablePath, function (err, data) {
+//     if (err) {    
+//     console.error(err);    
+//     return;    
+//     }    
+//     console.log(data.toString());    
+//     });
+// }
+
 
 //create main application window
 let mainWindow;
@@ -53,30 +73,42 @@ function createWindow () {
       enableRemoteModule: true,
       preload: path.join(__dirname, 'preload.js')
     },
-    icon: path.join(__dirname, '../static/assets/img/icons/salespoint-green.png')
+    icon: path.join(__dirname, '../app/static/assets/img/icons/salespoint-green.png')
   });
-  const startURL = firstRun==true? 'http://127.0.0.1:5000/first': 'http://127.0.0.1:5000/';
+  // const startURL = firstRun==true? 'http://127.0.0.1:5000/first': 'http://127.0.0.1:5000/';
+  // mainWindow.loadURL(startURL)
+let sql = "SELECT first_name FROM STAFF"; 
+  db.all(sql, (err, rows,) =>{
+    if(err){
+     console.log(err);
+    }
+    if (rows.length < 1)
+    {
+      mainWindow.loadURL('http://127.0.0.1:5000/first');
+    }
+    else{
+      mainWindow.loadURL('http://127.0.0.1:5000/');
+    }
+  })
+ 
   //`file://${path.join(__dirname, "../templates/window_main.html")}`;  
 
   
   // and load the index.html of the app.
-  mainWindow.loadURL(startURL);
  
+    
+   
 
-  mainWindow.webContents.session.clearCache(function(){});
-  mainWindow.webContents.send('MSG_FROM_MAIN', 'hello renderer');
+    // mainWindow.loadFile('index.html')
 
-  mainWindow.once("ready-to-show", () => { mainWindow.show()});
-  mainWindow.on("closed", () => {
+    mainWindow.once("ready-to-show", () => { mainWindow.show()});
+    mainWindow.on("closed", () => {
     mainWindow = null
   });
-  //start backend server
-  startFlask();
+  // startFlask();
   startApp();
   
 }
-
-
 
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
@@ -90,7 +122,6 @@ app.on('ready', function ()  {
     createWindow(); 
 
     const template = [
-      //   { role: 'editMenu' },
         {
           label: 'Edit',
           submenu: [
@@ -105,7 +136,6 @@ app.on('ready', function ()  {
             { role: 'selectAll' }
           ]
         },
-      //   { role: 'viewMenu' },
         {
           label: 'View',
           submenu: [
@@ -118,8 +148,7 @@ app.on('ready', function ()  {
             { type: 'separator' },
             { role: 'togglefullscreen' }
           ]
-        },
-      //   { role: 'windowMenu' },
+        },   
         {
           label: 'Window',
           submenu: [
@@ -130,8 +159,10 @@ app.on('ready', function ()  {
         },
         {
           role: 'About',
-          id: 'about',
           submenu: [
+            {
+              label: 'About'
+            },
             {
               label: 'Learn More',
               click: async () => {
@@ -143,8 +174,7 @@ app.on('ready', function ()  {
         },
         {
           role: 'Help',
-          label: 'Help',
-          icon: path.join(__dirname, '../static/assets/img/icons/help.png'),
+          label: 'Help'         
       },
       ]
     const menu =  Menu.buildFromTemplate(template)
@@ -164,9 +194,16 @@ app.on('activate', function () {
 // explicitly with Cmd + Q.
 app.on('window-all-closed', function () {
   if (process.platform !== 'darwin') 
-  {    
+  {   
+      const { exec } = require('child_process');
+      exec('taskkill /f /t /im app.exe', (err, stdout, stderr) => {
+        if (err) {
+        console.log(err)
+        return;
+      }
+    });
       app.quit();
-  }
+    }
 });
 
 // In this file you can include the rest of your app's specific main process
@@ -175,6 +212,7 @@ app.on('window-all-closed', function () {
 
 //get system fonts
 const getSystemFonts = require("get-system-fonts");
+const { count } = require('console');
 console.log(process.version);
 async function files() {
   return files = await getSystemFonts();
@@ -196,23 +234,6 @@ files().then(function(val){
 
   });
 });
-
-const createModal = (htmlFile, parentWindow, width, height) => {
-  let modal = new BrowserWindow({
-    width: width,
-    height: height,
-    modal: true,
-    parent: parentWindow,
-    webPreferences: {
-      nodeIntegration: true
-    }
-  })
-
-  modal.loadFile(htmlFile)
-
-  return modal;
-
-}
 
 
 

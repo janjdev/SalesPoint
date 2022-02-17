@@ -32,35 +32,58 @@ window.addEventListener('DOMContentLoaded', () => {
   
   
   //Function to disable multi row select in staff table
-  staffChecks.forEach(function(check){
-    check.addEventListener('change', function(e){
-      //if a row (checkbox) is checked
-        if (e.target.checked)
-        {
-          //remove checked property from all checkboxes but (not) this checkbox
-          $(staffChecks).not(e.target).prop("checked", false);
-          $('input', staffTable.cells().nodes()).not(e.target).prop('checked', false);
+  // staffChecks.forEach(function(check){
+  //   check.addEventListener('change', function(e){
+  //     //if a row (checkbox) is checked
+  //       if (e.target.checked)
+  //       {
+  //         //remove checked property from all checkboxes but (not) this checkbox
+  //         $(staffChecks).not(e.target).prop("checked", false);
+  //         $('input', staffTable.cells().nodes()).not(e.target).prop('checked', false);
 
-          //get the check input
-          checked = document.querySelectorAll('input:checked');
-        }
-        else
-        {
-          //set checked input to an empty array           
-          checked = document.querySelectorAll('input:checked');
-        } 
-    });
+  //         //get the check input
+  //         checked = document.querySelectorAll('input:checked');
+  //       }
+  //       else
+  //       {
+  //         //set checked input to an empty array           
+  //         checked = document.querySelectorAll('input:checked');
+  //       } 
+  //   });
+  // });
+
+  // //Function to disable multi row select in table
+  $(document).on('click','input.post-action', function(e){
+
+    var $box = $(this);
+    if ($box.is(":checked")) {
+      // the name of the box is retrieved using the .attr() method
+      // as it is assumed and expected to be immutable
+      var group =  $("input.post-action");
+      // the checked state of the group/box on the other hand will change
+      // and the current value is retrieved using .prop() method
+      $(group).prop("checked", false);
+      $('input', staffTable.cells().nodes()).prop('checked', false);          
+      $box.prop("checked", true);
+      //get the check input
+      checked = document.querySelectorAll('input.post-action:checked');
+    } else {
+      $box.prop("checked", false);
+      $('input', staffTable.cells().nodes()).prop('checked', false);
+      //set checked input to an empty array           
+      checked = document.querySelectorAll('inputpost-action:checked');
+    }
   });
 
 //tasks function for add, edit, copy
-  tasks.forEach(function(task) {
-        task.addEventListener('click', function(e){
+ 
+        $(document).on('click', '.staff-tasks', function(e){
           //get the route      
-          page = task.getAttribute('data-href');
+          page = $(this).attr('data-href');
           //get the title of the action
-          title = task.getAttribute('data-title');
+          title =  $(this).attr('data-title');
           //get the specific task
-          func =  task.getAttribute('data-func');
+          func =  $(this).attr('data-func');
           //set the title of the modal
           modalTitle.innerText = title         
 
@@ -106,7 +129,6 @@ window.addEventListener('DOMContentLoaded', () => {
         //set the action of the form
         form.setAttribute('action', page);
         });
-    });
  //======================ROW ACTIONS==========================     
       $(document).on('click', '.row_action', function(e){
         e.preventDefault();
@@ -287,4 +309,6 @@ function loadStaffTable(){
   }, 500)
 }
 
-
+function reUp(){
+  location.reload();
+}

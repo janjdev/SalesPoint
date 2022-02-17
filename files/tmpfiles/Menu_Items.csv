@@ -1,0 +1,16 @@
+id,item_name,unit_price,item_category,item_description,is_offered,is_special
+1,Crabrangoon,6.35,1,Deep-fried dumplings stuffed with crab meat and cream cheese,TRUE,FALSE
+2,Egg Roll,3.15,1,"Pork, chicken, and vegetable rolled in egg flour sheet and deep fried",TRUE,FALSE
+3,Fried Wonton,3.95,1,Deep-fried egg flour dumpling stuffed with pork and vegetables,TRUE,FALSE
+4,Egg Drop Soup,3.95,4,Chicken broth soup with scrambled egg,TRUE,FALSE
+5,Hot and Sour Soup,5.25,4,,TRUE,FALSE
+6,Chef's Special Wonton Soup,9.55,4,"Crab Meat, Vegetable & Wonton",TRUE,FALSE
+7,Chicken Fried rice,7.95,2,,TRUE,FALSE
+8,Chicken Lo-mein,9.95,2,,TRUE,FALSE
+9,Orange Chicken,12.55,2,"Hot and Spicy chicken sautéed, and seasoned with orange sauce",TRUE,FALSE
+10,General Tso's Chicken,12.55,2,A robust platter of crispy chicken chunks served in a rich tangy brown sauce with strips of hot red peppers,TRUE,FALSE
+11,Sweet And Sour Chicken,9.95,2,"Battered Chicken, Diced Pineapple, Carrots And Green Peppers, Served In Sweet And Sour Sauce",TRUE,FALSE
+12,Hot Braised Chicken,9.95,2,"Tender white meat chicken, battered and deep-friend and onions served in a delicious hot braised sauce",TRUE,FALSE
+13,Beef and Broccoli,11.1,2,,TRUE,FALSE
+14,Cashew Shrimp,11.15,2,"Jumbo shrimp, mushrooms, water chestnuts, bamboo shoots sprinkled, with toasted cashews",TRUE,FALSE
+15,Sesame Tofu,9.95,3,Chunks of tofu served in a sweet tangy ginger sauce topped with sesame seeds,TRUE,FALSE

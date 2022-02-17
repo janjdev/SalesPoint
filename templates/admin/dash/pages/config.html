@@ -132,9 +132,9 @@
                                     <div class="form-group col-md-5 systemfonts">
                                         <label for="fontlist">Default Font</label>
                                         <select multiple class="  custom-select" data-style="" name="defaultfont" id="fontlist" multiple>
-                                            <option value=""></option>
+                                            {% if term %} {% if term.default_font %}<option selected value="{{term.default_font}}">{{term.default_font}}</option>{% endif %}{% endif %}
                                             {% for font in fonts %}                                        
-                                            <option value="{{font[0]}}" data-value={{font[1]}}>{{font[0]}}</option>                                       
+                                            <option value="{{font}}" data-value={{font}}>{{font}}</option>                                       
                                             {% endfor %}
                                         </select>
                                         <input type="text" hidden name="fontpath" id="fontpath" />

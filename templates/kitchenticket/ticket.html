@@ -25,7 +25,7 @@
   {% set ttdis.ttdis = subtotal.value|float * (percent.percent|round(5, 'floor')/100)  %}
   {% set totaldiscount.dvalue = ttdis.ttdis + amount.amount|float %}
 
-<div id="invoice-POS">  
+<div id="invoice-POS" {% if term %} {% if term.default != '' %} style="font-family: {{term.default_font}} !important;" {% endif %} {% endif %}>  
     <div id="mid">
       <div class="info">
         <h2> *** ORDER {{order.id}} ***</h2>

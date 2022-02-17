@@ -11,7 +11,9 @@ const BrowserWindow = electron.remote.BrowserWindow;
 window.addEventListener('DOMContentLoaded', () => { 
 
   let thisWin = BrowserWindow.getFocusedWindow();
+  let showbtn;
   let currentURL = thisWin.webContents.getURL()
+  showbtn= currentURL != 'http://127.0.0.1:5000/' && currentURL != 'http://127.0.0.1:5000/first'? false: true;
   console.log(currentURL);
   let loadFile;
     if (currentURL == 'http://127.0.0.1:5000/')
@@ -116,6 +118,7 @@ window.addEventListener('DOMContentLoaded', () => {
  
   new customTitlebar.Titlebar({
     backgroundColor: customTitlebar.Color.fromHex('#FFFFFF'),
+    closeable: showbtn
     // icon: path.join(__dirname, '../static/assets/img/icons/help.png')
   }); 
   

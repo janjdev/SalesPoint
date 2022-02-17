@@ -1,5 +1,5 @@
 {
-  "name": "salespoint",
+  "name": "SalesPoint",
   "version": "1.0.0",
   "build": "1.0.1",
   "description": "A Point of Sales cross-platform application made by January Johnson of Team1 from UMSL: IS4850, Fall 2020 to fullfill the requirements of the Senior Project. Lead Developer/Engineer: January Johnson",
@@ -40,6 +40,7 @@
     "get-system-fonts": "^2.0.2",
     "jsprintmanager": "^3.0.5",
     "python-shell": "^2.0.2",
+    "sqlite3": "^5.0.0",
     "xbs-enjoyhint": "^4.0.6"
   }
 }

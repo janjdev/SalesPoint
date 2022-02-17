@@ -92,8 +92,16 @@ h3.header_tag {
 
 div#blogo_container {
     width: 100%;
+   
+}
+.tagline{
+    padding: 10px 0;
 }
 
+div#alogo_container {
+    width: 100%;
+    margin-top: 50px;
+}
 /*====================Logs======================*/
 .logs {
     margin: 0;
@@ -276,9 +284,9 @@ th.theID {
 }
 
 /*===========================Tasks====================*/
-.shared-tasks .sidebar .logo a.logo-mini, .shared-tasks .sidebar .logo .logo-mini {
+/* .shared-tasks .sidebar .logo a.logo-mini, .shared-tasks .sidebar .logo .logo-mini {
     width: 200px;
-}
+} */
 body.shared-tasks .sidebar{
     margin-top: 30px;;
 }
@@ -466,6 +474,12 @@ div#order_total {
 
 .menu-item a.photography-entry .text, .menu-item a.photography-entry .tag{
     opacity: 1;
+}
+
+.mnitem.img-container img {
+    width: 100%;
+    max-width: 50px;
+    max-height: 50px;
 }
 
 .menu-item span.taxes, .taxes{

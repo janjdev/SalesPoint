@@ -1,4 +1,4 @@
-$(document).ready(function() {
+window.addEventListener('DOMContentLoaded', () => {
 
 //Quick Add to media library
  const quickAdd = document.getElementById('quickAdd');
@@ -78,15 +78,11 @@ $('#updateAvatar').on('submit', function(e){
     }
 });
 
+
 //import menu
 const link = document.querySelector('#importlink');
-const csvForm = document.getElementById('importForm');
 
-$(csvForm).on('submit', function(e){
-  e.preventDefault();
-  let formData = new FormData(csvForm);
-  ajaxforms('/importmenu', 'POST', formData, false,false);
-});
+
 if(link){
   link.addEventListener('click', function(e){
     e.preventDefault();
@@ -94,10 +90,44 @@ if(link){
   });
 }
 
-$('#import').change(function(e){
+function getExtension(filename) {
+  var parts = filename.split('.');
+  return parts[parts.length - 1];
+}
+
+function isCSV(filename) {
+  var ext = getExtension(filename);
+  switch (ext.toLowerCase()) {
+    case 'csv':
+      return true;
+  }
+  return false;
+}
+let filename, csvform
+$(document).on('change', '#import', function() {
+  filename = $(this).val();
+  csvform = document.getElementById('importForm');
+ $("#importForm").trigger('submit');
+});
+
+$("#importForm").on('submit', function(e){
   e.preventDefault();
-  $(csvForm).submit();
+  if (isCSV(filename)){    
+    let formData = new FormData(csvform);
+    ajaxforms('/importmenu', 'POST', formData, false,false); 
+  }
+  else
+  {
+    Swal.fire({
+      title: "Invalid File Type",
+      text: 'The file must be a .csv (Comma Separated Values) File',
+      time: 3500
+    })
+  }
+
 })
+
+
 
 
 //Publish a new Post
@@ -244,12 +274,15 @@ if(actionsSelect){
         window.open(url, '_blank');
       }, 2000);
 
-       
     }
     function reset(el){
         el.reset;
         $('.fileinput.text-center').removeClass('fileinput-exists');
         $('.fileinput.text-center').addClass('fileinput-new');
+    }
+
+    function goTo(page){
+      window.location.href = page;
     }
 });
 
