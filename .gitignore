@@ -53,3 +53,8 @@ yarn.lock
 config.py
 LICENSE.md
 hashutil.py
+files/
+lists/*
+salespoint.db
+tempCodeRunnerFile.py
+__pycache__/*

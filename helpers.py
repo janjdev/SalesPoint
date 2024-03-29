@@ -1,21 +1,29 @@
-import ast, csv, os, config
-from tempfile import mkstemp, mktemp
-from win32 import win32print, win32api, win32gui
-from datetime import datetime,time, timedelta
-from flask import request, json
+"""
+This module contains helper functions for the application.
+"""
+import ast
+import csv
+import os
+from datetime import datetime, time, timedelta
 from glob import glob
+from tempfile import mkstemp, mktemp
+
+from flask import request, json
+import win32api, win32gui, win32print
+import pdfkit
+import config
 
 
 
-import locale
+
 # import ghostscript
 
-import pdfkit
-pdfconfig = pdfkit.configuration(wkhtmltopdf= 'venv\Lib\site-packages\wkhtmltopdf\\bin\wkhtmltopdf.exe')
+
+pdfconfig = pdfkit.configuration(wkhtmltopdf= r'venv\Lib\site-packages\wkhtmltopdf\/bin\wkhtmltopdf.exe')
 
 #Get list of rows from table form
-def multiRow(list):
-    q = ast.literal_eval(list)            
+def multiRow(lst):
+    q = ast.literal_eval(lst)            
     r = []
     for i in q:
         v = {}
@@ -387,30 +395,30 @@ def iterateData(data, opennum=0, paidnum=0, refundnum=0, voidnum=0, pendnum=0,op
     return {'openorders': opennum, 'open': open, 'voidorders': voidnum, 'void': void, 'paidorders': paidnum, 'paid': paid, 'refundorders': refundnum, 'refund': refund, 'pendingorders': pendnum, 'pend': pend, 'in': innum, 'inamount': inamount, 'out': outnum, 'outamount': outamount, 'gross': gross, 'discount': totaldiscount, 'tax': totaltax}
 
 def chartOrders(orders, date1=0,date2=0,date3=0,date4=0,date5=0,date6=0,date7=0):
-    taday = datetime.now().date()
+    today = datetime.now().date()
     am = time(00,00,00)                
     pm = time(23, 59, 59)
-    day1 = datetime.strftime(taday - timedelta(days=6), "%A")
-    day2 = datetime.strftime(taday - timedelta(days=5), "%A")
-    day3 = datetime.strftime(taday - timedelta(days=4), "%A")
-    day4 = datetime.strftime(taday - timedelta(days=3), "%A")
-    day5 = datetime.strftime(taday - timedelta(days=2), "%A")
-    day6 = datetime.strftime(taday - timedelta(days=1), "%A")
-    day7 = datetime.strftime(taday, "%A")    
+    day1 = datetime.strftime(today - timedelta(days=6), "%A")
+    day2 = datetime.strftime(today - timedelta(days=5), "%A")
+    day3 = datetime.strftime(today - timedelta(days=4), "%A")
+    day4 = datetime.strftime(today - timedelta(days=3), "%A")
+    day5 = datetime.strftime(today - timedelta(days=2), "%A")
+    day6 = datetime.strftime(today - timedelta(days=1), "%A")
+    day7 = datetime.strftime(today, "%A")    
     for order in orders:
         if datetime.combine(datetime.now().date(), am) <  order.date_created <datetime.combine(datetime.now().date(), pm):
             date1 +=1
-        if datetime.combine(taday - timedelta(days=1), am) <  order.date_created <datetime.combine(taday - timedelta(days=1), pm):
+        if datetime.combine(today - timedelta(days=1), am) <  order.date_created <datetime.combine(today - timedelta(days=1), pm):
             date2+=1
-        if datetime.combine(taday - timedelta(days=2), am) <  order.date_created <datetime.combine(taday - timedelta(days=2), pm):
+        if datetime.combine(today - timedelta(days=2), am) <  order.date_created <datetime.combine(today - timedelta(days=2), pm):
             date3+=1
-        if datetime.combine(taday - timedelta(days=3), am) <  order.date_created <datetime.combine(taday - timedelta(days=3), pm):
+        if datetime.combine(today - timedelta(days=3), am) <  order.date_created <datetime.combine(today - timedelta(days=3), pm):
             date4+=1
-        if datetime.combine(taday - timedelta(days=4), am) <  order.date_created <datetime.combine(taday - timedelta(days=4), pm):
+        if datetime.combine(today - timedelta(days=4), am) <  order.date_created <datetime.combine(today - timedelta(days=4), pm):
             date5+=1
-        if datetime.combine(taday - timedelta(days=5), am) <  order.date_created <datetime.combine(taday - timedelta(days=5), pm):
+        if datetime.combine(today - timedelta(days=5), am) <  order.date_created <datetime.combine(today - timedelta(days=5), pm):
             date6+=1
-        if datetime.combine(taday - timedelta(days=6), am) <  order.date_created <datetime.combine(taday - timedelta(days=6), pm):
+        if datetime.combine(today - timedelta(days=6), am) <  order.date_created <datetime.combine(today - timedelta(days=6), pm):
             date7+=1
     return {'data7':date1,'data6':date2,'data5':date3,'data4':date4,'data3':date5,'data2':date6,'data1':date7, 'day1':day1, 'day2':day2, 'day3':day3, 'day4':day4, 'day5':day5, 'day6':day6, 'day7':day7}
 

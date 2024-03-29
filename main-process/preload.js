@@ -13,80 +13,80 @@ window.addEventListener('DOMContentLoaded', () => {
   let thisWin = BrowserWindow.getFocusedWindow();
   let showbtn;
   let currentURL = thisWin.webContents.getURL()
-  showbtn= currentURL != 'http://127.0.0.1:5000/' && currentURL != 'http://127.0.0.1:5000/first'? false: true;
+  showbtn= currentURL != 'http://127.0.0.1:5001/' && currentURL != 'http://127.0.0.1:5001/first'? false: true;
   console.log(currentURL);
   let loadFile;
-    if (currentURL == 'http://127.0.0.1:5000/')
+    if (currentURL == 'http://127.0.0.1:5001/')
     {
       loadFile = `file://${path.join(__dirname, "./help/NavigatingtheSystem.html")}`
     }
     else
       {
-        if( currentURL == 'http://127.0.0.1:5000/admin')
+        if( currentURL == 'http://127.0.0.1:5001/admin')
       {
         loadFile = `file://${path.join(__dirname, "./help/AdministratorFeatures.html")}`
       }
     else
     {
-      if( currentURL == 'http://127.0.0.1:5000/first')
+      if( currentURL == 'http://127.0.0.1:5001/first')
       {
         loadFile = `file://${path.join(__dirname, "./help/GettingStarted.html")}`
       }
       else
       {
-          if( currentURL == 'http://127.0.0.1:5000/staff')
+          if( currentURL == 'http://127.0.0.1:5001/staff')
         {
           loadFile = `file://${path.join(__dirname, "./help/AddaStaffMember.html")}`
         }
         else
         {
-          if( currentURL == 'http://127.0.0.1:5000/staff/positions')
+          if( currentURL == 'http://127.0.0.1:5001/staff/positions')
           {
             loadFile = `file://${path.join(__dirname, "./help/AddaPosition.html")}`
           }
           else
           {
-              if( currentURL == 'http://127.0.0.1:5000/discounts')
+              if( currentURL == 'http://127.0.0.1:5001/discounts')
               {
                 loadFile = `file://${path.join(__dirname, "./help/CouponsandDiscounts.html")}`
               }
               else
               {
-                  if( currentURL == 'http://127.0.0.1:5000/tax/')
+                  if( currentURL == 'http://127.0.0.1:5001/tax/')
                   {
                     loadFile = `file://${path.join(__dirname, "./help/Taxes.html")}`
                   }
                   else
                   {
-                    if( currentURL == 'http://127.0.0.1:5000/menu')
+                    if( currentURL == 'http://127.0.0.1:5001/menu')
                     {
                       loadFile = `file://${path.join(__dirname, "./help/MenuManagement.html")}`
                     }
                     else
                     {
-                      if( currentURL == 'http://127.0.0.1:5000/reports')
+                      if( currentURL == 'http://127.0.0.1:5001/reports')
                         {
                           loadFile = `file://${path.join(__dirname, "./help/CreatingReports.html")}`
                         }
                         else
                         {
-                          if( currentURL == 'http://127.0.0.1:5000/setTable/')
+                          if( currentURL == 'http://127.0.0.1:5001/setTable/')
                           {
                             loadFile = `file://${path.join(__dirname, "./help/AddTables.html")}`
                           }
                           else
                           {
-                            if( currentURL == 'http://127.0.0.1:5000/kitchen'){
+                            if( currentURL == 'http://127.0.0.1:5001/kitchen'){
                               loadFile = `file://${path.join(__dirname, "./help/Kitchen.html")}`
                             }
                             else
                             {
-                              if( currentURL == 'http://127.0.0.1:5000/orders'){
+                              if( currentURL == 'http://127.0.0.1:5001/orders'){
                                 loadFile = `file://${path.join(__dirname, "./help/CompletingAnOrder.html")}`
                               }
                               else
                               {
-                                if( currentURL == 'http://127.0.0.1:5000/carry-out' || currentURL == 'http://127.0.0.1:5000/dine-in'){
+                                if( currentURL == 'http://127.0.0.1:5001/carry-out' || currentURL == 'http://127.0.0.1:5001/dine-in'){
                                   loadFile = `file://${path.join(__dirname, "./help/FromtheMenu1.html")}`
                                 }
                               }
@@ -166,99 +166,92 @@ $(document).on('click', '#shutdown', function(e){
   if (user.toUpperCase() === "ADMINISTRATOR")
   {
     sw.fire({
-        type: 'warning',
-        title: 'Shut Down ?',
-        // text: 'From Date cannot be greater than To Date',
-        showCancelButton: true,
-          confirmButtonText: 'Yes!',
-          cancelButtonText: 'No, cancel!',
-          reverseButtons: true
-        }).then((result) => {
-          if (result.value) 
-          {
-              let form = document.createElement('form');
-              let input = document.createElement('input');
-              input.setAttribute('name', 'admin')
-              input.value = 'admin';
-              form.appendChild(input);
-            $.ajax({
-                method: 'POST',
-                url: 'http://127.0.0.1:5000/shut-down',
-                data: $(form).serialize(),   
-            }).done(function(response){
-                let callback = eval(response.callback)
-                if(response.param){
-                  if(response.param == 'form'){
-                    callback = callback(form)
-                  }
-                  else{
-                    callback = callback(response.param)
-                  }
-                }
-                Swal.fire({
-                  type: response.alertType,
-                  text: response.message,
-                  timer: response.timer,
-                  onClose: callback
-                })
-                
-              })
+      type: 'warning',
+      title: 'Shut Down ?',
+      // text: 'From Date cannot be greater than To Date',
+      showCancelButton: true,
+        confirmButtonText: 'Yes!',
+        cancelButtonText: 'No, cancel!',
+        reverseButtons: true
+      }).then((result) => {
+      if (result.value) 
+      {
+        let form = document.createElement('form');
+        let input = document.createElement('input');
+        input.setAttribute('name', 'admin')
+        input.value = 'admin';
+        form.appendChild(input);
+        $.ajax({
+          method: 'POST',
+          url: 'http://127.0.0.1:5001/shut-down',
+          data: $(form).serialize(),   
+        }).done(function(response){
+          let callback = eval(response.callback)
+          if(response.param){
+            if(response.param == 'form'){
+              callback = callback(form)
+            }
+            else{
+              callback = callback(response.param)
+            }
           }
-          else if( result.dismiss === Swal.DismissReason.cancel)
-          {
-            
-          }  
-        });
-  
-        }
-        else
-        {
-            Swal.fire({
-                title: 'Administrator Required',
-                text: 'Enter Your Authorized ID',
-                input: 'password',
-                inputAttributes: {
-                autocapitalize: 'off'
-                },
-                showCancelButton: true,
-                confirmButtonText: 'Shut Down',              
-            }).then((result) => {
-                if (result.value) 
-                {
-                    let form = document.createElement('form');
-                    let input = document.createElement('input');
-                    input.setAttribute('name', 'id')
-                    input.value = result.value;
-                    form.appendChild(input);
-                    $.ajax({
-                        method: 'POST',
-                        url: 'http://127.0.0.1:5000/shut-down',
-                        data: $(form).serialize(),   
-                    }).done(function(response){
-                        let callback = eval(response.callback)
-                        if(response.param){
-                        if(response.param == 'form'){
-                            callback = callback(form)
-                        }
-                        else{
-                            callback = callback(response.param)
-                        }
-                        }
-                        Swal.fire({
-                        type: response.alertType,
-                        text: response.message,
-                        timer: response.timer,
-                        onClose: callback
-                        })
-                        
-                    })
-                }
-            })
-        }
-
+          Swal.fire({
+            type: response.alertType,
+            text: response.message,
+            timer: response.timer,
+            onClose: callback
+          })    
+        })
+      }
+      else if( result.dismiss === Swal.DismissReason.cancel)
+      {
         
-        
-
+      }  
+    });
+  }
+  else
+  {
+    Swal.fire({
+      title: 'Administrator Required',
+      text: 'Enter Your Authorized ID',
+      input: 'password',
+      inputAttributes: {
+      autocapitalize: 'off'
+      },
+      showCancelButton: true,
+      confirmButtonText: 'Shut Down',              
+    }).then((result) => {
+      if (result.value) 
+      {
+        let form = document.createElement('form');
+        let input = document.createElement('input');
+        input.setAttribute('name', 'id')
+        input.value = result.value;
+        form.appendChild(input);
+        $.ajax({
+          method: 'POST',
+          url: 'http://127.0.0.1:5001/shut-down',
+          data: $(form).serialize(),   
+        }).done(function(response){
+          let callback = eval(response.callback)
+          if(response.param){
+          if(response.param == 'form'){
+              callback = callback(form)
+          }
+          else{
+              callback = callback(response.param)
+          }
+          }
+          Swal.fire({
+            type: response.alertType,
+            text: response.message,
+            timer: response.timer,
+            onClose: callback
+          })            
+        })
+      }
+    })
+  }
 });
 
   function shutdown(){
@@ -280,11 +273,9 @@ $(document).on('click', '#shutdown', function(e){
         selection.removeAllRanges();
         selection.addRange(range);
     }
-};
-
-
+  };
     
-  });
+});
 
   
 

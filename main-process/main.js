@@ -9,20 +9,13 @@ const sqlite3 = require('sqlite3').verbose();
 
 const flaskapp = path.join(__dirname, '../app.py');
 
-// function startFlask() {
-//   PythonShell.run(flask, null, function  (err, results)  {
-//     if  (err){
-//       console.log(err);;
-//     }  
-//     console.log('server initiated');
-//     console.log('results', results);
-//     });
-// }
-
 function startApp(){
-  PythonShell.run(flaskapp, null, function  (err, results)  {
+  let options = {
+    pythonPath:  path.join(__dirname, '../venv/Scripts/python.exe')
+  };
+  PythonShell.run(flaskapp, options, function  (err, results)  {
     if  (err){
-      console.log(err);;
+      console.log(err);
     }  
     console.log('server initiated');
     console.log('results', results);
@@ -32,27 +25,12 @@ function startApp(){
 
 python_process = PythonShell.childProcess;
 
-let db = new sqlite3.Database('./salespoint.db', sqlite3.OPEN_READONLY, (err) => {
+let db = new sqlite3.Database('./salespoint-clean.db', sqlite3.OPEN_READONLY, (err) => {
   if (err) {
     console.error(err.message);
   }
   console.log('Connected to the salespoint database.');
 });
-
-
-// const executablePath = "../app/app.exe";
-
-// const child = require('child_process').execFile;
-
-// function startApp(){
-//   child(executablePath, function (err, data) {
-//     if (err) {    
-//     console.error(err);    
-//     return;    
-//     }    
-//     console.log(data.toString());    
-//     });
-// }
 
 
 //create main application window
@@ -84,26 +62,17 @@ let sql = "SELECT first_name FROM STAFF";
     }
     if (rows.length < 1)
     {
-      mainWindow.loadURL('http://127.0.0.1:5000/first');
+      mainWindow.loadURL('http://127.0.0.1:5001/first');
     }
     else{
-      mainWindow.loadURL('http://127.0.0.1:5000/');
+      mainWindow.loadURL('http://127.0.0.1:5001/');
     }
   })
  
-  //`file://${path.join(__dirname, "../templates/window_main.html")}`;  
-
   
-  // and load the index.html of the app.
- 
-    
-   
-
-    // mainWindow.loadFile('index.html')
-
-    mainWindow.once("ready-to-show", () => { mainWindow.show()});
-    mainWindow.on("closed", () => {
-    mainWindow = null
+  mainWindow.once("ready-to-show", () => { mainWindow.show()});
+  mainWindow.on("closed", () => {
+  mainWindow = null
   });
   // startFlask();
   startApp();

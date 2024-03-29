@@ -2,7 +2,6 @@
 import os, random, string, csv, tempfile, ast
 from datetime import datetime, timedelta, time
 from flask import Flask, request, redirect, render_template, session, url_for, abort, jsonify, flash
-from flask.helpers import flash
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import event, DDL
 from sqlalchemy import exc
@@ -916,8 +915,9 @@ def order():
 def orders():
     if request.method == 'POST':
         ID = request.form['staffID']
-        checkpass = make_pw_hash(ID, "Mamihlapinatapei")
-        # "c817972c-d20f-4d13-9a2a-ca3c407c27a8") 
+        checkpass = make_pw_hash(ID, "c817972c-d20f-4d13-9a2a-ca3c407c27a8")
+        
+        #  "Mamihlapinatapei")
         staff = Staff.query.filter_by(staff_id = checkpass).first()
         if staff: 
             if staff.role_id < 3:                       
@@ -1752,4 +1752,4 @@ def getorders(id):
 
 if (__name__) == '__main__':
     db.create_all()
-    app.run(host='127.0.0.1', port=5000)
+    app.run(host='127.0.0.1', port=5001)
