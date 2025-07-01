@@ -1,0 +1,143 @@
+<div class="sidebar" data-color="green" data-background-color="lightbrown5" >
+  <!--
+    Tip 1: You can change the color of the sidebar using: data-color="purple | azure | green | orange | danger | lightbrown5"
+
+    Tip 2: you can also add an image using data-image tag
+-->
+  <div class="logo">     
+      <img  class="logo-mini" src="{{url_for('static', filename='/assets/img/icons/salespoint-green.png')}}" />       
+    <span class="simple-text logo-normal">
+      SalesPoint
+    </span>
+  </div>
+  <div class="sidebar-wrapper">    
+    <ul class="nav">
+      <li class="nav-item {{config_active}}">
+        <a class="nav-link" data-toggle="collapse" href="#config" aria-expanded="{{config_expand}}">
+          <i class="material-icons">settings_applications</i>
+          <p> CONFIGURATIONS
+            <b class="caret"></b>
+          </p>
+        </a>    
+        <div class="collapse {{config_show}}" id="config">
+          <ul class="nav">
+            <li class="nav_item {{ admin_active}}">
+              <a class="nav-link" href="{{url_for('config')}}">
+                <i class="material-icons">admin_panel_settings</i>
+                <p>ADMINISTRATIVE</p>
+              </a>
+            </li>
+            <li class="nav-item {{ staff_active}}">
+              <a class="nav-link" data-toggle="collapse" href="#staff" aria-expanded="{{staff_expand}}">
+                <i class="fas fa-users-cog"></i>
+                <p> STAFF 
+                  <b class="caret"></b>
+                </p>
+              </a>
+              <div id="staff" class="collapse {{mng_staff_show}}">
+                <ul class="nav">
+                  <li class="nav-item {{ mng_staff_active}} ">
+                    <a class="nav-link" href="{{url_for('staff')}}">
+                      <i class="material-icons">groups</i>                      
+                      <span class="sidebar-normal">Manage Staff</span>
+                    </a>
+                  </li>
+                  <li class="nav-item {{ pos_active}}" >
+                    <a class="nav-link" href="{{url_for('positions')}}">
+                      <i class="fas fa-user-shield"></i>                      
+                      <span class="sidebar-normal">Positions</span>
+                    </a>
+                  </li>                 
+                </ul>
+              </div>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="{{url_for('export')}}">
+                <i class="fas fa-file-csv"></i>
+                <span class="sidebar-normal"> Export Menu Items </span>
+              </a>
+            </li>
+            <li class="nav-item">
+              <form id="importForm" action="" enctype="multipart/form-data">
+                <input type="file" name="importfile" id="import" accept="csv">/>
+            </form>
+              <a id="importlink" class="nav-link" href="#">
+                  <i class="material-icons">import_export</i>
+                  
+                <span class="sidebar-normal"> Import Menu Items </span>
+                
+              </a>
+            </li>
+            <!-- <li class="nav-item">
+              <a class="print nav-link" href="">
+                  <i class="material-icons">print</i>
+                <span class="sidebar-normal"> Test Print </span>
+              </a>
+            </li> -->
+          </ul>
+        </div>  
+      </li>
+      <li class="nav-item {{ops_post}}">
+        <a class="nav-link" data-toggle="collapse" href="#ops" aria-expanded="{{ops_expand}}">
+          <i class="material-icons">donut_small</i>
+          <p> OPERATIONS
+            <b class="caret"></b>
+          </p>
+        </a>
+        <div class="collapse {{mng_show}}" id="ops">
+          <ul class="nav">
+            <li class="nav-item {{ mng_active}}">
+              <a class="nav-link" data-toggle="collapse" href="#menu" aria-expanded="{{mng_expand}}">
+                <i class="material-icons">business</i>
+                <p> Management 
+                  <b class="caret"></b>
+                </p>
+              </a>
+              <div id="menu" class="collapse {{menu_show}}">
+                <ul class="nav">                  
+                  <li class="nav-item {{ dis_active}}" >
+                    <a class="nav-link" href="{{url_for('discounts')}}">
+                      <i class="material-icons">money</i>
+                      <span class="sidebar-normal">Coupons Discounts</span>
+                    </a>
+                  </li>
+                  <li class="nav-item {{ tax_active}} " >
+                    <a class="nav-link" href="{{url_for('tax')}}">
+                      <i class="material-icons">account_balance</i>
+                      <span class="sidebar-normal">Taxes</span>
+                    </a>
+                  </li>
+                </ul>
+              </div>
+            </li>
+            <li class="nav-item {{ menu_mng_active}}">
+              <a class="nav-link" href="{{url_for('menu')}}">
+                <i class="material-icons">menu_book</i>
+                <span class="sidebar-normal">Menu Management </span>
+              </a>
+            </li>
+          </ul>
+        </div>
+      </li>
+      <li class="nav-item {{ report_active}}">
+        <a class="nav-link"  href="{{url_for('reports')}}">
+          <i class="material-icons">library_books</i>
+          <p> Reports </p>
+        </a>
+      </li>
+      <li class="nav-item {{ table_active}}">
+          <a class="nav-link" href="{{url_for('setTable')}}">
+            <i class="material-icons">table_chart</i>
+            <p> Tables </p>
+          </a>
+        </li>
+      
+    </ul>
+  </div>
+</div>
+    
+   
+      
+      
+                  
+               

@@ -1,0 +1,44 @@
+{% extends '/modules/base.html' %}
+    {% block content %}
+    <div id="routes" class="row mw_cards">
+        <a id="dinein" class="tasks" data-toggle="modal" data-target="#myModal" data-href="{{url_for('dine_in')}}"><button  class="btn btn-primary btn-lg taskbtn">DINE IN</button></a>
+        <a id="carryout" class="tasks"  data-toggle="modal" data-target="#myModal" data-href="{{url_for('carry_out')}}"><button class="btn btn-primary btn-lg taskbtn">CARRY OUT</button></a>
+        <a id="orders" class="tasks" data-toggle="modal" data-target="#myModal" data-href="{{url_for('orders')}}"><button class="btn btn-primary btn-lg taskbtn">ORDERS</button></a>
+        <a id="admin" class="tasks" data-toggle="modal" data-target="#myModal" data-href="{{url_for('admin')}}"><button class="btn btn-primary btn-lg taskbtn">BACK OFFICE</button></a>
+        <a id="kitchen" class="tasks" data-toggle="modal" data-target="#myModal" data-href="{{url_for('kitchen')}}"><button class="btn btn-primary btn-lg taskbtn">KITCHEN</button></a>
+        <a id="shutdownMain" class="tasks" data-href=""><button class="btn btn-primary btn-lg taskbtn">SHUT DOWN</button></a>
+    </div>
+    <div id="myModal" class="modal fade" tabindex="-1" role="dialog" data-backdrop="static">
+        <div class="modal-dialog" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title">Enter Your ID</h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body">
+              <form id="auth" method="POST">
+                <div class="row  justify-content-center">
+                  <div class="col-md-8 form-group form-file-upload form-file-simple bmd-form-group">
+                      <input id="staff_id" type="password" name="staffID" class="form-control inputFileVisible text-center" placeholder="ID:" field_signature="" form_signature="" autofocus />                      
+                  </div>
+                </div>
+                <div class="row col-md-12 justify-content-center">
+                  <div class="">
+                    <button id="cancel" type="reset" class="btn btn-secondar pull-left" data-dismiss="modal">Cancel<div class="ripple-container"></div></button>
+                    <button type="submit" class="btn btn-success pull-right">Submit<div class="ripple-container"></div></button>
+                  </div>
+                </div>
+            </form>
+            </div>
+            <div class="modal-footer">
+              
+            </div>         
+            </div>
+          </div>
+        </div>
+      </div>
+   
+    {% endblock %}
+    

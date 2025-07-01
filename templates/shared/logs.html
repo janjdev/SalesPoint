@@ -1,0 +1,31 @@
+{% with errors = get_flashed_messages(category_filter=["error"]) %}
+{% if errors %}
+<div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+     {{ message|capitalize }}
+    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+    </button>
+</div>
+{% endif %}
+{% endwith %}
+{% with success = get_flashed_messages(category_filter=["success"]) %}
+{% if success %}
+<div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+     {{ message|capitalize }}
+    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+    </button>
+</div>
+{% endif %}
+{% endwith %}
+
+<div class="card logs"><span id="timer" class="hide">{{term.timer}}</span><span id="settime"  class="hide">{{term.set_timer}}</span>
+    <div class="card-body">
+        <div>
+            <p class="user-info"> <span class="text-capitalize">User: {{user.first_name}},</span> <span class="text-capitalize" id="user-role">{{user.role.role_type}}</span> <span class="cdate">{{date}}</span> <span id="ctime" class="ctime"></span></p>
+            <p id="outTime" class="autologoff"></p>
+        </div>
+    </div>
+</div>
+
+<script src="{{ url_for('static', filename='assets/js/shared/clock.js')}}"></script>

@@ -1,0 +1,79 @@
+<!-- Navbar -->
+<nav class="navbar navbar-expand-lg navbar-transparent navbar-absolute fixed-top ">
+    <div class="container-fluid">
+      {% include 'shared/logs.html' %}
+      <div class="navbar-wrapper">
+        <!-- <div class="navbar-minimize">
+          <button id="minimizeSidebar" class="btn btn-just-icon btn-white btn-fab btn-round">
+            <i class="material-icons text_align-center visible-on-sidebar-regular">more_vert</i>
+            <i class="material-icons design_bullet-list-67 visible-on-sidebar-mini">view_list</i>
+          </button>
+        </div> -->
+        <a class="navbar-brand" href="#"></a>
+      </div>
+      <button class="navbar-toggler" type="button" data-toggle="collapse" aria-controls="navigation-index" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="navbar-toggler-icon icon-bar"></span>
+        <span class="navbar-toggler-icon icon-bar"></span>
+        <span class="navbar-toggler-icon icon-bar"></span>
+      </button>      
+      <div class="collapse navbar-collapse justify-content-end">
+        <!-- <form class="navbar-form">
+            <div class="input-group no-border">
+              <input type="text" value="" class="form-control" placeholder="Search...">
+              <button type="submit" class="btn btn-white btn-round btn-just-icon">
+                <i class="material-icons">search</i>
+                <div class="ripple-container"></div>
+              </button>
+            </div>
+          </form> -->
+        <ul class="navbar-nav">
+          {% if user.role_id == 1 %}
+          <li class="nav-item">
+            <a class="nav-link btn btn-white btn-round" href="{{url_for('admin')}}" data-toggle="tooltip" data-placement="bottom" title="dashboard">
+              <i class="material-icons">dashboard</i>
+              <p class="d-lg-none d-md-block">
+                Admin
+              </p>
+            </a>
+            <div class="ripple-container"></div>
+          </li>
+          {% endif %}
+          <li class="nav-item">
+            <a class="nav-link btn btn-white btn-round" href="{{url_for('kitchen')}}" data-toggle="tooltip" data-placement="bottom" title="kitchen">
+              <i class="icon-chef_hat"></i>
+              <p class="d-lg-none d-md-block">
+                Admin
+              </p>
+            </a>
+            <div class="ripple-container"></div>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link btn btn-white btn-round" href="{{url_for('orders')}}" data-toggle="tooltip" data-placement="bottom" title="Orders and Activity">
+              <i class="material-icons">add_task</i>
+              <p class="d-lg-none d-md-block">
+                Orders and Acivities
+              </p>
+            </a>
+            <div class="ripple-container"></div>
+          </li>
+          <li class="nav-item">
+              <a id="logoff" href="{{url_for('home')}}" class="nav-link btn btn-white btn-round">
+                <i class="material-icons">exit_to_app</i> LogOff
+              </a>
+              <div class="ripple-container"></div>
+            </li>
+          <li class="nav-item dropdown">
+            <a class="nav-link btn btn-white btn-round" href="" data-toggle="tooltip" data-placement="bottom" title="SHUTDOWN">
+              <i id="shutdown" class="material-icons">settings_power</i>
+              <p >
+                Shut Down
+              </p>
+            </a>                
+            <div class="ripple-container"></div>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+  <!-- End Navbar -->

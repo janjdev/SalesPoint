@@ -1,0 +1,42 @@
+{% extends 'tasks/components/task-base.html' %}
+  {% block content %}
+  <div class="rowTickets row">
+    <div class="scrolling-wrapper-flexbox">       
+        {% if tickets %}
+            {% for ticket in tickets %}
+            <div class="col-lg-3 col-md-6 col-sm-6 item_scroll">
+                <div class="card card-login card-hidden">
+                    <div class="card-header card-header-warning">
+                    <h4 class="card-title">Ticket Number: {{ticket.order.chk_num}} </h4>
+                    <h6 class="card-title">Date: {{ticket.created_on.strftime('%m-%d-%Y %I:%M %p')}} </h4>
+                    <h6 class="card-title">Status: {{ticket.status.status_type}} </h4>              
+                    </div>
+                    <div class="card-body kitchen-ticket">
+                        <div class="row ticket-header lightpurple">
+                            <span>Qty</span>
+                            <span>Item</span>
+                        </div>
+                        {% for item in ticket.order.items%}
+                        <div class="row items">
+                            <span class="index">{{item.quantity}}</span>      
+                            <div class="itemname">                 
+                                <p>{{item.item_name}}</p>
+                            </div>
+                            <div class="notes" >                 
+                                <span>note:</span><p class="instructions">{{item.notes}}</p>
+                            </div>
+                        </div>
+                        {% endfor %}            
+                    </div>
+                    <div class="card-footer justify-content-center">
+                    <a data-id="{{ticket.id}}"  class="btn-bump btn btn-primary btn-round btn-sm">Bump</a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        {% endif %}
+    </div>          
+  </div>
+  <script src="{{ url_for('static', filename='assets/js/tasks/ordertickets.js')}}"></script>     
+
+  {% endblock %}

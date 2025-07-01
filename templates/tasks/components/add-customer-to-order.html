@@ -1,0 +1,70 @@
+<div id="addCustModal" class="modal fade" tabindex="-1" role="dialog" data-backdrop="static"> 
+    <div id="addCustWrapper" class="modal-dialog" role="document">
+      <div id="cust-content" class="modal-content">
+        <div class="modal-header">
+          <h5 id="modal-title" class="modal-title">Customers</h5>
+          <button type="button" class="close" data-dismiss="modal" data-target="#addCustModal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div id="addCustBody" class="modal-body">
+            <div class="card-header card-header-success card-header-icon">
+                <div class="card-icon">
+                  <i class="material-icons">supervised_user_circle</i>
+                </div>                  
+                <h4 class="card-title">Add Customer to Order</h4>
+            </div>
+                <div class="card-body">
+                    <div class="col-md-12">                  
+                        <div id="customerTable" class="table-editable">                       
+                            <table id="customer-table" class="table table-bordered table-responsive-md table-striped text-center w-auto">
+                            <thead>
+                                <tr>                                  
+                                    <th class="th-sm text-center w-auto">Name</th>
+                                    <th class="th-sm text-center w-auto">Actions</th>                              
+                                </tr>
+                            </thead>
+                            <tbody id="add-edit">
+                               
+                                    {% if customers %}
+                                        {% for customer in customers %}
+                                    <tr id="cust{{customer.id}}">
+                                                                           
+                                        <td class="cedit pt-3-half text-center" contenteditable="true"><span>{{customer.name}}</span></td>
+                                        <td class="td-actions justify-content-center">
+                                            <button data-id="{{customer.id}}" type="button" class="btn btn-link red-accent-3-text c-add-remove" rel="tooltip" data-placement="bottom" title="Add to Order" data-func="add" >
+                                                <i class="material-icons">add</i>
+                                            </button>                                                            
+                                            <button data-id="{{customer.id}}" type="button" class="btn btn-link lime-accent-4-text c-task" rel="tooltip" data-placement="bottom" title="Update" data-func="update" >
+                                                <i class="material-icons">check</i>
+                                            </button>
+                                            <button data-id="{{customer.id}}" type="button" class="btn btn-link red-accent-3-text c-delete c-task" rel="tooltip" data-placement="bottom" title="Delete" data-func="delete" >
+                                                <i class="material-icons">close</i>
+                                            </button>
+                                            
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                {% endif %}                             
+                                                       
+                            </tbody>                        
+                            </table>                        
+                        </div>
+                        <div class="row col-md-12 justify-content-center">                        
+                            <span>
+                                <button class="btn icon-link-size green lighten-3" data-toggle="modal" data-target="#newCustModal">New<div class="ripple-container"></div></button>
+                                <button id="addCustCancel" type="reset" class="cancel btn icon-link-size green lighten-3" data-dismiss="modal" data-target="#addCustModal">Cancel<div class="ripple-container"></div></button>                                
+                            </span>                                     
+                        </div>
+                    </div>
+                </div>
+            </div>    
+            <div class="modal-footer"></div>         
+        </div>
+    </div>
+</div>
+<form id="updateCust">
+    <input hidden name="delete" type="checkbox" value=""/>
+    <input hidden class="cAction text-center" name="cname" type="text" value="" required/>
+</form>
+{% include 'tasks/components/createcustomer.html' %} 

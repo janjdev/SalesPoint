@@ -1,0 +1,143 @@
+<div id="editContent" class="container" contenteditable="true">
+    {% include 'reports/header.html' %}
+    <div class="row col-md-12 reportdeets justify-content-center ml-auto mr-auto">
+        {% set net = namespace(value=0) %}
+        {% set net.value = net.value + (data.inamount + data.outamount)  %}
+        
+        <div class="times col-md-6 row">
+            <div class="datetime row col-md-9 justify-content-between"> 
+                    
+                <div class="deet">Time:</div>
+                <div class="deet">{{currenttime.strftime('%m-%d-%Y %I:%M %p')}}</div>   
+            </div>
+                            
+            <div class="fromDate row col-md-9 justify-content-between">                
+                <div class="deet">From:</div>
+                <div class="deet">{{fromdate.strftime('%m-%d-%Y %I:%M %p')}}</div>              
+            </div>
+            <div class="ToDate row col-md-9 justify-content-between">
+                <div class="deet">To:</div>
+                <div class="deet">{{todate.strftime('%m-%d-%Y %I:%M %p')}}</div>
+            </div>
+            <div class="num_of_days row col-md-9 justify-content-between">
+                <div class="deet">Days:</div>
+                <div class="deet">{{numdays}}</div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="systotal row col-md-7 justify-content-between">
+                <div class="deet">Type:</div>
+                <div class="deet">System Totals</div>
+            </div>
+            <div class="allusers row col-md-7 justify-content-between">
+                <div class="deet">Users:</div>
+                <div class="deet text-uppercase">ALL</div>
+            </div>
+            <div class="allusers row col-md-7 justify-content-between">
+                <div class="deet">Total Orders:</div>
+                <div class="deet text-uppercase">{% if orders %}{{orders|length}} {%else%}0{% endif %}         
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="keystats col-md-12">
+        <h3 class="reportname text-center text-uppcase">{{report.name}}</h3>
+        <div class="row statTable col-md-12 justify-content-around">
+            <div class="statTableColumn col-md-4">
+                <!-- <div class="row col-md-12">
+                    <div class="text-capitalize">Capacity:</div>
+                    <div class="text-capitalize" ></div>
+                </div> -->
+                <div class="row col-md-12">
+                    <div class="text-capitalize">open orders:   </div>
+                    <div class="text-capitalize">{{data.openorders}}</div>
+                </div>
+                <div class="row col-md-12">
+                    <div class="text-capitalize">Void Orders:    </div>
+                    <div class="text-capitalize">{{data.voidorders}}</div>
+                </div>
+                <div class="row col-md-12">
+                    <div class="text-capitalize">Settled (paid) orders: </div>
+                    <div class="text-capitalize">{{data.paidorders}}</div>
+                </div>
+                <div class="row col-md-12">
+                    <div class="text-capitalize">Refunds:   </div>
+                    <div class="text-capitalize">{{data.refundorders}}</div>
+                </div>
+                <div class="row col-md-12">
+                    <div class="text-capitalize">Pending:   </div>
+                    <div class="text-capitalize">{{data.pendingorders}}</div>
+                </div>
+            </div>
+            <div class="statTableColumn col-md-4">
+                <!-- <div class="row">
+                    <div class="text-capitalize">Tables:</div>
+                    <div class="text-capitalize"></div>
+                </div> -->
+                <div class="row">
+                    <div class="text-capitalize">open amount:   </div>
+                    <div class="text-capitalize">${{'%.2f'|format(data.open)}}</div>
+                </div>
+                <div class="row">
+                    <div class="text-capitalize">Void amount:   </div>
+                    <div class="text-capitalize">${{'%.2f'|format(data.void)}}</div>
+                </div>
+                <div class="row">
+                    <div class="text-capitalize">Settled(paid) amount:  </div>
+                    <div class="text-capitalize">${{'%.2f'|format(data.paid)}}</div>
+                </div>
+                <div class="row">
+                    <div class="text-capitalize">Refund amount:     </div>
+                    <div class="text-capitalize">${{'%.2f'|format(data.refund)}}</div>
+                </div>
+                <div class="row">
+                    <div class="text-capitalize">Pending Amount:</div>
+                    <div class="text-capitalize">${{'%.2f'|format(data.pend)}}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div  class="table-responsive statsTable">
+        <table class="table">
+          <thead class=" text-primary text-center">
+            <th>
+             Report
+            </th>
+            <th>
+             Business Activity
+            </th>
+            <th>
+             Total Count
+            </th>
+            <th>
+            Total  Sales
+            </th>
+            <th>
+             Average Sale
+            </th>
+            <th>
+            % Of Net Sales
+            </th>
+          </thead>
+          <tbody>
+            <tr class="text-center">
+                <td class="text-uppercase">General</td>
+                <td class="text-uppercase">Dine-in</td>
+                <td>{{data.in}}</td>
+                <td>${{'%.2f'|format(data.inamount)}}</td>
+                <td>${%if data.inamount%}{{'%.2f'|format((data.inamount/data.in))}}{%else%}0{%endif%}</td>
+                <td>{%if data.inamount%}{{'%.2f'|format((data.inamount/net.value)*100)}}{%else%}0{%endif%}%</td>
+            </tr>
+            <tr class="text-center">
+                <td ></td>
+                <td class="text-uppercase">Carry-Out</td>
+                <td>{{data.out}}</td>
+                <td>${{'%.2f'|format(data.outamount)}}</td>
+                <td>${%if data.outamount%}{{'%.2f'|format(data.outamount/data.out)}}{%else%}0{%endif%}</td>
+                <td>{%if data.outamount%}{{'%.2f'|format((data.outamount/net.value)*100)}}{%else%}0{%endif%}%</td>
+            </tr>
+               </tbody>
+        </table>
+    </div>
+
+</div>

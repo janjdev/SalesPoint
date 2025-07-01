@@ -1,0 +1,275 @@
+{% extends 'admin/dash/componets/base.html' %}
+{% block content %}
+{% include 'shared/logs.html' %}
+
+<!--Configuration forms for printers, business info, and terminal-->
+<div id="configRow" class="row">
+    <div class="col-md-10">
+        <div id="configCard" class="card">
+            <div class="card-header">
+                <!-- colors: "header-primary", "header-info", "header-success", "header-warning", "header-danger" -->
+                <div class="nav-tabs-navigation">
+                    <div class="nav-tabs-wrapper">
+                        <ul class="nav nav-pills nav-pills-success" role="tablist">
+                            <li class="nav-item">
+                                <a id="configinfo" class="nav-link active" href="#info" data-toggle="tab">Business</a>
+                            </li>
+                            <li class="nav-item">
+                                <a id="configterminal" class="nav-link" href="#terminal" data-toggle="tab">Terminal</a>
+                            </li>
+                            <li class="nav-item">
+                                <a id="configprinter" class="nav-link" href="#printer" data-toggle="tab">Printer</a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body ">
+                <div class="tab-content">
+                    <div class="tab-pane active" id="info">
+                        <form id="businfoform" method="POST" enctype="multipart/form-data">
+                            <div id="businfoSet">
+                                <div id="config-container">                                
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                            <label class="bmd-label-floating text-uppercase">{% if info %} {% if info.name %}{{info.name}} {% else %} Business Name {% endif %} {% else %} Business Name  {% endif %}</label>
+                                            <input type="text" name="name" class="form-control editable">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                            <label class="bmd-label-floating">{% if info %} {% if info.phone %}{{info.phone}} {% else %} Phone {% endif %} {% else %} Phone  {% endif %}  </label>
+                                            <input type="text" name="phone" class="form-control editable">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-12">
+                                            <div class="form-group">
+                                            <label class="bmd-label-floating text-capitalize">{% if info %} {% if info.address %}{{info.address}} {% else %} Address {% endif %} {% else %} Address  {% endif %}</label>
+                                            <input type="text" name="add" class="form-control">
+                                            </div>
+                                        </div>
+                                    </div> 
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <div class="form-group">
+                                                <label class="bmd-label-floating text-capitalize">{% if info %} {% if info.city %}{{info.city}} {% else %} City {% endif %} {% else %} City  {% endif %}</label>
+                                                <input type="text" name="city" class="form-control">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-group">
+                                                <label class="bmd-label-floating text-capitalize">{% if info %} {% if info.state %}{{info.state}} {% else %} State {% endif %} {% else %} State  {% endif %}</label>
+                                                <input type="text" name="st" class="form-control">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-group">
+                                                <label class="bmd-label-floating">{% if info %} {% if info.zip %}{{info.zip}} {% else %} Postal Code {% endif %} {% else %} Postal Code {% endif %}</label>
+                                                <input type="text" name="zip" class="form-control">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <!-- <div class="row">
+                                        <div class="col-md-4 col-sm-4">                                            
+                                            <div class="fileinput fileinput-new text-center" data-provides="fileinput">
+                                              <div class="fileinput-new thumbnail">
+                                                <img src="{% if info.logo %}{{info.logo}}{% else %}../../static/assets/img/image_placeholder.jpg{%endif%}">
+                                              </div>
+                                              <div class="fileinput-preview fileinput-exists thumbnail"></div>
+                                              <div>
+                                                <span class="btn btn-rose btn-round btn-file">
+                                                    <span class="fileinput-new"><i class="material-icons">add_photo_alternate</i>Select image</span>
+                                                    <span class="fileinput-exists"><i class="material-icons">sync</i>Change</span>
+                                                  <input type="file" name="logo" />
+                                                </span>
+                                                <a href="#" class="btn btn-danger btn-round fileinput-exists" data-dismiss="fileinput"><i class="fa fa-times"></i> Remove</a>
+                                              </div>
+                                            </div>
+                                          </div>
+                                    </div>                                                             -->
+                                </div>
+                            </div>                            
+                            <div class="clearfix"></div>                       
+                        </form>
+                        <div class="row">
+                            <div class="col-md-3 offset-4 form-btn-position">
+                                <button id="busbtn" form="businfoform" class="btn btn-success pull-right">Update Info</button>
+                            </div>
+                        </div>                
+                    </div>
+                    <div class="tab-pane" id="terminal">                       
+                            <form id=terminalform method="POST">
+                                <div id="terminalSet">
+                                    <div class="form-row">
+                                        <div class="form-group col-md-2">
+                                            <label for="terminal-id">Terminal ID</label>
+                                            <input type="text" class="form-control" name="id" id="terminal-id" placeholder="{% if term %} {% if term.id %}{{term.id}} {% endif %}{% endif %}">
+                                        </div>
+                                        <div class="form-group col-md-6" >
+                                            <label for="inputAddress">Terminal Location</label>
+                                            <input type="text" class="form-control" name="location" id="inputAddress" placeholder="{% if term %} {% if term.location %}{{term.location}} {% endif %}{% endif %}">
+                                        </div>
+                                    </div>                            
+                                    <div class="form-row">
+                                        <div class="form-group">
+                                            <div class="form-check">
+                                                <label class="form-check-label">
+                                                    <input class="form-check-input success" name="autolog" type="checkbox" {% if term %} {% if term.set_timer %}{{term.set_timer}}{% endif %}{% endif %} value="">
+                                                        Auto Logoff Time
+                                                    <span class="form-check-sign">
+                                                    <span class="check"></span>
+                                                    </span>
+                                                </label>
+                                            </div>
+                                        </div>
+                                        <div class="form-group col-md-2">                            
+                                            <input type="number" class="form-control" min="1" name="timer" id="autologoff-time" value="{% if term %}{% if term.timer %}{{term.timer}}{% endif %}{% endif %}" placeholder="{% if term %} {% if term.timer %}{{term.timer}} {% endif %} {% endif %}">
+                                        </div>                            
+                                    </div>
+                                    <div class="form-group col-md-5 systemfonts">
+                                        <label for="fontlist">Default Font</label>
+                                        <select multiple class="  custom-select" data-style="" name="defaultfont" id="fontlist" multiple>
+                                            {% if term %} {% if term.default_font %}<option selected value="{{term.default_font}}">{{term.default_font}}</option>{% endif %}{% endif %}
+                                            {% for font in fonts %}                                        
+                                            <option value="{{font}}" data-value={{font}}>{{font}}</option>                                       
+                                            {% endfor %}
+                                        </select>
+                                        <input type="text" hidden name="fontpath" id="fontpath" />
+                                    </div>                                                                
+                                </div>
+                            </form>                         
+                        <div class="row">
+                            <div class="col-md-3 offset-4 form-btn-position">
+                                <button type="submit" form="terminalform" id="termbtn" class="btn btn-success pull-right">Update<div class="ripple-container"></div></button>
+                            </div>
+                        </div>                           
+                    </div>
+                <!------PRINTERS------->
+                    <div class="tab-pane" id="printer">
+                        <div class="row" id="printerrow">
+                            <div id="setPrinters" class="col-md-12">                  
+                                <div class="table-responsive">
+                                    <table id="printerTable" class="table table-striped">
+                                    <thead>
+                                        <tr> 
+                                            <th></th>
+                                            <th>
+                                            </th>                                                                      
+                                            <th class="text-center">Name</th>
+                                            <th class="text-center">Printer</th>
+                                            <th class="text-center">Type</th>
+                                            <th class="text-center">Actions</th>                                                      
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                {% if setprinters %}
+                                    {% for printer in setprinters %}                                                      
+                                    <tr id="{{printer.id}}">
+                                        <td class="text-center"></td>                                                        
+                                        <td>
+                                            <div class="form-check">
+                                            <label class="form-check-label">
+                                                <input class="printer-action form-check-input" type="checkbox" value="" data-id="{{printer.id}}">
+                                                <span class="form-check-sign">
+                                                <span class="check"></span>
+                                                </span>
+                                            </label>
+                                            </div>
+                                        </td>
+                                        <td class="name text-center text-capitalize">{{printer.name}}</td>
+                                        <td class="printer text-center text-capitalize">{{printer.printer}}</td>
+                                        <td class="type text-center text-uppercase" data-type="{{printer.type_id}}" >{{printer.ptype.name}}</td>                                                        
+                                        <td class="td-actions justify-content-center">
+                                            <button data-id="{{printer.id}}" type="button" class="test_printer btn btn-info btn-link" rel="tooltip" data-placement="bottom" title="Test" data-title="test">
+                                                <i class="material-icons">settings_input_antenna</i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                {% endif %}
+                                    </tbody>
+                                    </table>
+                                </div>
+                                <div class="row printerActions">
+                                    <span>
+                                        <div class="btn icon-link-size green lighten-3" data-toggle="modal" data-target="#add-edit-Printer"><a data-href="{{url_for('printer')}}" class="printer-tasks" title="Add" data-toggle="tooltip" data-func="add" data-title="Add a Printer"><i class="material-icons">add</i></a></div>
+                                        <div class="btn icon-link-size green lighten-3"><a class="printer-tasks" data-href="" title= "Edit" data-title="Edit A Printer" data-toggle="tooltip" data-func="edit"><i class="material-icons">edit</i></a></div>
+                                        <div class="btn icon-link-size green lighten-3"><a class="printer-tasks" data-href="" title="Delete" data-title="Delete A Printer" data-toggle="tooltip" data-func="delete"><i class="material-icons">close</i></a></div>                                        
+                                    </span>
+                                </div>
+                            </div>                        
+                        </div>                        
+                    </div>
+                </div>
+            </div>
+        </div>           
+    </div>
+</div>
+
+                          <!--Printer Form-->
+                          <div id="add-edit-Printer" class="modal fade" tabindex="-1" role="dialog" data-backdrop="static">
+                            <div class="modal-dialog" role="document">
+                              <div class="modal-content">
+                                <div class="modal-header">
+                                  <h5 id="modal-title" class="modal-title">Enter Your ID</h5>
+                                  <!-- <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                  </button> -->
+                                </div>
+                                <div class="modal-body">          
+                                    <form id="add-printer" method="POST" action="">
+                                        <div class="form-group">
+                                            <!-- <label for="exampleFormControlInput1">Email address</label> -->
+                                            <input type="text" class="dbAction form-control" id="printer_name" name="printername" placeholder="Printer Name" required/>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="role">Printer Device</label>
+                                            <select class="dbAction form-control selectpicker" id="device" name="device" data-style="btn btn-link" id="device" required>
+                                              {% if devices %}
+                                              <option disabled selected value="">Select Printer</option>
+                                              {% for device in devices %}
+                                               <option value="{{device[2]}}">{{device[2]}}</option>                                    
+                                               {% endfor %}
+                                               {% else %}
+                                               <option disabled selected value="">Could Not Detect Installed Printers</option>
+                                             {% endif %}
+                                               
+                                                
+                                            </select>
+                                        </div>                            
+                                        <div class="form-group">
+                                        <label for="position">Printer Type</label>
+                                        <select class="dbAction form-control selectpicker" id="printer_type" name="printertype" data-style="btn btn-link" required>
+                                          {% if printertype %}
+                                           {% for type in printertype %}
+                                            <option value="{{type.id}}">{{type.name}}</option>
+                                            {% endfor %}
+                                          {% endif %}                    
+                                        </select>
+                                        </div>                                
+                                        <div class="row col-md-12 justify-content-center">
+                                            <div class="">
+                                              <button id="cancel" type="reset" class="btn btn-secondar pull-left" data-dismiss="modal">Cancel<div class="ripple-container"></div></button>
+                                              <button type="submit" class="btn btn-success pull-right">Submit<div class="ripple-container"></div></button>
+                                            </div>
+                                          </div>
+                                    </form>
+                                </div>
+                                <div class="modal-footer">
+                                  
+                                </div>         
+                                </div>
+                              </div>
+                            </div>
+
+        <!-- Test Print Modal -->
+        <div id="overlay" class="hide">
+            <div class="lds-grid ml-auto mr-auto"><div class="aqua-gradient"></div><div class="purple-gradient"></div><div class="blue-gradient"></div><div class="aqua-gradient"></div><div class="purple-gradient"></div><div class="blue-gradient"></div><div class="aqua-gradient"></div><div class="purple-gradient"></div><div class="blue-gradient"></div></div>
+        </div>
+<script src="{{ url_for('static', filename='assets/js/dash/config.js')}}"></script>
+
+
+{% endblock %}

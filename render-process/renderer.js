@@ -1,0 +1,29 @@
+// This file is required by the index.html file and will
+// be executed in the renderer process for that window.
+// No Node.js APIs are available in this process because
+// `nodeIntegration` is turned off. Use `preload.js` to
+// selectively enable features needed in the rendering
+// process.
+
+
+//load helper functions
+const helper = require('../main-process/helpers')
+const {remote} = require('electron');
+
+
+
+const childWindow = new BrowserWindow({
+    width: 800,
+    height: 600
+ });
+
+
+
+window.addEventListener('DOMContentLoaded', () => {
+    const {$} = require('jquery');
+    
+    
+
+   
+  
+});

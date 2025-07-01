@@ -1,10 +1,12 @@
 {
-  "name": "salespoint",
+  "name": "SalesPoint",
   "version": "1.0.0",
-  "description": "A Point of Sales cross-platform application made by Team1 of IS4850, Fall 2020 to fullfill the requirements of the Senior Project. Lead Developer: January Johnson",
-  "main": "index.js",
+  "build": "1.0.1",
+  "description": "A Point of Sales cross-platform application made by January Johnson of Team1 from UMSL: IS4850, Fall 2020 to fullfill the requirements of the Senior Project. Lead Developer/Engineer: January Johnson",
+  "main": "main-process/main.js",
   "scripts": {
-    "test": "mocha && standard"
+    "test": "mocha && standard",
+    "start": "electron  . "
   },
   "repository": {
     "type": "git",
@@ -15,9 +17,11 @@
     "Windows",
     "cross-platform",
     "Electron",
-    "Point-of-Sales",
-    "Web",
-    "Technologies"
+    "Report Management",
+    "Sales Recording",
+    "Python",
+    "Flask",
+    "SQLite3"
   ],
   "author": "January Johnson",
   "license": "MIT",
@@ -26,6 +30,17 @@
   },
   "homepage": "https://github.com/janjdev/SalesPoint#readme",
   "devDependencies": {
-    "electron": "^10.1.1"
+    "electron-builder": "^22.9.1"
+  },
+  "dependencies": {
+    "custom-electron-titlebar": "^3.2.5",
+    "electron": "^10.1.5",
+    "electron-first-run": "^3.0.0",
+    "electron-reload": "^1.5.0",
+    "get-system-fonts": "^2.0.2",
+    "jsprintmanager": "^3.0.5",
+    "python-shell": "^2.0.2",
+    "sqlite3": "^5.0.0",
+    "xbs-enjoyhint": "^4.0.6"
   }
 }

@@ -1,0 +1,19 @@
+id,item_name,unit_price,item_category,item_description,is_offered,is_special
+1,Burger,5.00,1,Impossible Burger,True,False
+2,French Fries,2.99,1,Test,True,False
+3,Cob Sala,7.99,2,"Kale, Spring Lettuce, Cherry Tomatoes, Green Onion, Choice Of House Dressings",True,False
+4,Grilled Chicken Thigh,10.99,1,More Testing,True,False
+5,Burrito,50.00,1,,True,False
+6,Crab Ragoon,3.99,3,,True,False
+7,Turkey And Swiss,3.99,1,,True,False
+8,Sweet N Sour Chicken,9.99,1,,True,False
+9,Cheese Pizza,7.99,1,Nothing At All,True,False
+10,Curry Coconut Fish,10.99,1,Curry And Coconut Sauce Over Red Snapper,True,False
+12,Cocoa Bread,2.95,0,,True,False
+13,Cheese Pizza Slice,3.99,0,,True,False
+14,Smorked Turkey Leg,7.99,0,,True,False
+15,Curry Chicken,10.99,0,,True,False
+16,Fish And Rice,7.99,0,,True,False
+17,Greens,5.00,0,,True,False
+18,Beans,2.95,0,,True,False
+19,Steak,50.00,0,,True,False

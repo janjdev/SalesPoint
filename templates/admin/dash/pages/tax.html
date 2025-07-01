@@ -1,0 +1,106 @@
+{% extends 'admin/dash/componets/base.html' %}
+{% block content %}
+{% include 'shared/logs.html' %}
+<div id=taxRow class="row">
+    <div id="tax_table" class="col-md-6">
+      <form id="taxEditForm" method="POST">    
+        <div class="card">
+        <div class="card-header card-header-success card-header-icon">
+            <div class="card-icon">
+            <i class="material-icons">account_balance</i>
+            </div>                  
+            <h4 class="card-title">{{tablename}} </h4>
+        </div>
+        <div id="taxTable" class="card-body">
+            <div class="table-responsive">
+            
+            <table id="table" class="table table-striped">
+              
+                <thead>
+                <tr> 
+                    <th></th>
+                    <th></th>                                                                      
+                    <th class="th-lg text-center w-auto">Type</th>
+                    <th class="th-lg text-center w-auto"> Rate</th>
+                    <!-- <th class="text-center">Actions</th> -->
+                </tr>
+                </thead>
+               
+                  <tbody id="taxlist">
+             
+
+                {% if taxes %}
+                {% for tax  in taxes %}                
+                <tr id="{{tax.id}}">            
+                    <td class="text-center">{{ loop.index }}</td>
+                    <td>
+                    <div class="form-check">
+                        <label class="form-check-label">
+                        <input class="post-action taxRow form-check-input" type="checkbox" value="" data-id="{{tax.id}}">   
+                        <span class="form-check-sign">
+                            <span class="check"></span>
+                        </span>
+                        </label>
+                    </div>
+                    </td>                
+                    <td class="text-center text-capitalize" data-id="{{tax.id}}" class="text-center text-uppercase"><input class="dbAction" name="taxid" value="{{tax.id}}" hidden><input data-type="text" class="dbAction tedits text-center text-uppercase" disabled name="taxtype" type="text" value="{{tax.tax_type}}" required/></td>
+                    <td class="text-center text-capitalize" data-id="{{tax.id}}" class="text-center text-uppercase"><input class="dbAction tedits text-center text-uppercase" disabled data-type="rate" name="taxrate" type="text" pattern="[+-]?[0-9]{1,3}(?:,?[0-9]{3})*(?:\.[0-9]{1,4})?" value="{{'%.4f'|format(tax.tax_rate)}}" required/>%</td>
+                    
+                </tr>
+                  {% endfor %}       
+                  {% endif %}                 
+              </tbody>
+                  
+            </table>
+         
+            </div>
+            <div class="row">
+                <span>
+                    <div class="btn icon-link-size green lighten-3" data-toggle="modal" data-target="#taxModal"><a class="" data-href="{{url_for('positions')}}" title= "Add" data-func="add" data-toggle="tooltip" data-title="Add a new tax"><i class="material-icons">add</i></a></div>
+                    <div class="btn icon-link-size green lighten-3" ><a id="edit" title="Edit" data-toggle="tooltip" data-title="Edit"><i class="material-icons">edit</i></a></div>
+                    <div id="edit_cancel" class=" btn icon-link-size green lighten-3  hide" ><a id="editCancel"  title="Cancel" data-toggle="tooltip" data-title="Cancel"><i class="material-icons">cancel</i></a></div>
+                    <div class="btn icon-link-size green lighten-3"><a id="delete"  title= "Delete" data-func="delete" data-toggle="tooltip" data-title="Delete"><i class="material-icons">close</i></a></div>
+                </span>
+            </div>
+        </div>
+        </div>
+        <input name="action" hidden />
+      </form>        
+    </div>
+</div>
+
+
+<!--Editing Functions-->
+<div id="taxModal" class="modal fade" tabindex="-1" role="dialog" data-backdrop="static">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 id="modal-title" class="modal-title">Add a New Tax</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+            <form id="taxForm" method="POST" action="">
+              <div class="form-group">
+              <!-- <label for="exampleFormControlInput1">Email address</label> -->
+              <input type="text" class="dbAction form-control" id="taxType" name="taxtype" placeholder="Tax Type. Ex: State, Local" required/>
+              </div>
+              <div class="form-group">
+                <!-- <label for="exampleFormControlInput1">Email address</label> -->
+                <input type="text" class="dbAction form-control" id="taxRate" name="taxrate" value="" pattern="[+-]?[0-9]{1,3}(?:,?[0-9]{3})*(?:\.[0-9]{1,4})?" placeholder="Rate Example: 1, 1.2, 1.25, 1.3255" required/>
+                </div>             
+              <div class="row col-md-12 justify-content-center">
+                <div class="">
+                  <button id="cancel" type="reset" class="btn btn-secondar pull-left" data-dismiss="modal">Cancel<div class="ripple-container"></div></button>
+                  <button type="submit" class="btn btn-success pull-right">Submit<div class="ripple-container"></div></button>
+                </div>
+              </div>
+            </form>
+        </div>
+        <div class="modal-footer"></div>         
+      </div>
+    </div>
+  </div>
+  <script src="{{ url_for('static', filename='assets/js/dash/tax.js')}}"></script>
+{% endblock %}

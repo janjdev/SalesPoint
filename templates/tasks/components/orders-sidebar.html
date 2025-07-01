@@ -1,0 +1,36 @@
+<div id="sideBarModified" class="sidebar" data-color="rose" data-background-color="lightbrown5" >
+  <!--
+    Tip 1: You can change the color of the sidebar using: data-color="purple | azure | green | orange | danger | lightbrown5"
+
+    Tip 2: you can also add an image using data-image tag
+-->
+  <div class="logo">     
+    <img  class="logo-mini" src="{{url_for('static', filename='/assets/img/icons/logo-words.png')}}" />      
+    <span class="simple-text logo-normal"> </span>  
+  </div>
+  <div class="sidebar-wrapper">
+    <div class="col-md-12">
+      <div class="card">
+          <div class="card-header card-header-text card-header-primary">
+            <div class="card-text">
+              <h4 class="card-title">Find Tickets</h4>
+            </div>
+          </div>
+          <div class="card-body">
+              <form id="ticketSearch">
+                <div class="form-group">
+                  <label for="ticket">Enter Ticket/Check Number</label>
+                  <input type="number" min="1" class="form-control" name="open" id="ticket" required>
+                </div>
+                <div class="row justify-content-center">
+                  <button id="searchticket" type="submit" class="btn btn-primary  btn-round"  >OPEN</button>
+                </div>
+              </form>
+                          
+          </div>
+      </div>
+  </div>
+</div>
+  </div>
+
+  

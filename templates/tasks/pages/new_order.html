@@ -1,0 +1,236 @@
+{% extends 'tasks/components/task-base.html' %}
+  {% block content %}
+  <style>
+    #ticket-total::placeholder {
+      font-weight: 900;
+      color: black;
+      text-align: right;
+    }
+  </style>
+  <div id="neworder-screen" class="row order-row">
+    <div id="ticket_list" class="col-md-6 order-box ">
+      <form id="new-ticket" method="POST">
+        <fieldset class="form-group">        
+            <legend class="text-capitalize"><h5> {% if orderstatus != "Edit Ticket" %} <a id="chngtype" class="{{typeclass}}" href="#" title="Change Order Type" data-toggle="tooltip"><i class="icon-chgtype"></i><span class="chgtyname">{{ordertype}}</span></a> {% else %} {{ordertype}} {% endif %} [{{orderstatus}}]</h5></legend>
+            <div class="form-group pull-right order_customer">
+              <input type="text" class="col-md-2 form-control pull-right" hidden name="customer" id="assignedCust" placeholder="Notes" value="{% if order %} {{order.customer_id}} {% else %}1{% endif %}"/>            
+              <span id="custName">{% if order%} {{order.customer.name}} {% else %} Guest {% endif %} </span>               
+            </div>            
+              <div class="form-group new_order_notes">            
+                <input type="text" class="col-md-6 form-control success" id="notes" name="notes" placeholder="Notes">                
+              </div>              
+              <div class="col-md-12 ticket_table">
+                <div class="card">                
+                  <div class="card-header card-header-icon card-header-rose">
+                    <div class="card-icon">
+                      <i class="material-icons">receipt</i>
+                    </div>
+                    <h4 class="card-title ">Check Number<input class="text-center text-line dbAction" type="number" min="1" name="chknum" value="{% if order %}{{order.chk_num}}{% endif %}" required/></h4>
+                    <span class="table-add float-right mb-3 mr-2"><a id="custom" href="#!" class="text-success" title= "Add Custom Item" data-toggle="tooltip">
+                      <i class="fas fa-plus fa-2x" aria-hidden="true"></i></a>
+                    </span>
+                  </div>
+                  <div class="card-body">                    
+                    <div id="table" class="table-editable">                     
+                      <table id="orderTable" class="table table-bordered table-responsive-md table-striped text-center pull-left w-auto">
+                        <thead>
+                          <tr>
+                            <th class="th-sm text-center">Qty</th>
+                            <th class="th-sm text-center">Item</th>
+                            <th class="th-sm text-center">Price</th>
+                            <th class="th-sm text-center">Note</th>                              
+                            <th class="th-sm text-center">Remove</th>
+                          </tr>
+                        </thead>                        
+                          <tbody id="orderlist">
+                            {% if order %}
+                              {% for table in order.tables %}                               
+                                <input hidden name="ordertable" value="{{table.table.id}}"/>
+                              {% endfor %}
+                            {% endif %}                                            
+                            <input hidden name="ordertype" value="{{ordertypeID}}"/>
+                            <input hidden name="orderstatus" value="{{orderstatusID}}"/>
+                            <input hidden name="orderid" value="{% if order%} {{order.id}} {% endif %}">
+                            {% if order %}
+                              {% for item in order.items%}
+                                <tr id="{{item.id}}">
+                                  <td id="qty${id}" class="qty pt-3-half" ><input class="dbAction text-center" name="qty" type="number" value="{{item.quantity}}" /><input class="dbAction" hidden name="orderitem_id" value="{{item.id}}" /><span></span></td>
+                                  <td class="pt-3-half" ><input class="dbAction" hidden name="item" type="text" value="{{item.id}}" />{{item.item_name}}</td>
+                                  <td class="pt-3-half" ><input class="dbAction" hidden name="price" type="text" pattern="[+-]?[0-9]{1,3}(?:,?[0-9]{3})*(?:\.[0-9]{1,2})?" value="{{item.price}}" />{{item.price}}</td>
+                                  <td class="pt-3-half" ><input class="itemNote text-capitalize" name="itemnote" type="text" value="{% if item.notes != None %}{{item.notes}}{% endif %}" /></td>                                                      
+                                  <td>
+                                      <span class="table-remove">
+                                          <button type="button" class="btn btn-danger btn-rounded btn-sm my-0">x</button>
+                                      </span>                                                                        
+                                      <input  hidden name="taxes" data-value="{{item.tax_rate}}" value="{{item.id}}" />                                   
+                                  </td>                                
+                                </tr>
+                              {% endfor %}
+                            {% endif %}                        
+                            <!-- This is our clonable table line -->                                            
+                          </tbody>
+                          <!--Table Control Buttons-->
+                            <div class="ticket-btns pull-right">
+                              <a href="#" id="up" class="btn btn-social btn-just-icon">
+                                <i class="material-icons">keyboard_arrow_up</i>
+                              </a><br>
+                              <a href="#" id="add" class="btn btn-social btn-just-icon">
+                                <i class="material-icons">add</i>
+                              </a><br>
+                              <a href="#" id="sub" class="btn btn-social btn-just-icon">
+                                <i class="material-icons">minimize</i>
+                              </a><br>
+                              <a href="#" id="remove" class="btn btn-social btn-just-icon">
+                                <i class="material-icons">close</i>
+                              </a><br>
+                              <a href="#" id="down" class="btn btn-social btn-just-icon">
+                                <i class="material-icons">keyboard_arrow_down</i>
+                              </a><br>  
+                            </div> <!--End of Table Buttons-->                         
+                        </table>                     
+                      <!--Ticket Total-->                      
+                      <div id="order_total" class="row col-md-10">
+                        <div class="col-md-6 form-group">
+                          <label for="ticket-total" class="total_label" >Total:</label>
+                          <input class="form-control" disabled id="ticket-total" name="total" placeholder="$0.00"  />
+
+                          <label for="discount-total" class="total_label" >Discount:</label>
+                          <input class="form-control" disabled id="discount-total" name="total" placeholder="$0.00"  />
+
+                          <label for="tax-total" class="total_label" >Tax:</label>
+                          <input class="form-control" disabled id="tax-total" name="total" placeholder="$0.00"  />
+                        </div>
+                        <div id="discountBtn" class="col-md-4 pull-right">
+                          <div class="btn btn-round btn-sm col-md-12" data-toggle="modal" data-target="#discountsModal">
+                            Discounts
+                          </div>
+                      </div>
+                    </div><!--End Ticket Total-->
+                  </div><!--End of table-->                 
+                </div><!--End Card body-->
+              </div><!--End Card-->
+            </div><!--End of Ticket table-->
+          </fieldset>
+          {% if order %}
+            {% for discount in order.discounts %}
+            <input name="orderdiscount" data-value="{{discount.value}}" data-type="{{discount.type_id}}" hidden="" class="discount-discount{{discount.id}}" value="{{discount.id}}">
+            {% endfor %}
+          {% endif %}
+        </form><!--End of Ticket Form-->
+      </div><!--End Ticket-->
+<!---------------------Menu Items------------------------------------------------>
+      <div id="menu_items" class="col-md-4 order-box">
+        <fieldset class="form-group">        
+          <legend class=""><h5>Items</h5></legend>
+          {% if items %}
+          <div class="photography">
+              <div id="orderItemsRow" class="row">
+              {% for item in items %}
+                {% if loop.index < 17 %}
+                  {% set active='active' %}
+                {% else %}
+                  {% set active='' %}
+                {% endif %}
+                  <div id="{{item.id}}" class="menu-item item-page {{active}} col-md-2 {{item.item_category}} all" data-name="{{item.item_name}}" data-price="{{item.unit_price}}">{% for tax in item.taxes %}<span data-value="{{tax.id}}" class="taxes">{{'%.4f'|format(tax.tax_rate)}}</span>  {%endfor%}
+                      <a data-href="{% for img in item.item_image %}{{img.path}}{% endfor %}" href="#" class="item-btn photography-entry img d-flex justify-content-center align-items-center" style="background-image: url('{% for img in item.item_image %}{{img.path}}{% endfor %}');">                        
+                        <div class="overlay"></div>  
+                        <div class="text text-center">
+                              <h3>{{item.item_name}}</h3>
+                              <span class="tag">{{item.category.name}}</span>
+                          </div>
+                      </a>
+                  </div>
+              {% endfor %}
+              </div>
+          </div>
+          {% endif %}
+          <div class="row">
+         
+            <a id="previtem" class="pagi" href="#" class="btn btn-primary btn-fab btn-fab-mini btn-round">
+              <i class="material-icons">arrow_back_ios</i>
+            </a>
+           
+            
+            <a id="nextitem" class="pagi" href="#" class="btn btn-primary btn-fab btn-fab-mini btn-round">
+              <i class="material-icons">arrow_forward_ios</i>
+            </a>         
+          </div>
+        </fieldset>
+      </div> <!--End of Items-->
+<!---------------------Categories-------------------------->
+      <div id="menu_categories" class="col-md-2 order-box">
+        
+        <button id="all" class="cat-btn btn btn-primary col-md-12 ">All</button>       
+          {% if cat %}
+            {% for c in cat%}
+            {% if loop.index < 11 %}
+              {% set active='active' %}
+            {% else %}
+              {% set active='' %}
+            {% endif %}      
+            <button id="{{c.id}}" class="cat-btn cat-page {{active}} btn {{btncolor}} col-md-12 ">{{c.name}}</button>
+            {% endfor %}
+          {% endif %}
+          <div class="row">
+           
+            <a id="prevcat" class="pagi" href="#" class="btn btn-primary btn-fab btn-fab-mini btn-round">
+              <i class="material-icons">arrow_back_ios</i>
+            </a>
+           
+           
+            <a id="nextcat" class="pagi" href="#" class="btn btn-primary btn-fab btn-fab-mini btn-round">
+              <i class="material-icons">arrow_forward_ios</i>
+            </a>
+          </div>
+      </div><!-- End of Categories-->
+
+<!-----------------------Bottom Buttons--------------------------------->      
+      <div id="bottomfunctions" class="row">
+      {% if orderstatus != "Edit Ticket" %}
+        <div class="col-md-3 col-lg-2">
+          <button class="btn btn-success col-md-12" data-toggle="modal" data-target="#addCustModal">
+            Customer
+          </button>
+        </div>
+      {% endif %}
+      {% if orderstatus != "Edit Ticket" %}
+        <div class="col-md-3 col-lg-2 hide">
+          <button id="addtablesbtn" class="btn btn-success col-md-12" data-toggle="modal" data-target="#tablesModal">
+            Table
+          </button>
+        </div>
+      {% endif %}
+        <div class="col-md-3 col-lg-2">
+          <button id="hold" type="submit" form="new-ticket" class="hold btn btn-success col-md-12">
+            HOLD
+          </button>
+        </div>
+        <div class=" col-md-3 col-lg-2">
+          <button id="send" type="submit" form="new-ticket" class="send btn btn-success col-md-12">
+            SEND
+          </button>
+        </div>
+      {% if orderstatus != "Edit Ticket" %}
+        <div class="col-md-3 col-lg-2">
+          <button id="cancelbtn" class="cancel btn btn-success col-md-12">
+            Cancel
+          </button>
+        </div>
+      {% endif %}
+      </div>
+    </div><!--End of the Row-->   
+    {% include 'tasks/components/add-customer-to-order.html' %}
+
+    {% include 'tasks/components/custItemTax.html' %}
+
+    {% include 'tasks/components/tables.html' %}
+
+    {% include 'tasks/components/orderdiscounts.html' %}
+
+    
+    <script  src="{{ url_for('static', filename='assets/js/tasks/neworder.js')}}"></script>    
+
+    <script  src="{{ url_for('static', filename='assets/js/tasks/order.js')}}"></script> 
+   
+  
+  {% endblock %}

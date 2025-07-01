@@ -1,0 +1,35 @@
+<div id="custTaxModal" class="modal fade" tabindex="-1" role="dialog" data-backdrop="static">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 id="modal-title" class="modal-title">Select the Tax for the Custom Item</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="custTaxForm" method="" enctype="">            
+                    <div class="col-md-5 pull-left form-group">               
+                        <select id="taxselection" class="itemAction selectpicker" data-style="select-with-transition" multiple id="item_tax" name="tax" >                              
+                        {% if taxes %}
+                            {% for tax in taxes %}
+                            <option data-value="{{'%.4f'|format(tax.tax_rate)}}" value="{{tax.id}}">{{tax.tax_type}}</option>
+                            {% endfor %}
+                            {% else %}
+                            <option disabled selected value="">Tax Type</option> 
+                        {% endif %}                    
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <div class="row col-md-12 justify-content-center">
+                    <div class="">
+                      <button id="cancel-custItem" type="reset" class="cancel btn btn-secondar pull-left" data-dismiss="modal">Cancel<div class="ripple-container"></div></button>
+                      <button id="addCustTax" class="btn btn-success pull-right">Add Tax<div class="ripple-container"></div></button>
+                    </div>
+                </div>
+            </div>         
+        </div>
+    </div>
+</div>                

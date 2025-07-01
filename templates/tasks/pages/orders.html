@@ -1,0 +1,173 @@
+{% extends 'tasks/components/task-base.html' %}
+  {% block content %}
+  <div class="row orders">
+    <div id="ordersWrapper" class="col-md-12">
+        <div id="ordersCard" class="card">
+            <div class="routeBtns card-header">
+                <!-- colors: "header-primary", "header-info", "header-success", "header-warning", "header-danger" -->                
+                <div class="card-header card-header-success card-header-icon">
+                  <div class="card-icon">
+                    <i class="material-icons">list_alt</i>
+                  </div>                  
+                  <h4 class="card-title">{{cardtitle}}</h4>
+                  <div class="routeBtnContainer">
+                    <button class="btn secondary btn-round  btn-lg"><a href="{{url_for('carry_out')}}">Carry-Out</a></button>
+                    <button class="btn secondary btn-round  btn-lg"><a href="{{url_for('dine_in')}}">Dine-In</a></button>
+                  </div>
+              </div>
+            </div>
+            <!-- <div class="card-body "> -->
+                <div class="">
+                    <div class="tab-pane card active"> 
+                      <div class="filterBtns">
+                        <ul class="nav nav-pills nav-pills-success" id=orderFilterBtns>
+                            <li class="nav-item">
+                              <button data-filter="1" class="status filters btn btn-primary btn-round text-uppercase">Open</button>
+                            </li>
+                            <li class="nav-item">
+                              <button data-filter="2" class="status filters btn btn-primary btn-round text-uppercase">settled</button>
+                            </li> 
+                            <li class="nav-item">
+                              <button data-filter="5" class="status filters btn btn-primary btn-round text-uppercase">pending</button>
+                            </li>
+                            <li class="nav-item">
+                              <button data-filter="4" class="status filters btn btn-primary btn-round text-uppercase">closed</button>
+                            </li>
+                            <li class="nav-item">
+                              <button data-filter="all" class="all filters btn btn-primary btn-round text-uppercase">All</button>
+                            </li>  
+                            <li class="nav-item">
+                              <button data-filter="1" class="type filters btn btn-primary btn-round text-uppercase">dine in</button>
+                            </li>  
+                            <li class="nav-item">
+                              <button data-filter="2" class="type filters btn btn-primary btn-round text-uppercase">take out</button>
+                            </li>                            
+                        </ul>
+                    </div>                      
+                        
+                        
+                        <div id="orders" class="col-md-12">                            
+                            <div id="tableWrapper" class="table-responsive">
+                                <table id="ordersTable" class="table table-striped w-auto">
+                                <thead>
+                                  <tr>
+                                    <th></th> 
+                                    <th class="th-sm text-center text-capitalize">id</th>
+                                    <th class="th-sm text-center text-capitalize">Check number</th>                                                                                                             
+                                    <th class="th-sm text-center text-capitalize">Created</th>                             
+                                    <th class="th-sm text-center text-capitalize">type</th>
+                                    <th class="th-sm text-center text-capitalize">table</th>
+                                    <th class="th-sm text-center text-capitalize">server</th>
+                                    <th class="th-sm text-center text-capitalize">status</th>
+                                    <th class="th-sm text-center text-capitalize">Customer</th>
+                                    <th class="th-sm text-center text-capitalize">Total</th>
+                                   
+                                  </tr>
+                                </thead>
+                                <tbody>
+                                {% if orders %}
+                                    {% for order in orders %}                                                      
+                                <tr id="{{order.id}}" data-status="{{order.status_id}}" data-class="orders" class="{% if order.status_id == 3 or order.status_id == 4 %}stat4 {% else %} stat{{order.status_id}} {% endif %} type{{order.type_id}}  all">
+                                  <td>
+                                    <div class="form-check">
+                                    <label class="form-check-label">
+                                        <input class="row-check form-check-input" name="rowSelect" type="checkbox" value="{{order.id}}" data-id="{{order.id}}">
+                                        <span class="form-check-sign">
+                                        <span class="check"></span>
+                                        </span>
+                                    </label>                                                                                               
+                                    </div>
+                                </td>
+                                  <td class="text-center">{{order.id}}</td>                                              
+                                  <td class="text-center text-capitalize">{{order.chk_num}}</td>
+                                  <td class="name text-center text-capitalize">{{order.date_created.strftime('%m-%d-%Y %I:%M %p')}}</td>
+                                  <td class="is_active text-center text-capitalize">{{order.type.order_type}}</td>
+                                  <td class="is_active text-center text-capitalize"> {% for table in order.tables %} {{table.table}}, {% endfor %} </td>
+                                  <td class="is_active text-center text-capitalize">{{order.createdby.first_name}}</td>  
+                                  <td class="is_active text-center text-capitalize">{{order.status.status}}</td>
+                                  <td class="is_active text-center text-capitalize">{{order.customer.name}}</td>
+                                  {% set subtotal = namespace(value=0) %}
+                                  {% set taxtotal = namespace(tvalue=0) %}
+                                    {% for item in order.items %}
+                                      {% set currenttotal = namespace(bvalue=0) %}                                      
+                                      {% set currenttotal.bvalue = currenttotal.bvalue + (item.price * item.quantity) %}
+                                        {% set currenttax = namespace(ctvalue=0) %}                                       
+                                          {% set currenttax.ctvalue = currenttax.ctvalue + item.tax_rate|float %}                                       
+                                        {% set taxtotal.tvalue =  taxtotal.tvalue + (currenttotal.bvalue|float * (currenttax.ctvalue|round(5, 'floor')/100) ) %}   
+                                        {% set subtotal.value = subtotal.value + currenttotal.bvalue %}
+                                    {% endfor %}
+                                    {% set totaldiscount = namespace(dvalue=0) %}
+                                    {% set ttdis = namespace(ttdis=0) %}
+                                    {% set amount = namespace(amount=0) %}
+                                    {% set percent = namespace(percent=0) %}
+                                    {% for discount in order.discounts %}                                   
+                                    {% if discount.type_id == 1 %}
+                                    {% set amount.amount = amount.amount + discount.value %}
+                                    {% else %}
+                                    {% set percent.percent = percent.percent + discount.value|float %}  
+                                    {% endif %}
+                                    {% endfor %}
+
+                                    {% set ttdis.ttdis = subtotal.value|float * (percent.percent|round(5, 'floor')/100)  %}
+                                    {% set totaldiscount.dvalue = ttdis.ttdis + amount.amount|float %}
+                                    
+                                  <td class="is_active text-center text-capitalize">${{'%.2f'|format(subtotal.value|float - totaldiscount.dvalue + taxtotal.tvalue)}}  </td>
+                                    
+                                </tr>
+                                    {% endfor %}
+                                {% endif %}                                                    
+                                </tbody>
+                                </table>                          
+                            </div>
+                            <div class="row categoryActions">
+                                <span>
+                                    <button class="btn btn-lg green lighten-3 reopen"><i class="fas fa-edit"></i>Change</button>
+                                    <button class="btn btn-lg green lighten-3 o-actions" data-action="refund"><i class="icon-refund"></i>refund</button>                      
+                                    <button class="btn btn-lg green lighten-3 o-actions" data-action="void"><i class="fas fa-ban"></i> void</button>
+                                    <button class="btn btn-lg green lighten-3 o-actions" data-action="settle"><i class="material-icons">payments</i> settle</button>
+                                    <button class="btn btn-lg green lighten-3 o-actions" data-action="reopen"><i class="icon-refund"></i>Re-Open</button>
+                                    <button id="orderinfobtn" class="btn btn-round green lighten-3" title= "Order Info" data-func="info" data-toggle="tooltip"><i class="icon-info" ></i></button>
+                                    
+                                    
+                                </span>
+                            </div>
+                        </div>                                
+                    </div> 
+                <!--End Orders Table-->
+              </div>
+              <!-- </div> -->
+          </div>           
+      </div>
+  </div>
+
+<form id="changeStaus" method="POST">
+  <input hidden type="text" name="action" id="">
+</form>
+<form id="changeOrder" method="POST"></form> 
+
+<div id="infoModal" class="modal fade" tabindex="-1" role="dialog" data-backdrop="static">
+  <div class="modal-dialog" role="document">
+      <div class="modal-content">
+          <div class="modal-header">
+              <h5 id="modal-title" class="modal-title">Order Info</h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+              </button>
+          </div>
+          <div id="orderinfoAppend" class="modal-body">
+          </div>
+          <div class="modal-footer">
+              <div class="row col-md-12 justify-content-center">
+                  <div class="">
+                    <button id="closeTicketInfo" type="reset" class="cancel btn" data-dismiss="modal">DONE<div class="ripple-container"></div></button>                      
+                  </div>
+              </div>
+          </div>         
+      </div>
+  </div>
+</div> 
+
+
+<script src="{{ url_for('static', filename='assets/js/tasks/orders.js')}}"></script> 
+  
+{% endblock %}

@@ -1,0 +1,15 @@
+
+    <div class="report-header row col-md-12 justify-content-center">
+        <h2 class="name text-capitalize col-md-12 text-center">{{info.name}}</h2>
+        <div class="address col-md-12 row justify-content-center">
+            <div class="street text-capitalize col-md-12 text-center">{{info.address}}</div>
+            <div class="city_state_zip row col-sm-5 col-md-4 col-lg-5 justify-content-center">
+                <div class="city text-center">{{info.city}}, {{info.state}} {{info.zip}}</div>
+            </div>
+            <div class="phone col-md-12 text-center">{{info.phone}}</div>
+        </div>
+        <h3 class="title text-uppercase">{% if report %} {{report.alias}}{% else %}sales summary report{% endif %}</h3>
+    </div>
+
+    
+   
